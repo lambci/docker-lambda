@@ -6,6 +6,8 @@ environment almost identically – including installed software and libraries,
 file structure and permissions, environment variables, context objects and
 behaviors – even the user and running process are the same.
 
+![Terminal Example](examples/terminal.png?raw=true "Example usage when index.js in current dir")
+
 You can use it for testing your functions in the same strict Lambda environment,
 knowing that they'll exhibit the same behavior when deployed live. You can
 also use it to compile native dependencies knowing that you're linking to the
@@ -33,7 +35,7 @@ Example
 You can perform actions with the current directory using the `-v` arg with
 `docker run` – logging goes to stderr and the callback result goes to stdout:
 
-```console
+```sh
 # Test an index.handler function from the current directory on Node.js v4.3
 docker run -v "$PWD":/var/task lambci/lambda
 
@@ -42,6 +44,9 @@ docker run -v "$PWD":/var/task lambci/lambda index.myHandler '{"some": "event"}'
 
 # Use the original Node.js v0.10 runtime
 docker run -v "$PWD":/var/task lambci/lambda:nodejs
+
+# Run custom commands on the default container
+docker run --entrypoint node lambci/lambda -v
 
 # To compile native deps in node_modules (runs `npm rebuild`)
 docker run -v "$PWD":/var/task lambci/lambda:build
