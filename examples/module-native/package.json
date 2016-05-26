@@ -1,0 +1,12 @@
+{
+  "name": "module-native",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "docker run -v \"$PWD\":/var/task lambci/lambda-build",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "bcrypt": "^0.8.6"
+  }
+}
