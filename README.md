@@ -6,7 +6,7 @@ environment almost identically – including installed software and libraries,
 file structure and permissions, environment variables, context objects and
 behaviors – even the user and running process are the same.
 
-![Terminal Example](examples/terminal.png?raw=true "Example usage when index.js in current dir")
+![Terminal Example](https://raw.githubusercontent.com/lambci/docker-lambda/master/examples/terminal.png "Example usage when index.js in current dir")
 
 You can use it for testing your functions in the same strict Lambda environment,
 knowing that they'll exhibit the same behavior when deployed live. You can
@@ -32,7 +32,7 @@ You'll need [Docker](https://www.docker.com) installed
 Example
 -------
 
-You can perform actions with the current directory using the `-v` arg with
+You can run your Lambdas from local directories using the `-v` arg with
 `docker run` – logging goes to stderr and the callback result goes to stdout:
 
 ```sh
@@ -137,22 +137,50 @@ Documentation
 
 TODO
 
-lambci/lambda
-  - uses ENTRYPOINT, override with `--entrypoint`
-lambci/lambda:build
-  - uses CMD
+Docker tags (follow the Lambda runtime names):
+  - `latest` / `nodejs4.3`
+  - `nodejs`
+  - `python2.7`
+  - `build` / `build-nodejs4.3`
+  - `build-nodejs`
+  - `build-python2.7`
 
-  'AWS_LAMBDA_FUNCTION_NAME',
-  'AWS_LAMBDA_FUNCTION_VERSION',
-  'AWS_LAMBDA_FUNCTION_MEMORY_SIZE',
-  'AWS_LAMBDA_FUNCTION_TIMEOUT',
-  'AWS_LAMBDA_FUNCTION_HANDLER',
-  'AWS_LAMBDA_EVENT_BODY',
+Env vars:
+  - `AWS_LAMBDA_FUNCTION_NAME`
+  - `AWS_LAMBDA_FUNCTION_VERSION`
+  - `AWS_LAMBDA_FUNCTION_MEMORY_SIZE`
+  - `AWS_LAMBDA_FUNCTION_TIMEOUT`
+  - `AWS_LAMBDA_FUNCTION_HANDLER`
+  - `AWS_LAMBDA_EVENT_BODY`
+  - `AWS_REGION`
+  - `AWS_DEFAULT_REGION`
+  - `AWS_ACCOUNT_ID`
+  - `AWS_ACCESS_KEY_ID`
+  - `AWS_SECRET_ACCESS_KEY`
+  - `AWS_SESSION_TOKEN`
 
-  'AWS_REGION',
-  'AWS_DEFAULT_REGION',
-  'AWS_ACCOUNT_ID',
-  'AWS_ACCESS_KEY_ID',
-  'AWS_SECRET_ACCESS_KEY',
-  'AWS_SESSION_TOKEN',
+Options to pass to `dockerLambda()`:
+  - `dockerImage`
+  - `handler`
+  - `event`
+  - `taskDir`
+  - `cleanUp`
+  - `addEnvVars`
+  - `dockerArgs`
+  - `spawnOptions`
+  - `returnSpawnResult`
+
+Yum packages installed on build images:
+  - `aws-cli`
+  - `zip`
+  - `git`
+  - `vim`
+  - `docker` (Docker in Docker!)
+  - `gcc-c++`
+  - `clang`
+  - `openssl-devel`
+  - `cmake`
+  - `autoconf`
+  - `automake`
+  - `libtool`
 
