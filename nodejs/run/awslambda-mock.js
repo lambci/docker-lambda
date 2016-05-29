@@ -11,7 +11,7 @@ var REGION = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || 'us-eas
 var ACCOUNT_ID = process.env.AWS_ACCOUNT_ID || randomAccountId()
 var ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || 'SOME_ACCESS_KEY_ID'
 var SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || 'SOME_SECRET_ACCESS_KEY'
-var SESSION_TOKEN = process.env.AWS_SESSION_TOKEN || 'SOME_SESSION_TOKEN'
+var SESSION_TOKEN = process.env.AWS_SESSION_TOKEN
 
 function consoleLog(str) {
   process.stderr.write(formatConsole(str))
