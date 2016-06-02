@@ -1,5 +1,5 @@
 var fs = require('fs')
-var spawn = require('child_process').spawn
+var childProcess = require('child_process')
 var AWS = require('aws-sdk')
 var s3 = new AWS.S3()
 
@@ -9,7 +9,7 @@ exports.handler = function(event, context, cb) {
     '--exclude=/proc --exclude=/sys --exclude=/tmp/* --exclude=/var/task/* ' +
     '--numeric-owner --ignore-failed-read /'
 
-  var child = spawn('sh', ['-c', event.cmd || cmd])
+  var child = childProcess.spawn('sh', ['-c', event.cmd || cmd])
   child.stdout.setEncoding('utf8')
   child.stderr.setEncoding('utf8')
   child.stdout.on('data', console.log.bind(console))
@@ -37,6 +37,7 @@ exports.handler = function(event, context, cb) {
       console.log(process.cwd())
       console.log(__filename)
       console.log(process.env)
+      console.log(childProcess.execSync('ls -la /dev', {encoding: 'utf8'}))
 
       cb(null, data)
     })
