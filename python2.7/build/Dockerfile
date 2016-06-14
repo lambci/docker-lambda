@@ -8,3 +8,9 @@ RUN rm -rf /var/runtime
 
 ADD python2.7.tgz /
 
+# Build tools and C bindings for native binaries
+RUN     yum -y install libffi-devel xz-libs python27-devel
+
+# Install Pip & Virtualenv
+RUN     curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python
+RUN     pip install -U pip virtualenv
