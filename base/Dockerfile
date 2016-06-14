@@ -11,7 +11,9 @@ ADD yum.conf /etc/yum.conf
 # Reinstalling filesystem might not succeed fully, but continue anyway
 RUN yum reinstall -y filesystem; \
   yum reinstall -y shadow-utils && \
-  yum install -y aws-cli zip git vim docker gcc-c++ clang openssl-devel cmake autoconf automake libtool && \
+  yum install -y gcc-c++ clang cmake autoconf automake libtool \
+    openssl-devel libffi-devel python27-devel xz-libs \
+    aws-cli zip git vim docker && \
   rm -rf /var/cache/yum /var/lib/rpm/__db.* && \
   > /var/log/yum.log
 
