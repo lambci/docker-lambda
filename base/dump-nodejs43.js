@@ -5,7 +5,7 @@ var s3 = new AWS.S3()
 
 exports.handler = function(event, context, cb) {
   var filename = 'nodejs4.3.tgz'
-  var cmd = 'tar -cvpzf /tmp/' + filename + ' -C / ' +
+  var cmd = 'tar -cpzf /tmp/' + filename + ' -C / ' +
     '--exclude=/proc --exclude=/sys --exclude=/tmp/* --exclude=/var/task/* ' +
     '--numeric-owner --ignore-failed-read /'
 

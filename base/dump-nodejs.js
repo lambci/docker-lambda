@@ -5,7 +5,7 @@ var s3 = new AWS.S3()
 
 exports.handler = function(event, context) {
   var filename = 'nodejs.tgz'
-  var cmd = 'tar -cvpzf /tmp/' + filename + ' --numeric-owner --ignore-failed-read /var/runtime'
+  var cmd = 'tar -cpzf /tmp/' + filename + ' --numeric-owner --ignore-failed-read /var/runtime'
 
   var child = childProcess.spawn('sh', ['-c', event.cmd || cmd])
   child.stdout.setEncoding('utf8')

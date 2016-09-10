@@ -14,7 +14,7 @@ def lambda_handler(event, context):
         return subprocess.call(['sh', '-c', event['cmd']])
 
     filename = 'python2.7.tgz'
-    cmd = 'tar -cvpzf /tmp/{} --numeric-owner --ignore-failed-read /var/runtime'.format(filename)
+    cmd = 'tar -cpzf /tmp/{} --numeric-owner --ignore-failed-read /var/runtime'.format(filename)
 
     subprocess.call(['sh', '-c', cmd])
 

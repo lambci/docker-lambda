@@ -1,7 +1,7 @@
 FROM lambci/lambda-base
 
 ENV PATH=/usr/local/bin:/usr/bin/:/bin \
-    LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/task:/var/task/lib \
+    LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib \
     PYTHONPATH=/var/runtime \
     LAMBDA_TASK_ROOT=/var/task \
     LAMBDA_RUNTIME_DIR=/var/runtime \
@@ -9,7 +9,8 @@ ENV PATH=/usr/local/bin:/usr/bin/:/bin \
     LAMBDA_SHARED_MEM_FD=11 \
     LAMBDA_LOG_FD=9 \
     LAMBDA_CONTROL_SOCKET=14 \
-    LAMBDA_RUNTIME_LOAD_TIME=1530232235231
+    LAMBDA_RUNTIME_LOAD_TIME=1530232235231 \
+    LANG=en_US.UTF-8
 
 RUN rm -rf /var/runtime
 

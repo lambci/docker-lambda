@@ -1,10 +1,11 @@
 FROM lambci/lambda-base
 
 ENV PATH=/usr/local/bin:/usr/bin/:/bin \
-    LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/task:/var/task/lib \
+    LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib \
     NODE_PATH=/var/runtime:/var/task:/var/runtime/node_modules \
     LAMBDA_TASK_ROOT=/var/task \
-    LAMBDA_RUNTIME_DIR=/var/runtime
+    LAMBDA_RUNTIME_DIR=/var/runtime \
+    LANG=en_US.UTF-8
 
 RUN rm -rf /var/runtime
 
@@ -20,5 +21,5 @@ WORKDIR /var/task
 USER sbx_user1051
 
 ENTRYPOINT ["node", "--max-old-space-size=1229", "--max-new-space-size=153", "--max-executable-size=153", \
-  "/var/runtime/node_modules/.bin/awslambda"]
+  "/var/runtime/node_modules/awslambda/bin/awslambda"]
 
