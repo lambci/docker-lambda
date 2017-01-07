@@ -53,5 +53,10 @@ module.exports = function runSync(options) {
     throw err
   }
 
-  return JSON.parse(spawnResult.stdout)
+  var stdout = spawnResult.stdout.split('\n')
+  try {
+    return JSON.parse(stdout[stdout.length - 1])
+  } catch (err) {
+    return stdout[stdout.length - 1]
+  }
 }

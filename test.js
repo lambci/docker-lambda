@@ -76,6 +76,21 @@ resetMock({status: 0, stdout: 'null'})
 result = dockerLambda({returnSpawnResult: true})
 result.should.eql({status: 0, stdout: 'null'})
 
+// Should not fail if stdout contains logging
+resetMock({status: 0, stdout: 'Test\nResult\n{"success":true}'})
+result = dockerLambda()
+result.should.eql({success: true})
+
+// Should return last stdout entry if it's not JSON
+resetMock({status: 0, stdout: 'Test\nResult\nsuccess'})
+result = dockerLambda()
+result.should.eql('success')
+
+// Should return empty string when the function was successful but there is no stdout
+resetMock({status: 0, stdout: ''})
+result = dockerLambda()
+result.should.eql('')
+
 // Should throw error if spawn returns error
 resetMock({error: new Error('Something went wrong')})
 var err
