@@ -81,15 +81,15 @@ resetMock({status: 0, stdout: 'Test\nResult\n{"success":true}'})
 result = dockerLambda()
 result.should.eql({success: true})
 
-// Should return last stdout entry if it's not JSON
+// Should return undefined if last stdout entry cannot be parsed
 resetMock({status: 0, stdout: 'Test\nResult\nsuccess'})
 result = dockerLambda()
-result.should.eql('success')
+result === void 0 // Result is undefined and does not contain `should`
 
-// Should return empty string when the function was successful but there is no stdout
+// Should return undefined when function was successful but there is no stdout
 resetMock({status: 0, stdout: ''})
 result = dockerLambda()
-result.should.eql('')
+result === void 0 // Result is undefined and does not contain `should`
 
 // Should throw error if spawn returns error
 resetMock({error: new Error('Something went wrong')})
