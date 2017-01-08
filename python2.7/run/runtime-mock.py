@@ -19,26 +19,20 @@ def _random_account_id():
 def _random_invoke_id():
     return str(uuid.uuid4())
 
-def _get_from_env(key, default):
-    if key in os.environ:
-        return os.environ[key]
-    else:
-        return default
-
 def _arn(region, account_id, fct_name):
   return 'arn:aws:lambda:%s:%s:function:%s' % (region, account_id, fct_name)
 
-_GLOBAL_HANDLER = sys.argv[1] if len(sys.argv) > 1 else _get_from_env('AWS_LAMBDA_FUNCTION_HANDLER', 'lambda_function.lambda_handler')
-_GLOBAL_EVENT_BODY = sys.argv[2] if len(sys.argv) > 2 else _get_from_env('AWS_LAMBDA_EVENT_BODY', '{}')
-_GLOBAL_FCT_NAME = _get_from_env('AWS_LAMBDA_FUNCTION_NAME', 'test')
-_GLOBAL_VERSION = _get_from_env('AWS_LAMBDA_FUNCTION_VERSION', '$LATEST')
-_GLOBAL_MEM_SIZE = _get_from_env('AWS_LAMBDA_FUNCTION_MEMORY_SIZE', 1536)
-_GLOBAL_TIMEOUT = _get_from_env('AWS_LAMBDA_FUNCTION_TIMEOUT', 300)
-_GLOBAL_REGION = _get_from_env('AWS_REGION', 'us-east-1')
-_GLOBAL_ACCOUNT_ID = _get_from_env('AWS_ACCOUNT_ID', _random_account_id())
-_GLOBAL_ACCESS_KEY_ID = _get_from_env('AWS_ACCESS_KEY_ID', 'SOME_ACCESS_KEY_ID')
-_GLOBAL_SECRET_ACCESS_KEY = _get_from_env('AWS_SECRET_ACCESS_KEY', 'SOME_SECRET_ACCESS_KEY')
-_GLOBAL_SESSION_TOKEN = _get_from_env('AWS_SESSION_TOKEN', None)
+_GLOBAL_HANDLER = sys.argv[1] if len(sys.argv) > 1 else os.environ.get('AWS_LAMBDA_FUNCTION_HANDLER', 'lambda_function.lambda_handler')
+_GLOBAL_EVENT_BODY = sys.argv[2] if len(sys.argv) > 2 else os.environ.get('AWS_LAMBDA_EVENT_BODY', '{}')
+_GLOBAL_FCT_NAME = os.environ.get('AWS_LAMBDA_FUNCTION_NAME', 'test')
+_GLOBAL_VERSION = os.environ.get('AWS_LAMBDA_FUNCTION_VERSION', '$LATEST')
+_GLOBAL_MEM_SIZE = os.environ.get('AWS_LAMBDA_FUNCTION_MEMORY_SIZE', 1536)
+_GLOBAL_TIMEOUT = os.environ.get('AWS_LAMBDA_FUNCTION_TIMEOUT', 300)
+_GLOBAL_REGION = os.environ.get('AWS_REGION', 'us-east-1')
+_GLOBAL_ACCOUNT_ID = os.environ.get('AWS_ACCOUNT_ID', _random_account_id())
+_GLOBAL_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', 'SOME_ACCESS_KEY_ID')
+_GLOBAL_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', 'SOME_SECRET_ACCESS_KEY')
+_GLOBAL_SESSION_TOKEN = os.environ.get('AWS_SESSION_TOKEN', None)
 
 _GLOBAL_INVOKEID = _random_invoke_id()
 _GLOBAL_MODE = 'event' # Either 'http' or 'event'
