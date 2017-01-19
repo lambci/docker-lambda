@@ -183,4 +183,9 @@ Yum packages installed on build images:
   - `autoconf`
   - `automake`
   - `libtool`
-
+  - `xz-libs`
+  - `libffi-devel`
+  - `python27-devel`
+  - `libmpc-devel`
+  - `mpfr-devel`
+  - `gmp-devel`
