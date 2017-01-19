@@ -20,6 +20,6 @@ WORKDIR /var/task
 
 USER sbx_user1051
 
-ENTRYPOINT ["node", "--max-old-space-size=1229", "--max-new-space-size=153", "--max-executable-size=153", \
+ENTRYPOINT ["node", "--max-old-space-size=1229", "--max-new-space-size=153", "--max-executable-size=153", "--expose-gc", \
   "/var/runtime/node_modules/awslambda/bin/awslambda"]
 

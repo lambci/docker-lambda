@@ -6,7 +6,6 @@ ENV PATH=/usr/local/lib64/node-v4.3.x/bin:/usr/local/sbin:/usr/local/bin:/usr/sb
 
 WORKDIR /var/task
 
-ADD yum.conf /etc/yum.conf
 ADD yum.conf /etc/yum/yum.conf
 
 # A couple of packages are either missing critical-ish files, or didn't make it into the tar

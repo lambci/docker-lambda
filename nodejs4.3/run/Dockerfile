@@ -16,6 +16,6 @@ WORKDIR /var/task
 
 USER sbx_user1051
 
-ENTRYPOINT ["/usr/local/lib64/node-v4.3.x/bin/node", "--max-old-space-size=1229", "--max-semi-space-size=76", "--max-executable-size=153", \
+ENTRYPOINT ["/usr/local/lib64/node-v4.3.x/bin/node", "--max-old-space-size=1229", "--max-semi-space-size=76", "--max-executable-size=153", "--expose-gc", \
   "/var/runtime/node_modules/awslambda/index.js"]
 
