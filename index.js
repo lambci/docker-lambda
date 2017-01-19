@@ -53,5 +53,14 @@ module.exports = function runSync(options) {
     throw err
   }
 
-  return JSON.parse(spawnResult.stdout)
+  var stdout = spawnResult.stdout.split('\n')
+  try {
+    return JSON.parse(stdout[stdout.length - 1])
+  } catch (err) {
+    // This should return undefined and not null to indicate that either the
+    // Lambda function had not output or the output could not be parsed. Both
+    // cases should be rare and are most likely the result of an issue with the
+    // Lambda function.
+    return
+  }
 }
