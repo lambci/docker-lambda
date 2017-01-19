@@ -1,4 +1,4 @@
-require('should')
+var should = require('should')
 require('child_process').spawnSync = mockSpawnSync
 
 var dockerLambda = require('.')
@@ -84,12 +84,12 @@ result.should.eql({success: true})
 // Should return undefined if last stdout entry cannot be parsed
 resetMock({status: 0, stdout: 'Test\nResult\nsuccess'})
 result = dockerLambda()
-result === void 0 // Result is undefined and does not contain `should`
+should.not.exist(result)
 
 // Should return undefined when function was successful but there is no stdout
 resetMock({status: 0, stdout: ''})
 result = dockerLambda()
-result === void 0 // Result is undefined and does not contain `should`
+should.not.exist(result)
 
 // Should throw error if spawn returns error
 resetMock({error: new Error('Something went wrong')})

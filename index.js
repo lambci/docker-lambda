@@ -61,6 +61,6 @@ module.exports = function runSync(options) {
     // Lambda function had not output or the output could not be parsed. Both
     // cases should be rare and are most likely the result of an issue with the
     // Lambda function.
-    return undefined
+    return
   }
 }
