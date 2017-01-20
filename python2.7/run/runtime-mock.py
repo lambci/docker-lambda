@@ -14,13 +14,13 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 def _random_account_id():
-  return random.randint(100000000000, 999999999999)
+    return random.randint(100000000000, 999999999999)
 
 def _random_invoke_id():
     return str(uuid.uuid4())
 
 def _arn(region, account_id, fct_name):
-  return 'arn:aws:lambda:%s:%s:function:%s' % (region, account_id, fct_name)
+    return 'arn:aws:lambda:%s:%s:function:%s' % (region, account_id, fct_name)
 
 _GLOBAL_HANDLER = sys.argv[1] if len(sys.argv) > 1 else os.environ.get('AWS_LAMBDA_FUNCTION_HANDLER', 'lambda_function.lambda_handler')
 _GLOBAL_EVENT_BODY = sys.argv[2] if len(sys.argv) > 2 else os.environ.get('AWS_LAMBDA_EVENT_BODY', '{}')
