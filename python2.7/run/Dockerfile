@@ -20,7 +20,7 @@ RUN rm /var/runtime/awslambda/runtime.so
 ADD runtime-mock.py /var/runtime/awslambda/runtime.py
 
 # Not sure why permissions don't work just by modifying the owner
-RUN rm -rf /tmp && mkdir /tmp && chown -R sbx_user1051:495 /tmp && chmod 700 /tmp && chmod -R 0777 /var/runtime
+RUN rm -rf /tmp && mkdir /tmp && chown -R sbx_user1051:495 /tmp && chmod 700 /tmp
 
 WORKDIR /var/task
 
