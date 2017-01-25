@@ -21,8 +21,8 @@ compiling and deploying.
 
 There's also an npm module to make it convenient to invoke from Node.js
 
-\* NB: Python 2.7 and Java 8 test runners are not yet complete, but both
-languages are installed in the images so can be manually tested
+\* NB: The Java 8 test runner is not yet complete, but the
+language is installed in the images so can be manually tested
 
 Prerequisites
 -------------
@@ -44,6 +44,9 @@ docker run -v "$PWD":/var/task lambci/lambda index.myHandler '{"some": "event"}'
 
 # Use the original Node.js v0.10 runtime
 docker run -v "$PWD":/var/task lambci/lambda:nodejs
+
+# Test a lambda_function.lambda_handler function from the current directory on Python2.7
+docker run -v "$PWD":/var/task lambci/lambda:python2.7
 
 # Run custom commands on the default container
 docker run --entrypoint node lambci/lambda -v
