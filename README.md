@@ -15,7 +15,7 @@ same library versions that exist on AWS Lambda and then deploy using
 the [AWS CLI](https://aws.amazon.com/cli/).
 
 This project consists of a set of Docker images for each of the supported Lambda runtimes
-(Node.js 0.10 and 4.3, Python 2.7\* and Java 8\*) – as well as build
+(Node.js 0.10 and 4.3, Python 2.7 and Java 8\*) – as well as build
 images that include packages like gcc-c++, git, zip and the aws-cli for
 compiling and deploying.
 
