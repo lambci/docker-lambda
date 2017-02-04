@@ -11,7 +11,7 @@ orig_stdout = sys.stdout
 orig_stderr = sys.stderr
 
 def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
+    print(*args, file=orig_stderr, **kwargs)
 
 def _random_account_id():
     return random.randint(100000000000, 999999999999)
@@ -49,6 +49,9 @@ _GLOBAL_CREDENTIALS = {
     'session': _GLOBAL_SESSION_TOKEN
 }
 _GLOBAL_INVOKED_FUNCTION_ARN = _arn(_GLOBAL_REGION, _GLOBAL_ACCOUNT_ID, _GLOBAL_FCT_NAME)
+_GLOBAL_XRAY_TRACE_ID = None
+_GLOBAL_XRAY_PARENT_ID = None
+_GLOBAL_XRAY_SAMPLED = None
 _GLOBAL_INVOKED = False
 _GLOBAL_ERRORED = False
 _GLOBAL_START_TIME = None
@@ -68,8 +71,8 @@ os.environ['AWS_LAMBDA_FUNCTION_VERSION'] = _GLOBAL_VERSION
 os.environ['AWS_REGION'] = _GLOBAL_REGION
 os.environ['AWS_DEFAULT_REGION'] = _GLOBAL_REGION
 
-def recv_start(ctrl_sock):
-    sys.stdout = orig_stdout
+def receive_start():
+    sys.stdout = orig_stderr
     sys.stderr = orig_stderr
     return (
         _GLOBAL_INVOKEID,
@@ -82,7 +85,7 @@ def recv_start(ctrl_sock):
 def report_running(invokeid):
     return
 
-def receive_invoke(ctrl_sock):
+def receive_invoke():
     global _GLOBAL_INVOKED
     global _GLOBAL_START_TIME
 
@@ -100,7 +103,10 @@ def receive_invoke(ctrl_sock):
         _GLOBAL_CREDENTIALS,
         _GLOBAL_EVENT_BODY,
         _GLOBAL_CONTEXT_OBJS,
-        _GLOBAL_INVOKED_FUNCTION_ARN
+        _GLOBAL_INVOKED_FUNCTION_ARN,
+        _GLOBAL_XRAY_TRACE_ID,
+        _GLOBAL_XRAY_PARENT_ID,
+        _GLOBAL_XRAY_SAMPLED
     )
 
 def report_fault(invokeid, msg, except_value, trace):
@@ -131,7 +137,7 @@ def report_done(invokeid, errortype, result):
             )
         )
         if result:
-            print(result)
+            print(result, file=orig_stdout)
         sys.exit(1 if _GLOBAL_ERRORED else 0)
     else:
         return
