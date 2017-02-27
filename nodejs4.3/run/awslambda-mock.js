@@ -25,8 +25,12 @@ function systemErr(str) {
   process.stderr.write(formatErr(str) + '\n')
 }
 
-function handleResult(resultStr) {
-  process.stdout.write(resultStr)
+function handleResult(resultStr, cb) {
+  if (!process.stdout.write(resultStr)) {
+    process.stdout.once('drain', cb)
+  } else {
+    process.nextTick(cb)
+  }
 }
 
 // Don't think this can be done in the Docker image
@@ -90,10 +94,13 @@ module.exports = {
       'Max Memory Used: ' + Math.round(process.memoryUsage().rss / (1024 * 1024)) + ' MB',
       '',
     ].join('\t'))
+
+    var exitCode = errored || errType ? 1 : 0
     if (typeof resultStr == 'string') {
-      handleResult(resultStr)
+      handleResult(resultStr, function() { process.exit(exitCode) })
+    } else {
+      process.exit(exitCode)
     }
-    process.exit(errored || errType ? 1 : 0)
   },
   reportFault: function(invokeId, msg, errName, errStack) {
     errored = true
@@ -139,4 +146,3 @@ function randomAccountId() {
 function arn(region, accountId, fnName) {
   return 'arn:aws:lambda:' + region + ':' + accountId.replace(/[^\d]/g, '') + ':function:' + fnName
 }
-
