@@ -9,6 +9,3 @@ cp ../nodejs/run/nodejs.tgz ../nodejs/build/
 
 curl https://lambci.s3.amazonaws.com/fs/python2.7.tgz -o ../python2.7/run/python2.7.tgz
 cp ../python2.7/run/python2.7.tgz ../python2.7/build/
-
-echo "Sandbox user is: $(docker run $IMAGE_NAME stat -c '%U' /tmp)"
-

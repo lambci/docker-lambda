@@ -10,7 +10,7 @@ ADD yum.conf /etc/yum/yum.conf
 
 # A couple of packages are either missing critical-ish files, or didn't make it into the tar
 # Reinstalling filesystem might not succeed fully, but continue anyway
-RUN yum reinstall -y filesystem; \
+RUN mkdir /tmp && chmod 1777 /tmp && yum reinstall -y filesystem; \
   yum reinstall -y shadow-utils && \
   yum install -y gcc-c++ clang cmake autoconf automake libtool \
     openssl-devel libffi-devel python27-devel xz-libs \
