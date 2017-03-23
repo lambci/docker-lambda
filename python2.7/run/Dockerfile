@@ -13,9 +13,8 @@ ENV PATH=/usr/local/bin:/usr/bin/:/bin \
     _LAMBDA_CONSOLE_SOCKET=16 \
     _LAMBDA_RUNTIME_LOAD_TIME=1530232235231
 
-RUN rm -rf /var/runtime && mkdir /tmp && chown sbx_user1051:495 /tmp && chmod 700 /tmp
-
-ADD python2.7.tgz /
+RUN rm -rf /var/runtime /var/lang && mkdir /tmp && chown sbx_user1051:495 /tmp && chmod 700 /tmp && \
+  curl https://lambci.s3.amazonaws.com/fs/python2.7.tgz | tar -zx -C /
 
 RUN rm /var/runtime/awslambda/runtime.so
 ADD runtime-mock.py /var/runtime/awslambda/runtime.py
@@ -25,4 +24,3 @@ WORKDIR /var/task
 USER sbx_user1051
 
 ENTRYPOINT ["/usr/bin/python2.7", "/var/runtime/awslambda/bootstrap.py"]
-

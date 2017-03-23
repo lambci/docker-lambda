@@ -8,9 +8,8 @@ ENV PATH=/usr/local/bin:/usr/bin/:/bin \
     LAMBDA_TASK_ROOT=/var/task \
     LAMBDA_RUNTIME_DIR=/var/runtime
 
-RUN rm -rf /var/runtime && mkdir /tmp && chown sbx_user1051:495 /tmp && chmod 700 /tmp
-
-ADD nodejs.tgz /
+RUN rm -rf /var/runtime /var/lang && mkdir /tmp && chown sbx_user1051:495 /tmp && chmod 700 /tmp && \
+  curl https://lambci.s3.amazonaws.com/fs/nodejs.tgz | tar -zx -C /
 
 ADD awslambda-mock.js /var/runtime/node_modules/awslambda/build/Release/awslambda.js
 
@@ -18,6 +17,6 @@ WORKDIR /var/task
 
 USER sbx_user1051
 
-ENTRYPOINT ["node", "--max-old-space-size=1229", "--max-new-space-size=153", "--max-executable-size=153", "--expose-gc", \
+ENTRYPOINT ["/usr/bin/node", "--max-old-space-size=1229", "--max-new-space-size=153", "--max-executable-size=153", "--expose-gc", \
   "/var/runtime/node_modules/awslambda/bin/awslambda"]
 

@@ -15,9 +15,10 @@ same library versions that exist on AWS Lambda and then deploy using
 the [AWS CLI](https://aws.amazon.com/cli/).
 
 This project consists of a set of Docker images for each of the supported Lambda runtimes
-(Node.js 0.10 and 4.3, Python 2.7 and Java 8\*) – as well as build
-images that include packages like gcc-c++, git, zip and the aws-cli for
-compiling and deploying.
+(Node.js 0.10, 4.3 and 6.10, Python 2.7 and Java 8\*).
+
+There are also a set of build images that include packages like gcc-c++, git,
+zip and the aws-cli for compiling and deploying.
 
 There's also an npm module to make it convenient to invoke from Node.js
 
@@ -45,14 +46,24 @@ docker run -v "$PWD":/var/task lambci/lambda index.myHandler '{"some": "event"}'
 # Use the original Node.js v0.10 runtime
 docker run -v "$PWD":/var/task lambci/lambda:nodejs
 
+# Use the Node.js v6.10 runtime
+docker run -v "$PWD":/var/task lambci/lambda:nodejs6.10
+
 # Test a lambda_function.lambda_handler function from the current directory on Python2.7
 docker run -v "$PWD":/var/task lambci/lambda:python2.7
 
 # Run custom commands on the default container
 docker run --entrypoint node lambci/lambda -v
+```
 
+To use the build images, for compilation, deployment, etc:
+
+```sh
 # To compile native deps in node_modules (runs `npm rebuild`)
 docker run -v "$PWD":/var/task lambci/lambda:build
+
+# To use a different runtime from the default Node.js v4.3
+docker run -v "$PWD":/var/task lambci/lambda:build-nodejs6.10
 
 # Run custom commands on the build container
 docker run lambci/lambda:build java -version
@@ -71,6 +82,9 @@ var lambdaCallbackResult = dockerLambda({event: {some: 'event'}})
 
 // Manually specify directory and custom args
 lambdaCallbackResult = dockerLambda({taskDir: __dirname, dockerArgs: ['-m', '1.5G']})
+
+// Use a different image from the default Node.js v4.3
+lambdaCallbackResult = dockerLambda({dockerImage: 'lambci/lambda:nodejs6.10'})
 ```
 
 Create your own Docker image for finer control:
@@ -143,9 +157,11 @@ TODO
 Docker tags (follow the Lambda runtime names):
   - `latest` / `nodejs4.3`
   - `nodejs`
+  - `nodejs6.10`
   - `python2.7`
   - `build` / `build-nodejs4.3`
   - `build-nodejs`
+  - `build-nodejs6.10`
   - `build-python2.7`
 
 Env vars:
