@@ -1,4 +1,4 @@
-var dockerLambda = require('..')
+var dockerLambda = require('../..')
 
 var match = dockerLambda({event: {password: 'lambda-docker'}})
 
