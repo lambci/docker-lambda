@@ -1,6 +1,4 @@
 base
 examples
-nodejs
-nodejs4.3
-nodejs6.10
-python2.7
+nodejs*
+python*
