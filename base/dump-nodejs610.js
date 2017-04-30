@@ -36,7 +36,7 @@ exports.handler = function(event, context, cb) {
       console.log(process.cwd())
       console.log(__filename)
       console.log(process.env)
-      console.log(childProcess.execSync('ls -la /dev', {encoding: 'utf8'}))
+      console.log(context)
 
       cb(null, data)
     })
@@ -61,6 +61,11 @@ exports.handler = function(event, context, cb) {
 // AWS_LAMBDA_FUNCTION_NAME: 'dump-node610',
 // AWS_LAMBDA_FUNCTION_MEMORY_SIZE: '1536',
 // AWS_LAMBDA_FUNCTION_VERSION: '$LATEST',
+// _AWS_XRAY_DAEMON_ADDRESS: '169.254.79.2',
+// _AWS_XRAY_DAEMON_PORT: '2000',
+// AWS_XRAY_DAEMON_ADDRESS: '169.254.79.2:2000',
+// AWS_XRAY_CONTEXT_MISSING: 'LOG_ERROR',
+// _X_AMZN_TRACE_ID: 'Root=1-dc99d00f-c079a84d433534434534ef0d;Parent=91ed514f1e5c03b2;Sampled=0',
 // AWS_EXECUTION_ENV: 'AWS_Lambda_nodejs6.10',
 // NODE_PATH: '/var/runtime:/var/task:/var/runtime/node_modules',
 // AWS_ACCESS_KEY_ID: 'ASIA...C37A',

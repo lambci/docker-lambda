@@ -36,12 +36,9 @@ exports.handler = function(event, context) {
       console.log(process.cwd())
       console.log(__filename)
       console.log(process.env)
-      childProcess.exec('ls -la /dev', {encoding: 'utf8'}, function(err, stdout, stderr) {
-        if (stdout) console.log(stdout)
-        if (stderr) console.error(stderr)
-        context.done(err, data)
-      })
+      console.log(context)
 
+      context.done()
     })
   })
 }
@@ -64,6 +61,11 @@ exports.handler = function(event, context) {
 // AWS_LAMBDA_FUNCTION_NAME: 'dump-node010',
 // AWS_LAMBDA_FUNCTION_MEMORY_SIZE: '1536',
 // AWS_LAMBDA_FUNCTION_VERSION: '$LATEST',
+// _AWS_XRAY_DAEMON_ADDRESS: '169.254.79.2',
+// _AWS_XRAY_DAEMON_PORT: '2000',
+// AWS_XRAY_DAEMON_ADDRESS: '169.254.79.2:2000',
+// AWS_XRAY_CONTEXT_MISSING: 'LOG_ERROR',
+// _X_AMZN_TRACE_ID: 'Root=1-dc99d00f-c079a84d433534434534ef0d;Parent=91ed514f1e5c03b2;Sampled=0',
 // AWS_EXECUTION_ENV: 'AWS_Lambda_nodejs',
 // NODE_PATH: '/var/runtime:/var/task:/var/runtime/node_modules',
 // AWS_ACCESS_KEY_ID: 'ASIA...C37A',
@@ -78,7 +80,7 @@ exports.handler = function(event, context) {
 // functionName: 'dump-node010',
 // memoryLimitInMB: '1536',
 // functionVersion: '$LATEST',
-// invokedFunctionArn: 'arn:aws:lambda:us-east-1:553035198032:function:dump-node010',
+// invokedFunctionArn: 'arn:aws:lambda:us-east-1:879423879432:function:dump-node010',
 // getRemainingTimeInMillis: [Function],
 // succeed: [Function],
 // fail: [Function],
