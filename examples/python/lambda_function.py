@@ -4,6 +4,8 @@ import sys
 
 # Just a test lambda, run with:
 # docker run -v "$PWD":/var/task lambci/lambda:python2.7
+# OR
+# docker run -v "$PWD":/var/task lambci/lambda:python3.6
 
 def lambda_handler(event, context):
     for arg in sys.argv:
@@ -17,7 +19,7 @@ def lambda_handler(event, context):
     print(os.geteuid())
     print(os.getegid())
     print(os.getgroups())
-    print(os.umask(0222))
+    print(os.umask(0o222))
 
     print(event)
     print(context.get_remaining_time_in_millis())
