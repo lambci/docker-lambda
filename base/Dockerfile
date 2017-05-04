@@ -18,16 +18,14 @@ ENV PATH=/usr/local/lib64/node-v4.3.x/bin:/usr/local/sbin:/usr/local/bin:/usr/sb
 
 WORKDIR /var/task
 
-ADD yum.conf /etc/yum/yum.conf
-
 # A couple of packages are either missing critical-ish files, or didn't make it into the tar
 # Reinstalling filesystem might not succeed fully, but continue anyway
 RUN mkdir /tmp && chmod 1777 /tmp && yum reinstall -y filesystem; \
   yum reinstall -y shadow-utils && \
-  yum install -y gcc-c++ clang cmake autoconf automake libtool \
-    openssl-devel libffi-devel python27-devel xz-libs \
-    libmpc-devel mpfr-devel gmp-devel \
-    aws-cli zip git vim docker && \
+  yum groupinstall -y development && \
+  yum install -y clang cmake aws-cli docker \
+    openssl-devel libffi-devel python27-devel python34-devel \
+    libmpc-devel mpfr-devel gmp-devel && \
   rm -rf /var/cache/yum /var/lib/rpm/__db.* && \
   > /var/log/yum.log
 
