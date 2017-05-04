@@ -6,4 +6,11 @@ ENV PATH=/var/lang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/
     PYTHONPATH=/var/runtime
 
 RUN rm -rf /var/runtime /var/lang && \
-  curl https://lambci.s3.amazonaws.com/fs/python3.6.tgz | tar -zx -C /
+  curl https://lambci.s3.amazonaws.com/fs/python3.6.tgz | tar -xz -C / && \
+  curl https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tar.xz | tar -xJ && \
+  cd Python-3.6.1 && \
+  ./configure --prefix=/var/lang && \
+  make -j$(getconf _NPROCESSORS_ONLN) libinstall inclinstall && \
+  cd .. && \
+  rm -rf Python-3.6.1 && \
+  pip3 install awscli
