@@ -11,7 +11,7 @@ transfer = S3Transfer(client)
 
 def lambda_handler(event, context):
     if ('cmd' in event):
-        return subprocess.call(['sh', '-c', event['cmd']])
+        return print(subprocess.check_output(['sh', '-c', event['cmd']]))
 
     filename = 'python3.6.tgz'
     cmd = 'tar -cpzf /tmp/{} --numeric-owner --ignore-failed-read /var/runtime /var/lang'.format(filename)
