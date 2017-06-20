@@ -72,6 +72,18 @@ os.environ['AWS_LAMBDA_FUNCTION_VERSION'] = _GLOBAL_VERSION
 os.environ['AWS_REGION'] = _GLOBAL_REGION
 os.environ['AWS_DEFAULT_REGION'] = _GLOBAL_REGION
 
+def report_user_init_start():
+    return
+
+def report_user_init_end():
+    return
+
+def report_user_invoke_start():
+    return
+
+def report_user_invoke_end():
+    return
+
 def receive_start():
     sys.stdout = orig_stderr
     sys.stderr = orig_stderr
@@ -127,7 +139,7 @@ def report_done(invokeid, errortype, result):
         eprint("END RequestId: %s" % invokeid)
 
         duration = int((time.time() - _GLOBAL_START_TIME) * 1000)
-        billed_duration = min(100 * ((duration / 100) + 1), _GLOBAL_TIMEOUT * 1000)
+        billed_duration = min(100 * ((duration / 100) + 1), int(_GLOBAL_TIMEOUT) * 1000)
         max_mem = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
 
         eprint(
@@ -152,7 +164,7 @@ def log_sb(msg):
     return
 
 def get_remaining_time():
-    return ((_GLOBAL_TIMEOUT * 1000) - int((time.time() - _GLOBAL_START_TIME) * 1000))
+    return ((int(_GLOBAL_TIMEOUT) * 1000) - int((time.time() - _GLOBAL_START_TIME) * 1000))
 
 def send_console_message(msg):
     eprint(msg)
