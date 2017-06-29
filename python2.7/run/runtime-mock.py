@@ -52,6 +52,7 @@ _GLOBAL_INVOKED_FUNCTION_ARN = _arn(_GLOBAL_REGION, _GLOBAL_ACCOUNT_ID, _GLOBAL_
 _GLOBAL_XRAY_TRACE_ID = None
 _GLOBAL_XRAY_PARENT_ID = None
 _GLOBAL_XRAY_SAMPLED = None
+_GLOBAL_X_AMZN_TRACE_ID = None
 _GLOBAL_INVOKED = False
 _GLOBAL_ERRORED = False
 _GLOBAL_START_TIME = None
@@ -105,8 +106,6 @@ def receive_invoke():
         _GLOBAL_CONTEXT_OBJS,
         _GLOBAL_INVOKED_FUNCTION_ARN,
         _GLOBAL_XRAY_TRACE_ID,
-        _GLOBAL_XRAY_PARENT_ID,
-        _GLOBAL_XRAY_SAMPLED
     )
 
 def report_fault(invokeid, msg, except_value, trace):
@@ -142,8 +141,14 @@ def report_done(invokeid, errortype, result):
     else:
         return
 
+def report_xray_exception(xray_json):
+    return
+
 def log_bytes(msg, fileno):
     eprint(msg)
+    return
+
+def log_sb(msg):
     return
 
 def get_remaining_time():

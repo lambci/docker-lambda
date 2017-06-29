@@ -1,9 +1,0 @@
-{
-  "name": "docker-run-0.10",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "docker run -v \"$PWD\":/var/task lambci/lambda:nodejs index.handler '{\"some\": \"event\"}'"
-  }
-}
-
