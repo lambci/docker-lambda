@@ -112,6 +112,11 @@ module.exports = {
   },
   sendConsoleLogs: consoleLog,
   maxLoggerErrorSize: 256 * 1024,
+  reportUserInitStart: function() {},
+  reportUserInitEnd: function() {},
+  reportUserInvokeStart: function() {},
+  reportUserInvokeEnd: function() {},
+  reportException: function() {},
 }
 
 function formatConsole(str) {
