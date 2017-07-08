@@ -27,7 +27,7 @@ _GLOBAL_EVENT_BODY = sys.argv[2] if len(sys.argv) > 2 else os.environ.get('AWS_L
 _GLOBAL_FCT_NAME = os.environ.get('AWS_LAMBDA_FUNCTION_NAME', 'test')
 _GLOBAL_VERSION = os.environ.get('AWS_LAMBDA_FUNCTION_VERSION', '$LATEST')
 _GLOBAL_MEM_SIZE = os.environ.get('AWS_LAMBDA_FUNCTION_MEMORY_SIZE', 1536)
-_GLOBAL_TIMEOUT = os.environ.get('AWS_LAMBDA_FUNCTION_TIMEOUT', 300)
+_GLOBAL_TIMEOUT = int(os.environ.get('AWS_LAMBDA_FUNCTION_TIMEOUT', 300))
 _GLOBAL_REGION = os.environ.get('AWS_REGION', 'us-east-1')
 _GLOBAL_ACCOUNT_ID = os.environ.get('AWS_ACCOUNT_ID', _random_account_id())
 _GLOBAL_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', 'SOME_ACCESS_KEY_ID')
@@ -71,6 +71,18 @@ os.environ['AWS_LAMBDA_FUNCTION_MEMORY_SIZE'] = str(_GLOBAL_MEM_SIZE)
 os.environ['AWS_LAMBDA_FUNCTION_VERSION'] = _GLOBAL_VERSION
 os.environ['AWS_REGION'] = _GLOBAL_REGION
 os.environ['AWS_DEFAULT_REGION'] = _GLOBAL_REGION
+
+def report_user_init_start():
+    return
+
+def report_user_init_end():
+    return
+
+def report_user_invoke_start():
+    return
+
+def report_user_invoke_end():
+    return
 
 def receive_start():
     sys.stdout = orig_stderr
