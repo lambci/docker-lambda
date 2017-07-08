@@ -100,6 +100,11 @@ module.exports = {
     systemErr(msg + (errName ? ': ' + errName : ''))
     if (errStack) systemErr(errStack)
   },
+  reportUserInitStart: function() {},
+  reportUserInitEnd: function() {},
+  reportUserInvokeStart: function() {},
+  reportUserInvokeEnd: function() {},
+  reportException: function() {},
   getRemainingTime: function() {
     return (TIMEOUT * 1000) - Math.floor(hrTimeMs(process.hrtime(start)))
   },
