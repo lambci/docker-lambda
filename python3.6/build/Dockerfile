@@ -13,4 +13,4 @@ RUN rm -rf /var/runtime /var/lang && \
   make -j$(getconf _NPROCESSORS_ONLN) libinstall inclinstall && \
   cd .. && \
   rm -rf Python-3.6.1 && \
-  pip3 install awscli --no-cache-dir
+  pip3 install awscli virtualenv --no-cache-dir
