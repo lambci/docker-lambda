@@ -1,6 +1,6 @@
 {
   "name": "docker-lambda",
-  "version": "0.13.3",
+  "version": "0.13.4",
   "description": "A Docker image and test runner that (very closely) mimics the live AWS Lambda environment",
   "main": "index.js",
   "scripts": {
