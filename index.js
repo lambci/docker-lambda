@@ -56,7 +56,7 @@ module.exports = function runSync(options) {
   // If stdio is inherited, stdout/stderr will be null
   if (spawnResult.stdout == null) return null
 
-  var stdout = spawnResult.stdout.split('\n')
+  var stdout = spawnResult.stdout.trim().split('\n')
   try {
     return JSON.parse(stdout[stdout.length - 1])
   } catch (err) {
