@@ -22,13 +22,13 @@ def _random_invoke_id():
 def _arn(region, account_id, fct_name):
     return 'arn:aws:lambda:%s:%s:function:%s' % (region, account_id, fct_name)
 
-_GLOBAL_HANDLER = sys.argv[1] if len(sys.argv) > 1 else os.environ.get('AWS_LAMBDA_FUNCTION_HANDLER', 'lambda_function.lambda_handler')
+_GLOBAL_HANDLER = sys.argv[1] if len(sys.argv) > 1 else os.environ.get('AWS_LAMBDA_FUNCTION_HANDLER', os.environ.get('_HANDLER', 'lambda_function.lambda_handler'))
 _GLOBAL_EVENT_BODY = sys.argv[2] if len(sys.argv) > 2 else os.environ.get('AWS_LAMBDA_EVENT_BODY', '{}')
 _GLOBAL_FCT_NAME = os.environ.get('AWS_LAMBDA_FUNCTION_NAME', 'test')
 _GLOBAL_VERSION = os.environ.get('AWS_LAMBDA_FUNCTION_VERSION', '$LATEST')
-_GLOBAL_MEM_SIZE = os.environ.get('AWS_LAMBDA_FUNCTION_MEMORY_SIZE', 1536)
-_GLOBAL_TIMEOUT = int(os.environ.get('AWS_LAMBDA_FUNCTION_TIMEOUT', 300))
-_GLOBAL_REGION = os.environ.get('AWS_REGION', 'us-east-1')
+_GLOBAL_MEM_SIZE = os.environ.get('AWS_LAMBDA_FUNCTION_MEMORY_SIZE', '1536')
+_GLOBAL_TIMEOUT = int(os.environ.get('AWS_LAMBDA_FUNCTION_TIMEOUT', '300'))
+_GLOBAL_REGION = os.environ.get('AWS_REGION', os.environ.get('AWS_DEFAULT_REGION', 'us-east-1'))
 _GLOBAL_ACCOUNT_ID = os.environ.get('AWS_ACCOUNT_ID', _random_account_id())
 _GLOBAL_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', 'SOME_ACCESS_KEY_ID')
 _GLOBAL_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', 'SOME_SECRET_ACCESS_KEY')
@@ -67,10 +67,11 @@ os.environ['AWS_LAMBDA_LOG_STREAM_NAME'] = "%s/%s/%s/[%s]%s" % (
         '%016x' % random.randrange(16**16)
     )
 os.environ["AWS_LAMBDA_FUNCTION_NAME"] = _GLOBAL_FCT_NAME
-os.environ['AWS_LAMBDA_FUNCTION_MEMORY_SIZE'] = str(_GLOBAL_MEM_SIZE)
+os.environ['AWS_LAMBDA_FUNCTION_MEMORY_SIZE'] = _GLOBAL_MEM_SIZE
 os.environ['AWS_LAMBDA_FUNCTION_VERSION'] = _GLOBAL_VERSION
 os.environ['AWS_REGION'] = _GLOBAL_REGION
 os.environ['AWS_DEFAULT_REGION'] = _GLOBAL_REGION
+os.environ['_HANDLER'] = _GLOBAL_HANDLER
 
 def report_user_init_start():
     return
@@ -139,7 +140,7 @@ def report_done(invokeid, errortype, result):
         eprint("END RequestId: %s" % invokeid)
 
         duration = int((time.time() - _GLOBAL_START_TIME) * 1000)
-        billed_duration = min(100 * ((duration / 100) + 1), _GLOBAL_TIMEOUT * 1000)
+        billed_duration = min(100 * int((duration / 100) + 1), _GLOBAL_TIMEOUT * 1000)
         max_mem = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
 
         eprint(

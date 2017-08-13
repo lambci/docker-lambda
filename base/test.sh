@@ -5,14 +5,11 @@ CMD="BUILD_ONLY=true npm install --build-from-source \
     bignum \
     grpc \
     hiredis \
-    ibm_db \
     iconv \
     kerberos \
     leveldown \
     murmurhash-native \
-    nodegit \
     node-cmake \
-    realm \
     serialport \
     snappy \
     sqlite3 \
@@ -21,8 +18,13 @@ CMD="BUILD_ONLY=true npm install --build-from-source \
     websocket \
     webworker-threads \
     x509 \
-    node-sass && \
-  cd node_modules/node-sass && npm install && node scripts/build -f
+    node-sass
 "
 
-docker run -e npm_config_unsafe-perm=true lambci/lambda-base:build sh -c "$CMD" && echo "Success!"
+docker run \
+  -e PATH=/usr/local/lib64/node-v4.3.x/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+  -e LD_LIBRARY_PATH=/usr/local/lib64/node-v4.3.x/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib \
+  -e AWS_EXECUTION_ENV=AWS_Lambda_nodejs4.3 \
+  -e NODE_PATH=/var/runtime:/var/task:/var/runtime/node_modules \
+  -e npm_config_unsafe-perm=true \
+  lambci/lambda-base:build sh -c "$CMD" && echo "Success!"

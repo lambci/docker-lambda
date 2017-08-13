@@ -1,12 +1,12 @@
 var crypto = require('crypto')
 
-var HANDLER = process.argv[2] || process.env.AWS_LAMBDA_FUNCTION_HANDLER || 'index.handler'
+var HANDLER = process.argv[2] || process.env.AWS_LAMBDA_FUNCTION_HANDLER || process.env._HANDLER ||  'index.handler'
 var EVENT_BODY = process.argv[3] || process.env.AWS_LAMBDA_EVENT_BODY || '{}'
 
 var FN_NAME = process.env.AWS_LAMBDA_FUNCTION_NAME || 'test'
 var VERSION = process.env.AWS_LAMBDA_FUNCTION_VERSION || '$LATEST'
-var MEM_SIZE = process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE || 1536
-var TIMEOUT = process.env.AWS_LAMBDA_FUNCTION_TIMEOUT || 300
+var MEM_SIZE = process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE || '1536'
+var TIMEOUT = process.env.AWS_LAMBDA_FUNCTION_TIMEOUT || '300'
 var REGION = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || 'us-east-1'
 var ACCOUNT_ID = process.env.AWS_ACCOUNT_ID || randomAccountId()
 var ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || 'SOME_ACCESS_KEY_ID'
@@ -44,6 +44,7 @@ process.env.AWS_LAMBDA_LOG_STREAM_NAME = new Date().toISOString().slice(0, 10).r
   '/[' + VERSION + ']' + crypto.randomBytes(16).toString('hex')
 process.env.AWS_REGION = REGION
 process.env.AWS_DEFAULT_REGION = REGION
+process.env._HANDLER = HANDLER
 
 var OPTIONS = {
   initInvokeId: uuid(),

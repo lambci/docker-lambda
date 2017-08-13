@@ -1,5 +1,3 @@
-#!/bin/bash
+#!/bin/sh
 
-IMAGE_NAME=lambci/lambda-base:build
-
-docker build $BUILD_ARG -t ${IMAGE_NAME} .
+docker build -t lambci/lambda-base:build -f ./build/Dockerfile .
