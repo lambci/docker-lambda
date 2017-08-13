@@ -15,15 +15,12 @@ same library versions that exist on AWS Lambda and then deploy using
 the [AWS CLI](https://aws.amazon.com/cli/).
 
 This project consists of a set of Docker images for each of the supported Lambda runtimes
-(Node.js 0.10, 4.3 and 6.10, Python 2.7 and 3.6, and Java 8\*).
+(Node.js 0.10, 4.3 and 6.10, Python 2.7 and 3.6, and Java 8).
 
 There are also a set of build images that include packages like gcc-c++, git,
 zip and the aws-cli for compiling and deploying.
 
 There's also an npm module to make it convenient to invoke from Node.js
-
-\* NB: The Java 8 test runner is not yet complete, but the
-language is installed in the images so can be manually tested
 
 Prerequisites
 -------------
@@ -52,9 +49,19 @@ docker run -v "$PWD":/var/task lambci/lambda:nodejs6.10
 # Test a lambda_function.lambda_handler function from the current directory on Python2.7
 docker run -v "$PWD":/var/task lambci/lambda:python2.7
 
+# Test a function from the current directory on Java 8
+# The directory must be laid out in the same way the Lambda zip file is,
+# with top-level package source directories and a `lib` directory for third-party jars
+# http://docs.aws.amazon.com/lambda/latest/dg/create-deployment-pkg-zip-java.html
+# The default handler is "index.Handler", but you'll likely have your own package and class
+docker run -v "$PWD":/var/task lambci/lambda:java8 org.myorg.MyHandler
+
 # Run custom commands on the default container
 docker run --entrypoint node lambci/lambda -v
 ```
+
+You can see more examples of how to build docker images and run different
+runtimes in the [examples](./examples) directory.
 
 To use the build images, for compilation, deployment, etc:
 
@@ -65,11 +72,11 @@ docker run -v "$PWD":/var/task lambci/lambda:build
 # To use a different runtime from the default Node.js v4.3
 docker run -v "$PWD":/var/task lambci/lambda:build-nodejs6.10
 
-# Run custom commands on the build container
-docker run lambci/lambda:build java -version
+# Run custom commands on a build container
+docker run lambci/lambda:build aws --version
 
-# To run an interactive session on the build container
-docker run -it lambci/lambda:build bash
+# To run an interactive session on a build container
+docker run -it lambci/lambda:build-python3.6 bash
 ```
 
 Using the Node.js module (`npm install docker-lambda`) – for example in tests:
@@ -122,14 +129,14 @@ Questions
 
 * *Wut, how?*
 
-  By tarring the full filesystem in Lambda, uploading that to S3, and then
-  piping into Docker to create a new image from scratch – then creating
-  mock modules that will be required/included in place of the actual native
-  modules that communicate with the real Lambda coordinating services. Only the
-  native modules are mocked out – the actual parent JS/PY runner files are left
-  alone, so their behaviors don't need to be replicated (like the
-  overriding of `console.log`, and custom defined properties like
-  `callbackWaitsForEmptyEventLoop`)
+  By [tarring the full filesystem in Lambda, uploading that to S3](./base/dump-nodejs43.js),
+  and then [piping into Docker to create a new image from scratch](./base/create-base.sh) –
+  then [creating mock modules](./nodejs4.3/run/awslambda-mock.js) that will be
+  required/included in place of the actual native modules that communicate with
+  the real Lambda coordinating services.  Only the native modules are mocked
+  out – the actual parent JS/PY/Java runner files are left alone, so their behaviors
+  don't need to be replicated (like the overriding of `console.log`, and custom
+  defined properties like `callbackWaitsForEmptyEventLoop`)
 
 * *What's missing from the images?*
 
@@ -152,19 +159,19 @@ Questions
 Documentation
 ------------
 
-TODO
-
 Docker tags (follow the Lambda runtime names):
   - `latest` / `nodejs4.3`
   - `nodejs`
   - `nodejs6.10`
   - `python2.7`
   - `python3.6`
+  - `java8`
   - `build` / `build-nodejs4.3`
   - `build-nodejs`
   - `build-nodejs6.10`
   - `build-python2.7`
   - `build-python3.6`
+  - `build-java8`
 
 Env vars:
   - `AWS_LAMBDA_FUNCTION_NAME`

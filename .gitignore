@@ -1,3 +1,9 @@
 node_modules
 base/diff
 *.pyc
+.gradle
+java8/run/lambda-runtime-mock/target
+base/dump-java8/target
+examples/java/build
+examples/java/target
+examples/java/bin
