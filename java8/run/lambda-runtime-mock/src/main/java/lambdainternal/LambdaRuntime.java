@@ -127,7 +127,7 @@ public class LambdaRuntime {
                 "Max Memory Used: " + maxMemory + " MB",
                 ""));
         if (result != null) {
-            System.out.println(new String(result, 0, resultLength));
+            System.out.println("\n" + new String(result, 0, resultLength));
         }
     }
 

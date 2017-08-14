@@ -81,6 +81,11 @@ resetMock({status: 0, stdout: 'Test\nResult\n{"success":true}'})
 result = dockerLambda()
 result.should.eql({success: true})
 
+// Should not fail if stdout contains extra newlines
+resetMock({status: 0, stdout: 'Test\nResult\n\n{"success":true}\n\n'})
+result = dockerLambda()
+result.should.eql({success: true})
+
 // Should return undefined if last stdout entry cannot be parsed
 resetMock({status: 0, stdout: 'Test\nResult\nsuccess'})
 result = dockerLambda()

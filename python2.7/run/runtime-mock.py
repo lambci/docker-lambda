@@ -149,7 +149,7 @@ def report_done(invokeid, errortype, result):
             )
         )
         if result:
-            print(result, file=orig_stdout)
+            print('\n' + result, file=orig_stdout)
         sys.exit(1 if _GLOBAL_ERRORED else 0)
     else:
         return

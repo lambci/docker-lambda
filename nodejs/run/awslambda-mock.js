@@ -26,7 +26,7 @@ function systemErr(str) {
 }
 
 function handleResult(resultStr, cb) {
-  if (!process.stdout.write(resultStr)) {
+  if (!process.stdout.write('\n' + resultStr + '\n')) {
     process.stdout.once('drain', cb)
   } else {
     process.nextTick(cb)
