@@ -46,8 +46,11 @@ docker run -v "$PWD":/var/task lambci/lambda:nodejs
 # Use the Node.js v6.10 runtime
 docker run -v "$PWD":/var/task lambci/lambda:nodejs6.10
 
-# Test a lambda_function.lambda_handler function from the current directory on Python2.7
+# Test a default function (lambda_function.lambda_handler) from the current directory on Python 2.7
 docker run -v "$PWD":/var/task lambci/lambda:python2.7
+
+# Test on Python 3.6 with a custom file named my_module.py containing a my_handler function
+docker run -v $PWD:/var/task lambci/lambda:python3.6 my_module.my_handler
 
 # Test a function from the current directory on Java 8
 # The directory must be laid out in the same way the Lambda zip file is,
