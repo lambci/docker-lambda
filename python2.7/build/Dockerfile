@@ -5,5 +5,5 @@ ENV AWS_EXECUTION_ENV=AWS_Lambda_python2.7 \
 
 RUN rm -rf /var/runtime /var/lang && \
   curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python && \
-  pip install -U pip virtualenv && \
+  pip install -U pip virtualenv --no-cache-dir && \
   curl https://lambci.s3.amazonaws.com/fs/python2.7.tgz | tar -zx -C /

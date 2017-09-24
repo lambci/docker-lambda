@@ -167,6 +167,6 @@ def log_sb(msg):
 def get_remaining_time():
     return ((_GLOBAL_TIMEOUT * 1000) - int((time.time() - _GLOBAL_START_TIME) * 1000))
 
-def send_console_message(msg):
+def send_console_message(msg, byte_length):
     eprint(msg)
     return

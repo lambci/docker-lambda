@@ -191,8 +191,8 @@ public class LambdaRuntime {
         return (int) ((TIMEOUT * 1000) - Math.round((System.nanoTime() - invokeStart) / 1_000_000d));
     }
 
-    public static void sendContextLogs(final String logs) {
-        System.err.print(logs);
+    public static void sendContextLogs(final byte[] msg, final int length) {
+        System.err.print(new String(msg, 0, length, StandardCharsets.UTF_8));
     }
 
     public static synchronized void streamLogsToSlicer(final byte[] p0, final int p1, final int p2) {
