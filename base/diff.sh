@@ -23,3 +23,20 @@ for RUNTIME in $RUNTIMES; do
 done
 
 docker run --entrypoint find lambci/lambda:nodejs4.3 / | sed 's/^\///' | sort > ./diff/nodejs4.3/fs.docker.txt
+
+# cd diff/nodejs4.3
+# diff docker/var/runtime/node_modules/awslambda/index.js lambda/var/runtime/node_modules/awslambda/index.js
+# diff -qr docker lambda | grep -v '/var/runtime/node_modules/aws-sdk'
+
+# cd diff/python2.7
+# diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
+# diff -qr docker lambda | grep -v '/var/runtime/boto'
+
+# cd diff/python3.6
+# diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
+# diff -qr docker lambda | grep -v '/var/runtime/boto' | grep -v __pycache__
+
+# cd diff/nodejs6.10
+# diff docker/var/runtime/node_modules/awslambda/index.js lambda/var/runtime/node_modules/awslambda/index.js
+# diff -qr docker lambda | grep -v '/var/runtime/node_modules/aws-sdk'
+
