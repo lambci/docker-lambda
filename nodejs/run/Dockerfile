@@ -6,7 +6,7 @@ ENV AWS_EXECUTION_ENV=AWS_Lambda_nodejs \
 RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/nodejs.tgz | tar -zx -C /
 
-ADD awslambda-mock.js /var/runtime/node_modules/awslambda/build/Release/awslambda.js
+COPY awslambda-mock.js /var/runtime/node_modules/awslambda/build/Release/awslambda.js
 
 USER sbx_user1051
 

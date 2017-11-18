@@ -8,7 +8,7 @@ ENV PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin \
 RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/nodejs6.10.tgz | tar -zx -C /
 
-ADD awslambda-mock.js /var/runtime/node_modules/awslambda/build/Release/awslambda.js
+COPY awslambda-mock.js /var/runtime/node_modules/awslambda/build/Release/awslambda.js
 
 USER sbx_user1051
 

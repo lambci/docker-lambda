@@ -7,7 +7,7 @@ RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/python2.7.tgz | tar -zx -C /
 
 RUN rm /var/runtime/awslambda/runtime.so
-ADD runtime-mock.py /var/runtime/awslambda/runtime.py
+COPY runtime-mock.py /var/runtime/awslambda/runtime.py
 
 USER sbx_user1051
 

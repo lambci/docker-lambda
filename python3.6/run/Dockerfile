@@ -9,7 +9,7 @@ RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/python3.6.tgz | tar -zx -C /
 
 RUN rm /var/runtime/awslambda/runtime.cpython-36m-x86_64-linux-gnu.so
-ADD runtime-mock.py /var/runtime/awslambda/runtime.py
+COPY runtime-mock.py /var/runtime/awslambda/runtime.py
 
 USER sbx_user1051
 

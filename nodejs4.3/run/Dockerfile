@@ -5,7 +5,7 @@ ENV PATH=/usr/local/lib64/node-v4.3.x/bin:/usr/local/bin:/usr/bin/:/bin \
     AWS_EXECUTION_ENV=AWS_Lambda_nodejs4.3 \
     NODE_PATH=/var/runtime:/var/task:/var/runtime/node_modules
 
-ADD awslambda-mock.js /var/runtime/node_modules/awslambda/build/Release/awslambda.js
+COPY awslambda-mock.js /var/runtime/node_modules/awslambda/build/Release/awslambda.js
 
 USER sbx_user1051
 

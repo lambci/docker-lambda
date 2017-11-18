@@ -5,7 +5,7 @@ ENV AWS_EXECUTION_ENV=AWS_Lambda_java8
 RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/java8.tgz | tar -zx -C /
 
-ADD lambda-runtime-mock/LambdaSandboxJava-1.0.jar /var/runtime/lib/
+COPY lambda-runtime-mock/LambdaSandboxJava-1.0.jar /var/runtime/lib/
 
 WORKDIR /
 
