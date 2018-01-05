@@ -1,5 +1,5 @@
 // Run with:
-// docker run -v "$PWD/build/docker":/var/task lambci/lambda:java8 org.lambci.lambda.ExampleHandler
+// docker run --rm -v "$PWD/build/docker":/var/task lambci/lambda:java8 org.lambci.lambda.ExampleHandler
 
 package org.lambci.lambda;
 

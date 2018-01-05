@@ -35,32 +35,32 @@ You can run your Lambdas from local directories using the `-v` arg with
 
 ```sh
 # Test an index.handler function from the current directory on Node.js v4.3
-docker run -v "$PWD":/var/task lambci/lambda
+docker run --rm -v "$PWD":/var/task lambci/lambda
 
 # If using a function other than index.handler, with a custom event
-docker run -v "$PWD":/var/task lambci/lambda index.myHandler '{"some": "event"}'
+docker run --rm -v "$PWD":/var/task lambci/lambda index.myHandler '{"some": "event"}'
 
 # Use the original Node.js v0.10 runtime
-docker run -v "$PWD":/var/task lambci/lambda:nodejs
+docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs
 
 # Use the Node.js v6.10 runtime
-docker run -v "$PWD":/var/task lambci/lambda:nodejs6.10
+docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs6.10
 
 # Test a default function (lambda_function.lambda_handler) from the current directory on Python 2.7
-docker run -v "$PWD":/var/task lambci/lambda:python2.7
+docker run --rm -v "$PWD":/var/task lambci/lambda:python2.7
 
 # Test on Python 3.6 with a custom file named my_module.py containing a my_handler function
-docker run -v $PWD:/var/task lambci/lambda:python3.6 my_module.my_handler
+docker run --rm -v $PWD:/var/task lambci/lambda:python3.6 my_module.my_handler
 
 # Test a function from the current directory on Java 8
 # The directory must be laid out in the same way the Lambda zip file is,
 # with top-level package source directories and a `lib` directory for third-party jars
 # http://docs.aws.amazon.com/lambda/latest/dg/create-deployment-pkg-zip-java.html
 # The default handler is "index.Handler", but you'll likely have your own package and class
-docker run -v "$PWD":/var/task lambci/lambda:java8 org.myorg.MyHandler
+docker run --rm -v "$PWD":/var/task lambci/lambda:java8 org.myorg.MyHandler
 
 # Run custom commands on the default container
-docker run --entrypoint node lambci/lambda -v
+docker run --rm --entrypoint node lambci/lambda -v
 ```
 
 You can see more examples of how to build docker images and run different
@@ -70,13 +70,13 @@ To use the build images, for compilation, deployment, etc:
 
 ```sh
 # To compile native deps in node_modules (runs `npm rebuild`)
-docker run -v "$PWD":/var/task lambci/lambda:build
+docker run --rm -v "$PWD":/var/task lambci/lambda:build
 
 # To use a different runtime from the default Node.js v4.3
-docker run -v "$PWD":/var/task lambci/lambda:build-nodejs6.10
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs6.10
 
 # Run custom commands on a build container
-docker run lambci/lambda:build aws --version
+docker run --rm lambci/lambda:build aws --version
 
 # To run an interactive session on a build container
 docker run -it lambci/lambda:build-python3.6 bash
@@ -112,7 +112,7 @@ CMD cat .lambdaignore | xargs zip -9qyr lambda.zip . -x && \
   aws lambda update-function-code --function-name mylambda --zip-file fileb://lambda.zip
 
 # docker build -t mylambda .
-# docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY mylambda
+# docker run --rm -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY mylambda
 ```
 
 

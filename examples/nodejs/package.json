@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "docker run -v \"$PWD\":/var/task lambci/lambda index.handler '{\"some\": \"event\"}'"
+    "test": "docker run --rm -v \"$PWD\":/var/task lambci/lambda:nodejs4.3 index.handler '{\"some\": \"event\"}'"
   }
 }

@@ -1,5 +1,5 @@
 // Just a test lambda, run with:
-// docker run -v "$PWD":/var/task lambci/lambda:nodejs
+// docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs
 
 exports.handler = function(event, context) {
 

@@ -6,6 +6,6 @@
     "node" : ">=0.11.12"
   },
   "scripts": {
-    "test": "docker build -t build-test . && docker run build-test"
+    "test": "docker build -t build-test . && docker run --rm build-test"
   }
 }

@@ -3,9 +3,9 @@ import os
 import sys
 
 # Just a test lambda, run with:
-# docker run -v "$PWD":/var/task lambci/lambda:python2.7
+# docker run --rm -v "$PWD":/var/task lambci/lambda:python2.7
 # OR
-# docker run -v "$PWD":/var/task lambci/lambda:python3.6
+# docker run --rm -v "$PWD":/var/task lambci/lambda:python3.6
 
 def lambda_handler(event, context):
     for arg in sys.argv:

@@ -21,7 +21,7 @@ CMD="BUILD_ONLY=true npm install --build-from-source \
     node-sass
 "
 
-docker run \
+docker run --rm \
   -e PATH=/usr/local/lib64/node-v4.3.x/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
   -e LD_LIBRARY_PATH=/usr/local/lib64/node-v4.3.x/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib \
   -e AWS_EXECUTION_ENV=AWS_Lambda_nodejs4.3 \

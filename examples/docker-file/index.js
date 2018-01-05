@@ -1,7 +1,7 @@
 var execSync = require('child_process').execSync
 
 // Intended to show that a built image will have the correct permissions in /var/task
-// docker build -t build-test . && docker run build-test
+// docker build -t build-test . && docker run --rm build-test
 
 exports.handler = function(event, context, cb) {
 
