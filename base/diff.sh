@@ -2,6 +2,7 @@
 
 RUNTIMES="nodejs4.3 nodejs6.10 python2.7 python3.6 java8"
 
+rm -rf diff
 mkdir -p diff
 
 for RUNTIME in $RUNTIMES; do
