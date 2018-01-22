@@ -1,0 +1,3 @@
+[[constraint]]
+  name = "github.com/aws/aws-lambda-go"
+  version = "1.0.1"

@@ -7,3 +7,7 @@ base/dump-java8/target
 examples/java/build
 examples/java/target
 examples/java/bin
+go1.x/run/aws-lambda-mock
+go1.x/run/vendor
+examples/go1.x/handler
+examples/go1.x/vendor
