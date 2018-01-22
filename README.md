@@ -15,7 +15,7 @@ same library versions that exist on AWS Lambda and then deploy using
 the [AWS CLI](https://aws.amazon.com/cli/).
 
 This project consists of a set of Docker images for each of the supported Lambda runtimes
-(Node.js 0.10, 4.3 and 6.10, Python 2.7 and 3.6, and Java 8).
+(Node.js 0.10, 4.3 and 6.10, Python 2.7 and 3.6, Java 8, and Go 1.x).
 
 There are also a set of build images that include packages like gcc-c++, git,
 zip and the aws-cli for compiling and deploying.
@@ -52,6 +52,9 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:python2.7
 # Test on Python 3.6 with a custom file named my_module.py containing a my_handler function
 docker run --rm -v $PWD:/var/task lambci/lambda:python3.6 my_module.my_handler
 
+# Test on Go 1.x with a compiled handler named my_handler and a custom event
+docker run --rm -v $PWD:/var/task lambci/lambda:go1.x my_handler '{"some": "event"}'
+
 # Test a function from the current directory on Java 8
 # The directory must be laid out in the same way the Lambda zip file is,
 # with top-level package source directories and a `lib` directory for third-party jars
@@ -74,6 +77,9 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:build
 
 # To use a different runtime from the default Node.js v4.3
 docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs6.10
+
+# To resolve dependencies on go1.x (working directory is /go/src/handler, will run `dep ensure`)
+docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x
 
 # Run custom commands on a build container
 docker run --rm lambci/lambda:build aws --version
@@ -169,12 +175,14 @@ Docker tags (follow the Lambda runtime names):
   - `python2.7`
   - `python3.6`
   - `java8`
+  - `go1.x`
   - `build` / `build-nodejs4.3`
   - `build-nodejs`
   - `build-nodejs6.10`
   - `build-python2.7`
   - `build-python3.6`
   - `build-java8`
+  - `build-go1.x`
 
 Env vars:
   - `AWS_LAMBDA_FUNCTION_NAME`
