@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <RootNamespace>MockLambdaRuntime</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+      <Reference Include="Bootstrap">
+        <HintPath>lib\Bootstrap.dll</HintPath>
+      </Reference>
+      <Reference Include="Amazon.Lambda.Core">
+        <HintPath>lib\Amazon.Lambda.Core.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+</Project>

@@ -11,3 +11,5 @@ go1.x/run/aws-lambda-mock
 go1.x/run/vendor
 examples/go1.x/handler
 examples/go1.x/vendor
+dotnetcore2.0/run/bin
+dotnetcore2.0/run/obj
