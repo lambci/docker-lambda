@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNTIMES="nodejs4.3 nodejs6.10 python2.7 python3.6 java8"
+RUNTIMES="nodejs4.3 nodejs6.10 python2.7 python3.6 java8 go1.x"
 
 rm -rf diff
 mkdir -p diff
@@ -29,15 +29,20 @@ docker run --rm --entrypoint find lambci/lambda:nodejs4.3 / | sed 's/^\///' | so
 # diff docker/var/runtime/node_modules/awslambda/index.js lambda/var/runtime/node_modules/awslambda/index.js
 # diff -qr docker lambda | grep -v '/var/runtime/node_modules/aws-sdk'
 
-# cd diff/python2.7
-# diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
-# diff -qr docker lambda | grep -v '/var/runtime/boto'
+cd ../python2.7
+diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
+diff -qr docker lambda | grep -v '/var/runtime/boto'
 
-# cd diff/python3.6
+# cd ../python3.6
 # diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
 # diff -qr docker lambda | grep -v '/var/runtime/boto' | grep -v __pycache__
 
-# cd diff/nodejs6.10
+# cd ../nodejs6.10
 # diff docker/var/runtime/node_modules/awslambda/index.js lambda/var/runtime/node_modules/awslambda/index.js
 # diff -qr docker lambda | grep -v '/var/runtime/node_modules/aws-sdk'
 
+# cd ../java
+# diff -qr docker lambda
+
+# cd ../go1.x
+# diff -qr docker lambda
