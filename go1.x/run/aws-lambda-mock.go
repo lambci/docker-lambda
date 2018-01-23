@@ -191,7 +191,7 @@ func logEndRequest(mockContext *MockLambdaContext, err error) {
 }
 
 func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
+	if value, ok := os.LookupEnv(key); ok && len(value) > 0 {
 		return value
 	}
 	return fallback
