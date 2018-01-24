@@ -176,6 +176,7 @@ Docker tags (follow the Lambda runtime names):
   - `python3.6`
   - `java8`
   - `go1.x`
+  - `dotnetcore2.0`
   - `build` / `build-nodejs4.3`
   - `build-nodejs`
   - `build-nodejs6.10`
