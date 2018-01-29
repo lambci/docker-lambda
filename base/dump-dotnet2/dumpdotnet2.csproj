@@ -3,12 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <AssemblyName>dumpdotnet2</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="1.0.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.Json" Version="1.1.0" />
-     <PackageReference Include="Amazon.Lambda.S3Events" Version="1.0.2" />
     <PackageReference Include="AWSSDK.S3" Version="3.3.16.2" />
   </ItemGroup>
 

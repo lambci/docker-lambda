@@ -1,5 +1,5 @@
 # AWS Lambda Dump Runtime Project
-This functions dumps the runtime and uplaods it to s3.
+This functions dumps the runtime and uploads it to s3.
 
 
 ## Here are some steps to follow from Visual Studio:
@@ -20,12 +20,15 @@ To view execution logs of invocations of your function use the Logs tab in the o
 
 Restore dependencies
 ```
-    cd "dumpdotnet2"
     dotnet restore
 ```
 
 Deploy function to AWS Lambda
 ```
-    cd "dumpdotnet2/src/dumpdotnet2"
-    dotnet lambda deploy-function
+    dotnet lambda deploy-function DumpDotnet2
+```
+
+Invoke `DumpDotnet2`
+```
+    dotnet lambda invoke-function DumpDotnet2
 ```
