@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <AssemblyName>dumpdotnet2</AssemblyName>
+    <AssemblyName>dump_dotnetcore20</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <DotNetCliToolReference Include="Amazon.Lambda.Tools" Version="2.0.1" />
+    <DotNetCliToolReference Include="Amazon.Lambda.Tools" Version="2.1.1" />
   </ItemGroup>
 
 </Project>

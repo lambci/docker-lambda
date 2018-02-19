@@ -1,0 +1,8 @@
+﻿{
+  "configuration": "Release",
+  "framework": "netcoreapp2.0",
+  "function-runtime": "dotnetcore2.0",
+  "function-memory-size": 1536,
+  "function-timeout": 300,
+  "function-handler": "dump_dotnetcore20::dump_dotnetcore20.Function::FunctionHandler"
+}

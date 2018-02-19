@@ -8,14 +8,14 @@ using Amazon.S3;
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
 
-namespace dump_dotnet
+namespace dump_dotnetcore20
 {
-     public static class ShellHelper
+    public static class ShellHelper
     {
         public static string Bash(this string cmd)
         {
             var escapedArgs = cmd.Replace("\"", "\\\"");
-            
+
             var process = new Process()
             {
                 StartInfo = new ProcessStartInfo
@@ -33,7 +33,7 @@ namespace dump_dotnet
             return result;
         }
     }
-    
+
     public class Function
     {
         IAmazonS3 S3Client { get; }
@@ -63,19 +63,19 @@ namespace dump_dotnet
                     Console.WriteLine($"{env}:{environment[env]}");
             }
 
-            string filename = "dotnet2.tgz";
+            string filename = "dotnetcore2.0.tgz";
             string cmd = $"tar -cpzf /tmp/{filename} --numeric-owner --ignore-failed-read /var/runtime /var/lang";
 
             cmd.Bash();
 
             Console.WriteLine("Zipping done! Uploading...");
             await S3Client.PutObjectAsync(new Amazon.S3.Model.PutObjectRequest{
-                BucketName="dockerlambda",
-                Key=filename,
+                BucketName="lambci",
+                Key=$"fs/{filename}",
                 FilePath=$"/tmp/{filename}"
             });
             return "OK";
-            
+
         }
     }
 }
