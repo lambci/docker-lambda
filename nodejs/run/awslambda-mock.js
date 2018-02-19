@@ -1,7 +1,14 @@
 var crypto = require('crypto')
+var fs = require('fs')
 
 var HANDLER = process.argv[2] || process.env.AWS_LAMBDA_FUNCTION_HANDLER || process.env._HANDLER ||  'index.handler'
-var EVENT_BODY = process.argv[3] || process.env.AWS_LAMBDA_EVENT_BODY || '{}'
+
+var READ_BODY = null;
+try {
+  READ_BODY = fs.readFileSync('/var/event/event.json', 'utf8');
+} catch (e) {
+}
+var EVENT_BODY = READ_BODY || process.argv[3] || process.env.AWS_LAMBDA_EVENT_BODY || '{}'
 
 var FN_NAME = process.env.AWS_LAMBDA_FUNCTION_NAME || 'test'
 var VERSION = process.env.AWS_LAMBDA_FUNCTION_VERSION || '$LATEST'

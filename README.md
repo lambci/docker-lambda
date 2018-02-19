@@ -64,6 +64,9 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:java8 org.myorg.MyHandler
 
 # Run custom commands on the default container
 docker run --rm --entrypoint node lambci/lambda -v
+
+# Use the Node.js v6.10 runtime with a large custom event stored in a file ~/my_event/event.json
+docker run --rm -v "$PWD":/var/task -v ~/my_event:/var/event lambci/lambda:nodejs6.10
 ```
 
 You can see more examples of how to build docker images and run different
