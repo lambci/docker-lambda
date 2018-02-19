@@ -2,7 +2,7 @@ using System;
 
 namespace MockLambdaRuntime.Attributes
 {
-    public class EnvMappingAttribute:Attribute
+    public class EnvMappingAttribute : Attribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="EnvMappingAttribute"/> class.

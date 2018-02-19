@@ -28,26 +28,25 @@ namespace MockLambdaRuntime
             string body = GetContext(args);
 
             var lambdaContext = new MockLambdaContext(body, Environment.GetEnvironmentVariables());
-            
-            
-            var userCodeLoader = new UserCodeLoader(handler,InternalLogger.NO_OP_LOGGER);
+
+            var userCodeLoader = new UserCodeLoader(handler, InternalLogger.NO_OP_LOGGER);
             userCodeLoader.Init(x => Console.WriteLine(x));
 
             var lambdaContextInternal = new LambdaContextInternal(lambdaContext.RemainingTime,
-                                                                  LogAction,new Lazy<CognitoClientContextInternal>(), 
+                                                                  LogAction, new Lazy<CognitoClientContextInternal>(),
                                                                   lambdaContext.RequestId,
                                                                   new Lazy<string>(lambdaContext.Arn),
                                                                   new Lazy<string>(string.Empty),
                                                                   new Lazy<string>(string.Empty),
-                                                                  Environment.GetEnvironmentVariables());           
-            
+                                                                  Environment.GetEnvironmentVariables());
+
             LogStartRequest(lambdaContext);
             try
             {
-                userCodeLoader.Invoke(lambdaContext.InputStream,lambdaContext.OutputStream,lambdaContextInternal);
+                userCodeLoader.Invoke(lambdaContext.InputStream, lambdaContext.OutputStream, lambdaContextInternal);
                 Console.WriteLine(lambdaContext.OutputText);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.Error.WriteLine(ex);
             }
@@ -90,19 +89,12 @@ namespace MockLambdaRuntime
         static void LogEndRequest(MockLambdaContext context)
         {
             Console.Error.WriteLine($"END  RequestId: {context.RequestId}");
-            
-            /*'REPORT RequestId: ' + invokeId,
-            'Duration: ' + diffMs.toFixed(2) + ' ms',
-            'Billed Duration: ' + billedMs + ' ms',
-            'Memory Size: ' + MEM_SIZE + ' MB',
-            'Max Memory Used: ' + Math.round(process.memoryUsage().rss / (1024 * 1024)) + ' MB',
-            '',
-                ].join('\t'))*/
+
             Console.Error.WriteLine($"REPORT RequestId {context.RequestId}\t" +
                                     $"Duration: {context.Duration} ms\t" +
                                     $"Billed Duration: {context.BilledDuration} ms\t" +
                                     $"Memory Size {context.MemorySize} MB\t" +
-                                    $"Max Memory Used: {context.MemoryUsed/(1024*1024)} MB");
+                                    $"Max Memory Used: {context.MemoryUsed / (1024 * 1024)} MB");
         }
 
         /// <summary>
@@ -110,8 +102,9 @@ namespace MockLambdaRuntime
         /// </summary>
         /// <param name="args">The arguments.</param>
         /// <returns></returns>
-        static string GetFunctionHandler(string[] args){
-            return args.Length > 0 ? args[0] : GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_HANDLER",string.Empty);
+        static string GetFunctionHandler(string[] args)
+        {
+            return args.Length > 0 ? args[0] : GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_HANDLER", string.Empty);
         }
 
         /// <summary>
@@ -119,8 +112,9 @@ namespace MockLambdaRuntime
         /// </summary>
         /// <param name="args">The arguments.</param>
         /// <returns></returns>
-        static string GetContext(string[] args){
-            return args.Length > 1 ? args[1] :GetEnvironmentVariable("AWS_LAMBDA_CONTEXT","{}"); ;   
+        static string GetContext(string[] args)
+        {
+            return args.Length > 1 ? args[1] : GetEnvironmentVariable("AWS_LAMBDA_CONTEXT", "{}");
         }
 
 
@@ -132,13 +126,8 @@ namespace MockLambdaRuntime
         /// <returns></returns>
         static string GetEnvironmentVariable(string name, string fallback)
         {
-            var res = Environment.GetEnvironmentVariable(name);
-            if(res != null)
-                return res;
-            return fallback;
-
+            return Environment.GetEnvironmentVariable(name) ?? fallback;
         }
 
-       
     }
 }

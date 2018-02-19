@@ -29,7 +29,7 @@ namespace MockLambdaRuntime
         /// </summary>
         /// <param name="eventBody">The event body.</param>
         /// <param name="environment">The environment.</param>
-        public MockLambdaContext(string eventBody, IDictionary environment):this()
+        public MockLambdaContext(string eventBody, IDictionary environment) : this()
         {
             EventBody = eventBody;
             foreach (var propertyInfo in this.GetType().GetProperties().ToList())
@@ -62,7 +62,7 @@ namespace MockLambdaRuntime
         }
 
         public long Duration => (long)(DateTime.Now - StartTime).TotalMilliseconds;
-        public long BilledDuration => (long) (Math.Ceiling((DateTime.Now - StartTime).TotalMilliseconds / 100)) * 100;
+        public long BilledDuration => (long)(Math.Ceiling((DateTime.Now - StartTime).TotalMilliseconds / 100)) * 100;
 
         public long MemoryUsed => Process.GetCurrentProcess().WorkingSet64;
 
@@ -83,10 +83,9 @@ namespace MockLambdaRuntime
                 {
                     return reader.ReadToEnd();
                 }
-                
             }
         }
-        
+
         public string RequestId { get; set; }
         public string EventBody { get; set; }
         public DateTime StartTime { get; set; }
@@ -108,9 +107,10 @@ namespace MockLambdaRuntime
 
         [EnvMapping("AWS_LAMBDA_FUNCTION_NAME")]
         public string FunctionName { get; set; }
+
         [EnvMapping("AWS_LAMBDA_FUNCTION_VERSION")]
         public string FunctionVersion { get; set; }
-        
+
         [EnvMapping("AWS_LAMBDA_FUNCTION_TIMEOUT")]
         public int Timeout { get; set; }
 
