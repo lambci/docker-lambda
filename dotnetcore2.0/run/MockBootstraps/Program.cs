@@ -9,26 +9,21 @@ namespace MockLambdaRuntime
 {
     class Program
     {
-        /// <summary>
         /// Task root of lambda task
-        /// </summary>
-        private static string lambdaTaskRoot;
+        private static string lambdaTaskRoot = GetEnvironmentVariable("LAMBDA_TASK_ROOT", "/var/task");
 
-        /// <summary>
-        /// Entry point
-        /// </summary>
+        /// Program entry point
         static void Main(string[] args)
         {
             AssemblyLoadContext.Default.Resolving += OnAssemblyResolving;
-            lambdaTaskRoot = GetEnvironmentVariable("LAMBDA_TASK_ROOT", "/var/task");
 
-            string handler = GetFunctionHandler(args);
-            string body = GetContext(args);
+            var handler = GetFunctionHandler(args);
+            var body = GetEventBody(args);
 
-            var lambdaContext = new MockLambdaContext(body, Environment.GetEnvironmentVariables());
+            var lambdaContext = new MockLambdaContext(body);
 
             var userCodeLoader = new UserCodeLoader(handler, InternalLogger.NO_OP_LOGGER);
-            userCodeLoader.Init(x => Console.WriteLine(x));
+            userCodeLoader.Init(Console.WriteLine);
 
             var lambdaContextInternal = new LambdaContextInternal(lambdaContext.RemainingTime,
                                                                   LogAction, new Lazy<CognitoClientContextInternal>(),
@@ -40,7 +35,7 @@ namespace MockLambdaRuntime
 
             Exception lambdaException = null;
 
-            LogStartRequest(lambdaContext);
+            LogRequestStart(lambdaContext);
             try
             {
                 userCodeLoader.Invoke(lambdaContext.InputStream, lambdaContext.OutputStream, lambdaContextInternal);
@@ -49,7 +44,7 @@ namespace MockLambdaRuntime
             {
                 lambdaException = ex;
             }
-            LogEndRequest(lambdaContext);
+            LogRequestEnd(lambdaContext);
 
             if (lambdaException == null)
             {
@@ -61,34 +56,24 @@ namespace MockLambdaRuntime
             }
         }
 
-        /// <summary>
         /// Called when an assembly could not be resolved
-        /// </summary>
         private static Assembly OnAssemblyResolving(AssemblyLoadContext context, AssemblyName assembly)
         {
-            return context.LoadFromAssemblyPath(Path.Combine(lambdaTaskRoot, assembly.Name) + ".dll");
+            return context.LoadFromAssemblyPath(Path.Combine(lambdaTaskRoot, $"{assembly.Name}.dll"));
         }
 
-        /// <summary>
-        /// Logs the given text
-        /// </summary>
+        /// Try to log everything to stderr except the function result
         private static void LogAction(string text)
         {
             Console.Error.WriteLine(text);
         }
 
-        /// <summary>
-        /// Logs the start request.
-        /// </summary>
-        static void LogStartRequest(MockLambdaContext context)
+        static void LogRequestStart(MockLambdaContext context)
         {
             Console.Error.WriteLine($"START RequestId: {context.RequestId} Version: {context.FunctionVersion}");
         }
 
-        /// <summary>
-        /// Logs the end request.
-        /// </summary>
-        static void LogEndRequest(MockLambdaContext context)
+        static void LogRequestEnd(MockLambdaContext context)
         {
             Console.Error.WriteLine($"END  RequestId: {context.RequestId}");
 
@@ -99,33 +84,23 @@ namespace MockLambdaRuntime
                                     $"Max Memory Used: {context.MemoryUsed / (1024 * 1024)} MB");
         }
 
-        /// <summary>
         /// Gets the function handler from arguments or environment
-        /// </summary>
         static string GetFunctionHandler(string[] args)
         {
             return args.Length > 0 ? args[0] : GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_HANDLER", string.Empty);
         }
 
-        /// <summary>
-        /// Gets the context from arguments or environment
-        /// </summary>
-        static string GetContext(string[] args)
+        /// Gets the event body from arguments or environment
+        static string GetEventBody(string[] args)
         {
-            return args.Length > 1 ? args[1] : GetEnvironmentVariable("AWS_LAMBDA_CONTEXT", "{}");
+            return args.Length > 1 ? args[1] : GetEnvironmentVariable("AWS_LAMBDA_EVENT_BODY", "{}");
         }
 
 
-        /// <summary>
-        /// Gets the environment variable.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="fallback">The fallback.</param>
-        /// <returns></returns>
+        /// Gets the given environment variable with a fallback if it doesn't exist
         static string GetEnvironmentVariable(string name, string fallback)
         {
             return Environment.GetEnvironmentVariable(name) ?? fallback;
         }
-
     }
 }
