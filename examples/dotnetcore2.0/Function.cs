@@ -4,12 +4,7 @@
 // Run with:
 // docker run --rm -v "$PWD"/pub:/var/task lambci/lambda:dotnetcore2.0 test::test.Function::FunctionHandler "some"
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Amazon.Lambda.Core;
-using System.IO;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
 
@@ -17,10 +12,10 @@ namespace test
 {
     public class Function
     {
-        public string FunctionHandler(Stream stream, ILambdaContext context)
+        public string FunctionHandler(object inputEvent, ILambdaContext context)
         {
-            context.Logger.Log("Log Hello world");
-            return "Hallo world!";
+            context.Logger.Log($"inputEvent: {inputEvent}");
+            return "Hello World!";
         }
     }
 }
