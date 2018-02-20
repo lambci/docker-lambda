@@ -15,7 +15,7 @@ same library versions that exist on AWS Lambda and then deploy using
 the [AWS CLI](https://aws.amazon.com/cli/).
 
 This project consists of a set of Docker images for each of the supported Lambda runtimes
-(Node.js 0.10, 4.3 and 6.10, Python 2.7 and 3.6, Java 8, and Go 1.x).
+(Node.js 0.10, 4.3 and 6.10, Python 2.7 and 3.6, Java 8, .NET Core 2.0, and Go 1.x).
 
 There are also a set of build images that include packages like gcc-c++, git,
 zip and the aws-cli for compiling and deploying.
@@ -50,10 +50,10 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs6.10
 docker run --rm -v "$PWD":/var/task lambci/lambda:python2.7
 
 # Test on Python 3.6 with a custom file named my_module.py containing a my_handler function
-docker run --rm -v $PWD:/var/task lambci/lambda:python3.6 my_module.my_handler
+docker run --rm -v "$PWD":/var/task lambci/lambda:python3.6 my_module.my_handler
 
 # Test on Go 1.x with a compiled handler named my_handler and a custom event
-docker run --rm -v $PWD:/var/task lambci/lambda:go1.x my_handler '{"some": "event"}'
+docker run --rm -v "$PWD":/var/task lambci/lambda:go1.x my_handler '{"some": "event"}'
 
 # Test a function from the current directory on Java 8
 # The directory must be laid out in the same way the Lambda zip file is,
@@ -61,6 +61,10 @@ docker run --rm -v $PWD:/var/task lambci/lambda:go1.x my_handler '{"some": "even
 # http://docs.aws.amazon.com/lambda/latest/dg/create-deployment-pkg-zip-java.html
 # The default handler is "index.Handler", but you'll likely have your own package and class
 docker run --rm -v "$PWD":/var/task lambci/lambda:java8 org.myorg.MyHandler
+
+# Test on .NET Core 2.0 given a test.dll assembly in the current directory,
+# a class named Function with a FunctionHandler method, and a custom event
+docker run --rm -v "$PWD":/var/task lambci/lambda:dotnetcore2.0 test::test.Function::FunctionHandler '{"some": "event"}'
 
 # Run custom commands on the default container
 docker run --rm --entrypoint node lambci/lambda -v
@@ -80,6 +84,10 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs6.10
 
 # To resolve dependencies on go1.x (working directory is /go/src/handler, will run `dep ensure`)
 docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x
+
+# For .NET Core 2.0, this will publish the compiled code to `./pub`,
+# which you can then use to run with `-v "$PWD"/pub:/var/task`
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnetcore2.0 dotnet publish -c Release -o pub
 
 # Run custom commands on a build container
 docker run --rm lambci/lambda:build aws --version
@@ -184,6 +192,7 @@ Docker tags (follow the Lambda runtime names):
   - `build-python3.6`
   - `build-java8`
   - `build-go1.x`
+  - `build-dotnetcore2.0`
 
 Env vars:
   - `AWS_LAMBDA_FUNCTION_NAME`
