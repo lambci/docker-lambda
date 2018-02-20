@@ -13,9 +13,6 @@ namespace MockLambdaRuntime
     /// </summary>
     public class MockLambdaContext
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MockLambdaContext"/> class.
-        /// </summary>
         private MockLambdaContext()
         {
             RequestId = Guid.NewGuid().ToString();
@@ -27,8 +24,6 @@ namespace MockLambdaRuntime
         /// Initializes a new instance of the <see cref="MockLambdaContext"/> class.
         /// Uses the data from the environment variables
         /// </summary>
-        /// <param name="eventBody">The event body.</param>
-        /// <param name="environment">The environment.</param>
         public MockLambdaContext(string eventBody, IDictionary environment) : this()
         {
             EventBody = eventBody;
@@ -49,13 +44,11 @@ namespace MockLambdaRuntime
             var contextData = Encoding.UTF8.GetBytes(EventBody);
             InputStream.Write(contextData, 0, contextData.Length);
             InputStream.Seek(0, SeekOrigin.Begin);
-
         }
 
         /// <summary>
         /// Calculates the remaining time using current time and timeout
         /// </summary>
-        /// <returns></returns>
         public TimeSpan RemainingTime()
         {
             return TimeSpan.FromSeconds(Timeout - (StartTime - DateTime.Now).TotalSeconds);
@@ -79,6 +72,7 @@ namespace MockLambdaRuntime
         {
             get
             {
+                OutputStream.Position = 0;
                 using (TextReader reader = new StreamReader(OutputStream))
                 {
                     return reader.ReadToEnd();

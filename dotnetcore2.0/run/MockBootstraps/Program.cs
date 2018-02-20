@@ -17,10 +17,8 @@ namespace MockLambdaRuntime
         /// <summary>
         /// Entry point
         /// </summary>
-        /// <param name="args">The arguments.</param>
         static void Main(string[] args)
         {
-            //add resolving hook
             AssemblyLoadContext.Default.Resolving += OnAssemblyResolving;
             lambdaTaskRoot = GetEnvironmentVariable("LAMBDA_TASK_ROOT", "/var/task");
 
@@ -40,25 +38,32 @@ namespace MockLambdaRuntime
                                                                   new Lazy<string>(string.Empty),
                                                                   Environment.GetEnvironmentVariables());
 
+            Exception lambdaException = null;
+
             LogStartRequest(lambdaContext);
             try
             {
                 userCodeLoader.Invoke(lambdaContext.InputStream, lambdaContext.OutputStream, lambdaContextInternal);
-                Console.WriteLine(lambdaContext.OutputText);
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex);
+                lambdaException = ex;
             }
             LogEndRequest(lambdaContext);
+
+            if (lambdaException == null)
+            {
+                Console.WriteLine(lambdaContext.OutputText);
+            }
+            else
+            {
+                Console.Error.WriteLine(lambdaException);
+            }
         }
 
         /// <summary>
         /// Called when an assembly could not be resolved
         /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="assembly">The assembly.</param>
-        /// <returns></returns>
         private static Assembly OnAssemblyResolving(AssemblyLoadContext context, AssemblyName assembly)
         {
             return context.LoadFromAssemblyPath(Path.Combine(lambdaTaskRoot, assembly.Name) + ".dll");
@@ -67,7 +72,6 @@ namespace MockLambdaRuntime
         /// <summary>
         /// Logs the given text
         /// </summary>
-        /// <param name="text">The text.</param>
         private static void LogAction(string text)
         {
             Console.Error.WriteLine(text);
@@ -76,7 +80,6 @@ namespace MockLambdaRuntime
         /// <summary>
         /// Logs the start request.
         /// </summary>
-        /// <param name="context"></param>
         static void LogStartRequest(MockLambdaContext context)
         {
             Console.Error.WriteLine($"START RequestId: {context.RequestId} Version: {context.FunctionVersion}");
@@ -85,7 +88,6 @@ namespace MockLambdaRuntime
         /// <summary>
         /// Logs the end request.
         /// </summary>
-        /// <param name="requestId">The request identifier.</param>
         static void LogEndRequest(MockLambdaContext context)
         {
             Console.Error.WriteLine($"END  RequestId: {context.RequestId}");
@@ -100,8 +102,6 @@ namespace MockLambdaRuntime
         /// <summary>
         /// Gets the function handler from arguments or environment
         /// </summary>
-        /// <param name="args">The arguments.</param>
-        /// <returns></returns>
         static string GetFunctionHandler(string[] args)
         {
             return args.Length > 0 ? args[0] : GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_HANDLER", string.Empty);
@@ -110,8 +110,6 @@ namespace MockLambdaRuntime
         /// <summary>
         /// Gets the context from arguments or environment
         /// </summary>
-        /// <param name="args">The arguments.</param>
-        /// <returns></returns>
         static string GetContext(string[] args)
         {
             return args.Length > 1 ? args[1] : GetEnvironmentVariable("AWS_LAMBDA_CONTEXT", "{}");
