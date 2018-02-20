@@ -51,7 +51,7 @@ namespace MockLambdaRuntime
         /// </summary>
         public TimeSpan RemainingTime()
         {
-            return TimeSpan.FromSeconds(Timeout - (StartTime - DateTime.Now).TotalSeconds);
+            return StartTime + TimeSpan.FromSeconds(Timeout) - DateTime.Now;
         }
 
         public long Duration => (long)(DateTime.Now - StartTime).TotalMilliseconds;
