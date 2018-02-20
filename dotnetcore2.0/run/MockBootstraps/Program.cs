@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -10,7 +11,7 @@ namespace MockLambdaRuntime
     class Program
     {
         /// Task root of lambda task
-        private static string lambdaTaskRoot = GetEnvironmentVariable("LAMBDA_TASK_ROOT", "/var/task");
+        static string lambdaTaskRoot = EnvHelper.GetOrDefault("LAMBDA_TASK_ROOT", "/var/task");
 
         /// Program entry point
         static void Main(string[] args)
@@ -20,10 +21,10 @@ namespace MockLambdaRuntime
             var handler = GetFunctionHandler(args);
             var body = GetEventBody(args);
 
-            var lambdaContext = new MockLambdaContext(body);
+            var lambdaContext = new MockLambdaContext(handler, body);
 
             var userCodeLoader = new UserCodeLoader(handler, InternalLogger.NO_OP_LOGGER);
-            userCodeLoader.Init(Console.WriteLine);
+            userCodeLoader.Init(Console.Error.WriteLine);
 
             var lambdaContextInternal = new LambdaContextInternal(lambdaContext.RemainingTime,
                                                                   LogAction, new Lazy<CognitoClientContextInternal>(),
@@ -87,18 +88,20 @@ namespace MockLambdaRuntime
         /// Gets the function handler from arguments or environment
         static string GetFunctionHandler(string[] args)
         {
-            return args.Length > 0 ? args[0] : GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_HANDLER", string.Empty);
+            return args.Length > 0 ? args[0] : EnvHelper.GetOrDefault("AWS_LAMBDA_FUNCTION_HANDLER", string.Empty);
         }
 
         /// Gets the event body from arguments or environment
         static string GetEventBody(string[] args)
         {
-            return args.Length > 1 ? args[1] : GetEnvironmentVariable("AWS_LAMBDA_EVENT_BODY", "{}");
+            return args.Length > 1 ? args[1] : EnvHelper.GetOrDefault("AWS_LAMBDA_EVENT_BODY", "{}");
         }
+    }
 
-
+    class EnvHelper
+    {
         /// Gets the given environment variable with a fallback if it doesn't exist
-        static string GetEnvironmentVariable(string name, string fallback)
+        public static string GetOrDefault(string name, string fallback)
         {
             return Environment.GetEnvironmentVariable(name) ?? fallback;
         }

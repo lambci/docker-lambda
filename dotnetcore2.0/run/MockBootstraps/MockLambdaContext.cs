@@ -1,18 +1,16 @@
 using System;
-using System.Collections;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
-using MockLambdaRuntime.Attributes;
 
 namespace MockLambdaRuntime
 {
-    /// Lambda context definition
     public class MockLambdaContext
     {
-        /// Creates a mock context from a given Lambda event
-        public MockLambdaContext(string eventBody)
+        static Random random = new Random();
+
+        /// Creates a mock context from a given Lambda handler and event
+        public MockLambdaContext(string handler, string eventBody)
         {
             RequestId = Guid.NewGuid().ToString();
             StartTime = DateTime.Now;
@@ -23,16 +21,14 @@ namespace MockLambdaRuntime
             InputStream.Write(eventData, 0, eventData.Length);
             InputStream.Position = 0;
 
-            var env = Environment.GetEnvironmentVariables();
-            foreach (var propertyInfo in this.GetType().GetProperties())
-            {
-                var attributes = propertyInfo.GetCustomAttributes(typeof(EnvMappingAttribute), false);
-                foreach (var mappingAttribute in attributes.Cast<EnvMappingAttribute>())
-                {
-                    var value = env[mappingAttribute.Key] ?? mappingAttribute.DefaultValue;
-                    propertyInfo.SetValue(this, Convert.ChangeType(value, propertyInfo.PropertyType));
-                }
-            }
+            Environment.SetEnvironmentVariable("AWS_LAMBDA_FUNCTION_NAME", FunctionName);
+            Environment.SetEnvironmentVariable("AWS_LAMBDA_FUNCTION_VERSION", FunctionVersion);
+            Environment.SetEnvironmentVariable("AWS_LAMBDA_FUNCTION_MEMORY_SIZE", MemorySize.ToString());
+            Environment.SetEnvironmentVariable("AWS_LAMBDA_LOG_GROUP_NAME", LogGroup);
+            Environment.SetEnvironmentVariable("AWS_LAMBDA_LOG_STREAM_NAME", LogStream);
+            Environment.SetEnvironmentVariable("AWS_REGION", Region);
+            Environment.SetEnvironmentVariable("AWS_DEFAULT_REGION", Region);
+            Environment.SetEnvironmentVariable("_HANDLER", handler);
         }
 
         /// Calculates the remaining time using current time and timeout
@@ -45,9 +41,6 @@ namespace MockLambdaRuntime
         public long BilledDuration => (long)(Math.Ceiling((DateTime.Now - StartTime).TotalMilliseconds / 100)) * 100;
 
         public long MemoryUsed => Process.GetCurrentProcess().WorkingSet64;
-
-        /// The arn for the lambda function
-        public string Arn => $"arn:aws:lambda:{Region}:{AccountId}:function:{FunctionName}";
 
         public Stream InputStream { get; }
 
@@ -68,31 +61,24 @@ namespace MockLambdaRuntime
         public string RequestId { get; }
         public DateTime StartTime { get; }
 
-        [EnvMapping("AWS_ACCOUNT_ID")]
-        public string AccountId { get; private set; }
+        public int Timeout => Convert.ToInt32(EnvHelper.GetOrDefault("AWS_LAMBDA_FUNCTION_TIMEOUT", "300"));
 
-        [EnvMapping("AWS_REGION")]
-        public string Region { get; private set; }
+        public int MemorySize => Convert.ToInt32(EnvHelper.GetOrDefault("AWS_LAMBDA_FUNCTION_MEMORY_SIZE", "1536"));
 
-        [EnvMapping("AWS_ACCESS_KEY")]
-        public string AccessKey { get; private set; }
+        public string FunctionName => EnvHelper.GetOrDefault("AWS_LAMBDA_FUNCTION_NAME", "test");
 
-        [EnvMapping("AWS_SECRET_KEY")]
-        public string SecretKey { get; private set; }
+        public string FunctionVersion => EnvHelper.GetOrDefault("AWS_LAMBDA_FUNCTION_VERSION", "$LATEST");
 
-        [EnvMapping("AWS_SESSION_TOKEN")]
-        public string SessionToken { get; private set; }
+        public string LogGroup => EnvHelper.GetOrDefault("AWS_LAMBDA_LOG_GROUP_NAME", $"/aws/lambda/{FunctionName}");
 
-        [EnvMapping("AWS_LAMBDA_FUNCTION_NAME")]
-        public string FunctionName { get; private set; }
+        public string LogStream => EnvHelper.GetOrDefault("AWS_LAMBDA_LOG_STREAM_NAME", RandomLogStreamName);
 
-        [EnvMapping("AWS_LAMBDA_FUNCTION_VERSION")]
-        public string FunctionVersion { get; private set; }
+        public string Region => EnvHelper.GetOrDefault("AWS_REGION", EnvHelper.GetOrDefault("AWS_DEFAULT_REGION", "us-east-1"));
 
-        [EnvMapping("AWS_LAMBDA_FUNCTION_TIMEOUT", "300")]
-        public int Timeout { get; private set; }
+        public string AccountId => EnvHelper.GetOrDefault("AWS_ACCOUNT_ID", "000000000000");
 
-        [EnvMapping("AWS_LAMBDA_FUNCTION_MEMORY_SIZE", "1536")]
-        public int MemorySize { get; private set; }
+        public string Arn => $"arn:aws:lambda:{Region}:{AccountId}:function:{FunctionName}";
+
+        string RandomLogStreamName => $"{DateTime.Now.ToString("yyyy/MM/dd")}/[{FunctionVersion}]{random.Next().ToString("x") + random.Next().ToString("x")}";
     }
 }
