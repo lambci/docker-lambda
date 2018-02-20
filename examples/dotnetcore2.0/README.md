@@ -1,2 +1,9 @@
-BUILD: docker run --rm -v "$PWD"/test:/app microsoft/dotnet:sdk /usr/share/dotnet/dotnet publish /app -c Release -o pub
-RUN: docker run --rm -v "$PWD"/test/pub:/var/task lambci/lambda:dotnetcore2.0 test::test.Function::FunctionHandler "some"
+# .NET Core 2.0 docker-lambda example
+
+```sh
+# Will place the compiled code in `./pub`
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnetcore2.0 dotnet publish -c Release -o pub
+
+# Then you can run using that as the task directory
+docker run --rm -v "$PWD"/pub:/var/task lambci/lambda:dotnetcore2.0 test::test.Function::FunctionHandler "some"
+```
