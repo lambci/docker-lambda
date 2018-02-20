@@ -27,16 +27,12 @@ namespace MockLambdaRuntime
         public MockLambdaContext(string eventBody, IDictionary environment) : this()
         {
             EventBody = eventBody;
-            foreach (var propertyInfo in this.GetType().GetProperties().ToList())
+            foreach (var propertyInfo in this.GetType().GetProperties())
             {
-                var attributes = propertyInfo.CustomAttributes.OfType<EnvMappingAttribute>();
-                foreach (var mappingAttribute in attributes.ToList())
+                var attributes = propertyInfo.GetCustomAttributes(typeof(EnvMappingAttribute), false);
+                foreach (var mappingAttribute in attributes.Cast<EnvMappingAttribute>())
                 {
-                    string value = mappingAttribute.DefaultValue;
-                    if (environment.Contains(mappingAttribute.Key))
-                    {
-                        value = environment[mappingAttribute.Key].ToString();
-                    }
+                    var value = environment[mappingAttribute.Key] ?? mappingAttribute.DefaultValue;
                     propertyInfo.SetValue(this, Convert.ChangeType(value, propertyInfo.PropertyType));
                 }
             }
@@ -105,10 +101,10 @@ namespace MockLambdaRuntime
         [EnvMapping("AWS_LAMBDA_FUNCTION_VERSION")]
         public string FunctionVersion { get; set; }
 
-        [EnvMapping("AWS_LAMBDA_FUNCTION_TIMEOUT")]
+        [EnvMapping("AWS_LAMBDA_FUNCTION_TIMEOUT", "300")]
         public int Timeout { get; set; }
 
-        [EnvMapping("AWS_LAMBDA_FUNCTION_MEMORY_SIZE")]
+        [EnvMapping("AWS_LAMBDA_FUNCTION_MEMORY_SIZE", "1536")]
         public int MemorySize { get; set; }
     }
 }
