@@ -1,6 +1,6 @@
 FROM lambci/lambda-base:build
 
-ENV GOLANG_VERSION=1.9.3 \
+ENV GOLANG_VERSION=1.10 \
     GOPATH=/go \
     PATH=/go/bin:/usr/local/go/bin:$PATH
 
