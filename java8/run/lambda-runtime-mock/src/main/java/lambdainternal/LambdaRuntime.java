@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.UUID;
 
 import sun.misc.Unsafe;
@@ -66,7 +67,7 @@ public class LambdaRuntime {
 
         String[] args = getCmdLineArgs();
         HANDLER = args.length > 1 ? args[1] : getEnvOrDefault("AWS_LAMBDA_FUNCTION_HANDLER", getEnvOrDefault("_HANDLER", "index.Handler"));
-        EVENT_BODY = args.length > 2 ? args[2] : getEnvOrDefault("AWS_LAMBDA_EVENT_BODY", "{}");
+        EVENT_BODY = args.length > 2 ? args[2] : getEventBody();
 
         LambdaRuntime.needsDebugLogs = false;
 
@@ -78,6 +79,15 @@ public class LambdaRuntime {
         setenv("AWS_REGION", AWS_REGION, 1);
         setenv("AWS_DEFAULT_REGION", AWS_REGION, 1);
         setenv("_HANDLER", HANDLER, 1);
+    }
+
+    private static String getEventBody() {
+        String eventBody = getEnv("AWS_LAMBDA_EVENT_BODY");
+        if (eventBody == null) {
+            eventBody = getEnv("DOCKER_LAMBDA_USE_STDIN") != null ?
+                new Scanner(System.in).useDelimiter("\\A").next() : "{}";
+        }
+        return eventBody;
     }
 
     private static String getEnvOrDefault(String key, String defaultVal) {

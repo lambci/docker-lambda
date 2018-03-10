@@ -13,6 +13,7 @@ var ENV_VARS = [
   'AWS_LAMBDA_FUNCTION_TIMEOUT',
   'AWS_LAMBDA_FUNCTION_HANDLER',
   'AWS_LAMBDA_EVENT_BODY',
+  'DOCKER_LAMBDA_USE_STDIN',
 ]
 var ENV_ARGS = [].concat.apply([], ENV_VARS.map(function(x) { return ['-e', x] }))
 

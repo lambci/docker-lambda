@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-lambda-go/lambda/messages"
+	"io/ioutil"
 	"math"
 	"math/rand"
 	"net"
@@ -34,7 +35,15 @@ func main() {
 	if len(os.Args) > 2 {
 		eventBody = os.Args[2]
 	} else {
-		eventBody = getEnv("AWS_LAMBDA_EVENT_BODY", "{}")
+		eventBody = os.Getenv("AWS_LAMBDA_EVENT_BODY")
+		if eventBody == "" {
+			if os.Getenv("DOCKER_LAMBDA_USE_STDIN") != "" {
+				stdin, _ := ioutil.ReadAll(os.Stdin)
+				eventBody = string(stdin)
+			} else {
+				eventBody = "{}"
+			}
+		}
 	}
 
 	mockContext := &MockLambdaContext{
@@ -53,7 +62,7 @@ func main() {
 
 	awsAccessKey := getEnv("AWS_ACCESS_KEY", getEnv("AWS_ACCESS_KEY_ID", "SOME_ACCESS_KEY_ID"))
 	awsSecretKey := getEnv("AWS_SECRET_KEY", getEnv("AWS_SECRET_ACCESS_KEY", "SOME_SECRET_ACCESS_KEY"))
-	awsSessionToken := getEnv("AWS_SESSION_TOKEN", getEnv("AWS_SECURITY_TOKEN", ""))
+	awsSessionToken := getEnv("AWS_SESSION_TOKEN", os.Getenv("AWS_SECURITY_TOKEN"))
 	port := getEnv("_LAMBDA_SERVER_PORT", "54321")
 
 	os.Setenv("AWS_LAMBDA_FUNCTION_NAME", mockContext.FnName)
@@ -191,7 +200,8 @@ func logEndRequest(mockContext *MockLambdaContext, err error) {
 }
 
 func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok && len(value) > 0 {
+	value := os.Getenv(key)
+	if value != "" {
 		return value
 	}
 	return fallback

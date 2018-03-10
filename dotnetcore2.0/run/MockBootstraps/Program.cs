@@ -94,7 +94,8 @@ namespace MockLambdaRuntime
         /// Gets the event body from arguments or environment
         static string GetEventBody(string[] args)
         {
-            return args.Length > 1 ? args[1] : EnvHelper.GetOrDefault("AWS_LAMBDA_EVENT_BODY", "{}");
+            return args.Length > 1 ? args[1] : (Environment.GetEnvironmentVariable("AWS_LAMBDA_EVENT_BODY") ??
+              (Environment.GetEnvironmentVariable("DOCKER_LAMBDA_USE_STDIN") != null ? Console.In.ReadToEnd() : "{}"));
         }
     }
 

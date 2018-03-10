@@ -68,6 +68,9 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:dotnetcore2.0 test::test.Funct
 
 # Run custom commands on the default container
 docker run --rm --entrypoint node lambci/lambda -v
+
+# For large events you can pipe them into stdin if you set DOCKER_LAMBDA_USE_STDIN (on any runtime)
+echo '{"some": "event"}' | docker run --rm -v "$PWD":/var/task -i -e DOCKER_LAMBDA_USE_STDIN=1 lambci/lambda
 ```
 
 You can see more examples of how to build docker images and run different
@@ -207,6 +210,7 @@ Env vars:
   - `AWS_ACCESS_KEY_ID`
   - `AWS_SECRET_ACCESS_KEY`
   - `AWS_SESSION_TOKEN`
+  - `DOCKER_LAMBDA_USE_STDIN`
 
 Options to pass to `dockerLambda()`:
   - `dockerImage`
