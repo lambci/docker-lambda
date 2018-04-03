@@ -6,4 +6,7 @@ ENV PATH=/usr/local/lib64/node-v4.3.x/bin:/usr/local/sbin:/usr/local/bin:/usr/sb
     NODE_PATH=/var/runtime:/var/task:/var/runtime/node_modules \
     npm_config_unsafe-perm=true
 
+RUN rm -rf /var/runtime /var/lang && \
+  curl https://lambci.s3.amazonaws.com/fs/nodejs4.3.tgz | tar -zx -C / -- var/runtime var/lang
+
 CMD ["npm", "rebuild"]

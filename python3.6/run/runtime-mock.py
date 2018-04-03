@@ -134,7 +134,7 @@ def report_fault(invokeid, msg, except_value, trace):
         eprint('%s' % trace)
     return
 
-def report_done(invokeid, errortype, result):
+def report_done(invokeid, errortype, result, is_fatal):
     global _GLOBAL_INVOKED
     global _GLOBAL_ERRORED
 

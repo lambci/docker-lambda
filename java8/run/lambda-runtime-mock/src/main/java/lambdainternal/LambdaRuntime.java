@@ -28,8 +28,6 @@ public class LambdaRuntime {
     private static final String CLIENT_CONTEXT = null;
     private static final String COGNITO_IDENTITY_ID = "";
     private static final String COGNITO_IDENTITY_POOL_ID = "";
-    private static final String TRACE_ID = "";
-    private static final String PARENT_ID = "";
     private static final String FUNCTION_ARN;
     private static final String ACCOUNT_ID;
     private static boolean alreadyInvoked = false;
@@ -194,7 +192,7 @@ public class LambdaRuntime {
         systemLog("START RequestId: " + INVOKE_ID + " Version: " + FUNCTION_VERSION);
         return new InvokeRequest(-1, INVOKE_ID, X_AMZN_TRACE_ID, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
                 AWS_SESSION_TOKEN, CLIENT_CONTEXT, COGNITO_IDENTITY_ID, COGNITO_IDENTITY_POOL_ID, address,
-                eventBodyBytes.length, false, FUNCTION_ARN, TRACE_ID, false, PARENT_ID);
+                eventBodyBytes.length, false, FUNCTION_ARN);
     }
 
     public static int getRemainingTime() {
@@ -256,15 +254,11 @@ public class LambdaRuntime {
         public final int eventBodyLen;
         public final boolean needsDebugLogs;
         public final String invokedFunctionArn;
-        public final String traceId;
-        public final boolean isSampled;
-        public final String parentId;
 
         public InvokeRequest(final int sockfd, final String invokeid, final String xAmznTraceId, final String awskey,
                 final String awssecret, final String awssession, final String clientcontext,
                 final String cognitoidentityid, final String cognitopoolid, final long addr, final int len,
-                final boolean needsDebugLogs, final String invokedFunctionArn, final String traceId,
-                final boolean isSampled, final String parentId) {
+                final boolean needsDebugLogs, final String invokedFunctionArn) {
             this.sockfd = sockfd;
             this.invokeid = invokeid;
             this.xAmznTraceId = xAmznTraceId;
@@ -273,9 +267,6 @@ public class LambdaRuntime {
             this.clientContext = clientcontext;
             this.cognitoIdentityId = cognitoidentityid;
             this.cognitoPoolId = cognitopoolid;
-            this.traceId = traceId;
-            this.isSampled = isSampled;
-            this.parentId = parentId;
             this.credentials = new AWSCredentials(awskey, awssecret, awssession);
             this.needsDebugLogs = needsDebugLogs;
             this.invokedFunctionArn = invokedFunctionArn;

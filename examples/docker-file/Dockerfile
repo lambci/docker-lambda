@@ -1,4 +1,4 @@
-FROM lambci/lambda
+FROM lambci/lambda:nodejs8.10
 
 ENV AWS_LAMBDA_FUNCTION_NAME=docker-build \
     AWS_LAMBDA_FUNCTION_VERSION=2 \

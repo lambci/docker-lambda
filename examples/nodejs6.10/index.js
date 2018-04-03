@@ -2,6 +2,8 @@
 // docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs4.3
 // OR
 // docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs6.10
+// OR
+// docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs8.10
 
 exports.handler = function(event, context, cb) {
 

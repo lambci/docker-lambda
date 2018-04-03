@@ -15,7 +15,7 @@ same library versions that exist on AWS Lambda and then deploy using
 the [AWS CLI](https://aws.amazon.com/cli/).
 
 This project consists of a set of Docker images for each of the supported Lambda runtimes
-(Node.js 0.10, 4.3 and 6.10, Python 2.7 and 3.6, Java 8, .NET Core 2.0, and Go 1.x).
+(Node.js 0.10, 4.3, 6.10 and 8.10, Python 2.7 and 3.6, Java 8, .NET Core 2.0, and Go 1.x).
 
 There are also a set of build images that include packages like gcc-c++, git,
 zip and the aws-cli for compiling and deploying.
@@ -34,14 +34,11 @@ You can run your Lambdas from local directories using the `-v` arg with
 `docker run` – logging goes to stderr and the callback result goes to stdout:
 
 ```sh
-# Test an index.handler function from the current directory on Node.js v4.3
-docker run --rm -v "$PWD":/var/task lambci/lambda
+# Test an index.handler function from the current directory on Node.js v8.10
+docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs8.10
 
 # If using a function other than index.handler, with a custom event
-docker run --rm -v "$PWD":/var/task lambci/lambda index.myHandler '{"some": "event"}'
-
-# Use the original Node.js v0.10 runtime
-docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs
+docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs8.10 index.myHandler '{"some": "event"}'
 
 # Use the Node.js v6.10 runtime
 docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs6.10
@@ -66,11 +63,11 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:java8 org.myorg.MyHandler
 # a class named Function with a FunctionHandler method, and a custom event
 docker run --rm -v "$PWD":/var/task lambci/lambda:dotnetcore2.0 test::test.Function::FunctionHandler '{"some": "event"}'
 
-# Run custom commands on the default container
-docker run --rm --entrypoint node lambci/lambda -v
+# Run custom commands
+docker run --rm --entrypoint node lambci/lambda:nodejs8.10 -v
 
 # For large events you can pipe them into stdin if you set DOCKER_LAMBDA_USE_STDIN (on any runtime)
-echo '{"some": "event"}' | docker run --rm -v "$PWD":/var/task -i -e DOCKER_LAMBDA_USE_STDIN=1 lambci/lambda
+echo '{"some": "event"}' | docker run --rm -v "$PWD":/var/task -i -e DOCKER_LAMBDA_USE_STDIN=1 lambci/lambda:nodejs8.10
 ```
 
 You can see more examples of how to build docker images and run different
@@ -80,10 +77,7 @@ To use the build images, for compilation, deployment, etc:
 
 ```sh
 # To compile native deps in node_modules (runs `npm rebuild`)
-docker run --rm -v "$PWD":/var/task lambci/lambda:build
-
-# To use a different runtime from the default Node.js v4.3
-docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs6.10
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs8.10
 
 # To resolve dependencies on go1.x (working directory is /go/src/handler, will run `dep ensure`)
 docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x
@@ -93,7 +87,7 @@ docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x
 docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnetcore2.0 dotnet publish -c Release -o pub
 
 # Run custom commands on a build container
-docker run --rm lambci/lambda:build aws --version
+docker run --rm lambci/lambda:build-python2.7 aws --version
 
 # To run an interactive session on a build container
 docker run -it lambci/lambda:build-python3.6 bash
@@ -117,7 +111,7 @@ lambdaCallbackResult = dockerLambda({dockerImage: 'lambci/lambda:nodejs6.10'})
 Create your own Docker image for finer control:
 
 ```dockerfile
-FROM lambci/lambda:build
+FROM lambci/lambda:build-nodejs8.10
 
 ENV AWS_DEFAULT_REGION us-east-1
 
@@ -180,17 +174,17 @@ Documentation
 ------------
 
 Docker tags (follow the Lambda runtime names):
-  - `latest` / `nodejs4.3`
-  - `nodejs`
+  - `nodejs4.3`
   - `nodejs6.10`
+  - `nodejs8.10`
   - `python2.7`
   - `python3.6`
   - `java8`
   - `go1.x`
   - `dotnetcore2.0`
-  - `build` / `build-nodejs4.3`
-  - `build-nodejs`
+  - `build-nodejs4.3`
   - `build-nodejs6.10`
+  - `build-nodejs8.10`
   - `build-python2.7`
   - `build-python3.6`
   - `build-java8`

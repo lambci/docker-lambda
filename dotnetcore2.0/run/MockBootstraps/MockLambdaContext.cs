@@ -7,7 +7,7 @@ namespace MockLambdaRuntime
 {
     public class MockLambdaContext
     {
-        static Random random = new Random();
+        static readonly Random random = new Random();
 
         /// Creates a mock context from a given Lambda handler and event
         public MockLambdaContext(string handler, string eventBody)

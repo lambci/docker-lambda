@@ -1,7 +1,7 @@
 var fs = require('fs')
 var crypto = require('crypto')
 
-var HANDLER = process.argv[2] || process.env.AWS_LAMBDA_FUNCTION_HANDLER || process.env._HANDLER ||  'index.handler'
+var HANDLER = process.argv[2] || process.env.AWS_LAMBDA_FUNCTION_HANDLER || process.env._HANDLER || 'index.handler'
 var EVENT_BODY = process.argv[3] || process.env.AWS_LAMBDA_EVENT_BODY ||
   (process.env.DOCKER_LAMBDA_USE_STDIN && fs.readFileSync('/dev/stdin', 'utf8')) || '{}'
 
@@ -99,7 +99,7 @@ module.exports = {
     ].join('\t'))
 
     var exitCode = errored || errType ? 1 : 0
-    if (typeof resultStr == 'string') {
+    if (typeof resultStr === 'string') {
       handleResult(resultStr, function() { process.exit(exitCode) })
     } else {
       process.exit(exitCode)
@@ -123,15 +123,15 @@ module.exports = {
 }
 
 function formatConsole(str) {
-  return str.replace(/^[0-9TZ:\.\-]+\t[0-9a-f\-]+\t/, '\033[34m$&\u001b[0m')
+  return str.replace(/^[0-9TZ:.-]+\t[0-9a-f-]+\t/, '\u001b[34m$&\u001b[0m')
 }
 
 function formatSystem(str) {
-  return '\033[32m' + str + '\033[0m'
+  return '\u001b[32m' + str + '\u001b[0m'
 }
 
 function formatErr(str) {
-  return '\033[31m' + str + '\033[0m'
+  return '\u001b[31m' + str + '\u001b[0m'
 }
 
 function hrTimeMs(hrtime) {

@@ -18,4 +18,5 @@ WORKDIR /
 USER sbx_user1051
 
 ENTRYPOINT ["/usr/bin/java", "-XX:MaxHeapSize=1336935k", "-XX:MaxMetaspaceSize=157286k", "-XX:ReservedCodeCacheSize=78643k", \
-  "-XX:+UseSerialGC", "-Xshare:on", "-XX:-TieredCompilation", "-jar", "/var/runtime/lib/LambdaJavaRTEntry-1.0.jar"]
+  "-XX:+UseSerialGC", "-Xshare:on", "-XX:-TieredCompilation", "-Djava.net.preferIPv4Stack=true", \
+  "-jar", "/var/runtime/lib/LambdaJavaRTEntry-1.0.jar"]
