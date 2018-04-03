@@ -20,7 +20,7 @@ var ENV_ARGS = [].concat.apply([], ENV_VARS.map(function(x) { return ['-e', x] }
 // Will spawn `docker run` synchronously and return stdout
 module.exports = function runSync(options) {
   options = options || {}
-  var dockerImage = options.dockerImage || 'lambci/lambda'
+  var dockerImage = options.dockerImage || 'lambci/lambda:nodejs4.3'
   var handler = options.handler || 'index.handler'
   var event = options.event || {}
   var taskDir = options.taskDir == null ? process.cwd() : options.taskDir

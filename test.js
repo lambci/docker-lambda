@@ -24,7 +24,7 @@ captured.args.should.eql([
   '-v',
   __dirname + ':/var/task',
   '--rm',
-  'lambci/lambda',
+  'lambci/lambda:nodejs4.3',
   'index.handler',
   '{}',
 ])
@@ -64,7 +64,9 @@ captured.args.should.eql([
   'AWS_LAMBDA_FUNCTION_HANDLER',
   '-e',
   'AWS_LAMBDA_EVENT_BODY',
-  'lambci/lambda',
+  '-e',
+  'DOCKER_LAMBDA_USE_STDIN',
+  'lambci/lambda:nodejs4.3',
   'index.handler',
   '{}',
 ])
