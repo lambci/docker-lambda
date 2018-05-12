@@ -28,19 +28,19 @@ docker run --rm --entrypoint find lambci/lambda:nodejs4.3 / | sed 's/^\///' | so
 cd diff/nodejs4.3
 diff fs.docker.txt fs.lambda.txt | grep -v '^< dev/' | grep -v '^< proc/' | grep -v '^< sys/' | grep -v 'var/runtime/'
 diff docker/var/runtime/node_modules/awslambda/index.js lambda/var/runtime/node_modules/awslambda/index.js
-diff -qr docker lambda | grep -v '/var/runtime/node_modules/aws-sdk'
+diff -qr docker lambda
 
 cd ../nodejs6.10
 diff docker/var/runtime/node_modules/awslambda/index.js lambda/var/runtime/node_modules/awslambda/index.js
-diff -qr docker lambda | grep -v '/var/runtime/node_modules/aws-sdk'
+diff -qr docker lambda
 
 cd ../python2.7
 diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
-diff -qr docker lambda | grep -v '/var/runtime/boto'
+diff -qr docker lambda
 
 cd ../python3.6
 diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
-diff -qr docker lambda | grep -v '/var/runtime/boto' | grep -v __pycache__
+diff -qr docker lambda | grep -v __pycache__
 
 cd ../java8
 diff -qr docker lambda
