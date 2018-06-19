@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/aws/aws-lambda-go/lambda/messages"
 	"io/ioutil"
@@ -24,16 +25,21 @@ import (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
+	debugMode := flag.Bool("debug", false, "enables delve debugging")
+	delvePath := flag.String("delvePath", "/tmp/lambci_debug_files/dlv", "path to delve")
+	delvePort := flag.String("delvePort", "5985", "port to start delve server on")
+	flag.Parse()
+	positionalArgs := flag.Args()
 	var handler string
-	if len(os.Args) > 1 {
-		handler = os.Args[1]
+	if len(positionalArgs) > 1 {
+		handler = positionalArgs[1]
 	} else {
 		handler = getEnv("AWS_LAMBDA_FUNCTION_HANDLER", getEnv("_HANDLER", "handler"))
 	}
 
 	var eventBody string
-	if len(os.Args) > 2 {
-		eventBody = os.Args[2]
+	if len(positionalArgs) > 2 {
+		eventBody = positionalArgs[2]
 	} else {
 		eventBody = os.Getenv("AWS_LAMBDA_EVENT_BODY")
 		if eventBody == "" {
@@ -74,7 +80,21 @@ func main() {
 	os.Setenv("AWS_DEFAULT_REGION", mockContext.Region)
 	os.Setenv("_HANDLER", handler)
 
-	cmd := exec.Command("/var/task/" + handler)
+	var cmd *exec.Cmd
+	if *debugMode == true {
+		delveArgs := []string{
+			"--listen=:" + *delvePort,
+			"--headless=true",
+			"--api-version=1",
+			"--log",
+			"exec",
+			"/var/task/" + handler,
+		}
+		cmd = exec.Command(*delvePath, delveArgs...)
+	} else {
+		cmd = exec.Command("/var/task/" + handler)
+	}
+
 	cmd.Env = append(os.Environ(),
 		"_LAMBDA_SERVER_PORT="+port,
 		"AWS_ACCESS_KEY="+awsAccessKey,
