@@ -14,6 +14,7 @@ var ACCOUNT_ID = process.env.AWS_ACCOUNT_ID || randomAccountId()
 var ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || 'SOME_ACCESS_KEY_ID'
 var SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || 'SOME_SECRET_ACCESS_KEY'
 var SESSION_TOKEN = process.env.AWS_SESSION_TOKEN
+var INVOKED_ARN = process.env.AWS_LAMBDA_FUNCTION_INVOKED_ARN || arn(REGION, ACCOUNT_ID, FN_NAME)
 
 function consoleLog(str) {
   process.stderr.write(formatConsole(str))
@@ -65,7 +66,7 @@ var OPTIONS = {
     cognitoidentityid: undefined,
     cognitopoolid: undefined,
   },
-  invokedfunctionarn: arn(REGION, ACCOUNT_ID, FN_NAME),
+  invokedfunctionarn: INVOKED_ARN,
 }
 
 var invoked = false

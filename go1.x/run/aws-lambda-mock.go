@@ -356,7 +356,7 @@ func (mc *MockLambdaContext) Request() *messages.InvokeRequest {
 		Payload:            []byte(mc.EventBody),
 		RequestId:          mc.RequestId,
 		XAmznTraceId:       getEnv("_X_AMZN_TRACE_ID", ""),
-		InvokedFunctionArn: arn(mc.Region, mc.AccountId, mc.FnName),
+		InvokedFunctionArn: getEnv("AWS_LAMBDA_FUNCTION_INVOKED_ARN", arn(mc.Region, mc.AccountId, mc.FnName)),
 		Deadline: messages.InvokeRequest_Timestamp{
 			Seconds: mc.Deadline().Unix(),
 			Nanos:   int64(mc.Deadline().Nanosecond()),

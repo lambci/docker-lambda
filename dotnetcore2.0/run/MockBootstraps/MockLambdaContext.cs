@@ -77,7 +77,7 @@ namespace MockLambdaRuntime
 
         public string AccountId => EnvHelper.GetOrDefault("AWS_ACCOUNT_ID", "000000000000");
 
-        public string Arn => $"arn:aws:lambda:{Region}:{AccountId}:function:{FunctionName}";
+        public string Arn => EnvHelper.GetOrDefault("AWS_LAMBDA_FUNCTION_INVOKED_ARN", $"arn:aws:lambda:{Region}:{AccountId}:function:{FunctionName}");
 
         string RandomLogStreamName => $"{DateTime.Now.ToString("yyyy/MM/dd")}/[{FunctionVersion}]{random.Next().ToString("x") + random.Next().ToString("x")}";
     }
