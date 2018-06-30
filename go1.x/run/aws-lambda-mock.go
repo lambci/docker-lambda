@@ -31,15 +31,15 @@ func main() {
 	flag.Parse()
 	positionalArgs := flag.Args()
 	var handler string
-	if len(positionalArgs) > 1 {
-		handler = positionalArgs[1]
+	if len(positionalArgs) > 0 {
+		handler = positionalArgs[0]
 	} else {
 		handler = getEnv("AWS_LAMBDA_FUNCTION_HANDLER", getEnv("_HANDLER", "handler"))
 	}
 
 	var eventBody string
-	if len(positionalArgs) > 2 {
-		eventBody = positionalArgs[2]
+	if len(positionalArgs) > 1 {
+		eventBody = positionalArgs[1]
 	} else {
 		eventBody = os.Getenv("AWS_LAMBDA_EVENT_BODY")
 		if eventBody == "" {
