@@ -60,7 +60,7 @@ public class LambdaRuntime {
         AWS_SESSION_TOKEN = getEnv("AWS_SESSION_TOKEN");
         AWS_REGION = getEnvOrDefault("AWS_REGION", getEnvOrDefault("AWS_DEFAULT_REGION", "us-east-1"));
         ACCOUNT_ID = getEnvOrDefault("AWS_ACCOUNT_ID", "000000000000");
-        FUNCTION_ARN = getEnvOrDefault("AWS_LAMBDA_FUNCTION_INVOKED_ARN, 
+        FUNCTION_ARN = getEnvOrDefault("AWS_LAMBDA_FUNCTION_INVOKED_ARN",
             "arn:aws:lambda:" + AWS_REGION + ":" + ACCOUNT_ID + ":function:" + FUNCTION_NAME);
         X_AMZN_TRACE_ID = getEnvOrDefault("_X_AMZN_TRACE_ID", "");
 
