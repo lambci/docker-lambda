@@ -63,6 +63,9 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:java8 org.myorg.MyHandler
 # a class named Function with a FunctionHandler method, and a custom event
 docker run --rm -v "$PWD":/var/task lambci/lambda:dotnetcore2.0 test::test.Function::FunctionHandler '{"some": "event"}'
 
+# Test on .NET Core 2.1 in the same way
+docker run --rm -v "$PWD":/var/task lambci/lambda:dotnetcore2.1 test::test.Function::FunctionHandler '{"some": "event"}'
+
 # Run custom commands
 docker run --rm --entrypoint node lambci/lambda:nodejs8.10 -v
 
@@ -182,6 +185,7 @@ Docker tags (follow the Lambda runtime names):
   - `java8`
   - `go1.x`
   - `dotnetcore2.0`
+  - `dotnetcore2.1`
   - `build-nodejs4.3`
   - `build-nodejs6.10`
   - `build-nodejs8.10`
@@ -190,6 +194,7 @@ Docker tags (follow the Lambda runtime names):
   - `build-java8`
   - `build-go1.x`
   - `build-dotnetcore2.0`
+  - `build-dotnetcore2.1`
 
 Env vars:
   - `AWS_LAMBDA_FUNCTION_NAME`
