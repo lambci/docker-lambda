@@ -1,4 +1,4 @@
-# .NET Core 2.0 docker-lambda example
+# .NET Core 2.1 docker-lambda example
 
 ```sh
 # Will place the compiled code in `./pub`
