@@ -8,9 +8,9 @@ behaviors – even the user and running process are the same.
 
 ![Terminal Example](https://raw.githubusercontent.com/lambci/docker-lambda/master/examples/terminal.png "Example usage when index.js in current dir")
 
-You can use it for testing your functions in the same strict Lambda environment,
+You can use it for [running your functions](#run-examples) in the same strict Lambda environment,
 knowing that they'll exhibit the same behavior when deployed live. You can
-also use it to compile native dependencies knowing that you're linking to the
+also use it to [compile native dependencies](#build-examples) knowing that you're linking to the
 same library versions that exist on AWS Lambda and then deploy using
 the [AWS CLI](https://aws.amazon.com/cli/).
 
