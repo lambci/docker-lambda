@@ -15,7 +15,7 @@ same library versions that exist on AWS Lambda and then deploy using
 the [AWS CLI](https://aws.amazon.com/cli/).
 
 This project consists of a set of Docker images for each of the supported Lambda runtimes
-(Node.js 0.10, 4.3, 6.10 and 8.10, Python 2.7 and 3.6, Java 8, .NET Core 2.0, and Go 1.x).
+(Node.js 4.3, 6.10 and 8.10, Python 2.7 and 3.6, Java 8, .NET Core 2.0 and 2.1, and Go 1.x).
 
 There are also a set of build images that include packages like gcc-c++, git,
 zip and the aws-cli for compiling and deploying.
@@ -27,8 +27,8 @@ Prerequisites
 
 You'll need [Docker](https://www.docker.com) installed
 
-Example
--------
+Run Examples
+------------
 
 You can run your Lambdas from local directories using the `-v` arg with
 `docker run` – logging goes to stderr and the callback result goes to stdout:
@@ -75,6 +75,9 @@ echo '{"some": "event"}' | docker run --rm -v "$PWD":/var/task -i -e DOCKER_LAMB
 
 You can see more examples of how to build docker images and run different
 runtimes in the [examples](./examples) directory.
+
+Build Examples
+--------------
 
 To use the build images, for compilation, deployment, etc:
 

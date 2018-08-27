@@ -3,7 +3,7 @@ FROM lambci/lambda-base:build
 ENV PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin \
     LD_LIBRARY_PATH=/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib \
     AWS_EXECUTION_ENV=AWS_Lambda_dotnetcore2.1 \
-    DOTNET_SDK_VERSION=2.1.301 \
+    DOTNET_SDK_VERSION=2.1.401 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     NUGET_XMLDOC_MODE=skip
 

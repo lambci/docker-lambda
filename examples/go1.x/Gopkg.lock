@@ -2,19 +2,24 @@
 
 
 [[projects]]
+  digest = "1:8b55da6790eeade578c1fd4ebaa5b0e641072172e1d743f3cb945ae73af463f9"
   name = "github.com/aws/aws-lambda-go"
   packages = [
     "events",
     "lambda",
     "lambda/messages",
-    "lambdacontext"
+    "lambdacontext",
   ]
-  revision = "6e2e37798efbb1dfd8e9c6681702e683a6046517"
-  version = "v1.0.1"
+  pruneopts = ""
+  revision = "2d482ef09017ae953b1e8d5a6ddac5b696663a3c"
+  version = "v1.6.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3375957ebac467c0b60004a3901209363670a2ee730d5474c3d1ad1b121325bd"
+  input-imports = [
+    "github.com/aws/aws-lambda-go/events",
+    "github.com/aws/aws-lambda-go/lambda",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -25,28 +25,46 @@ done
 
 docker run --rm --entrypoint find lambci/lambda:nodejs4.3 / | sed 's/^\///' | sort > ./diff/nodejs4.3/fs.docker.txt
 
-cd diff/nodejs4.3
+DIFF_DIR="${PWD}/diff"
+
+cd ${DIFF_DIR}/nodejs4.3
+pwd
 diff fs.docker.txt fs.lambda.txt | grep -v '^< dev/' | grep -v '^< proc/' | grep -v '^< sys/' | grep -v 'var/runtime/'
 diff docker/var/runtime/node_modules/awslambda/index.js lambda/var/runtime/node_modules/awslambda/index.js
 diff -qr docker lambda
 
-cd ../nodejs6.10
+cd ${DIFF_DIR}/nodejs6.10
+pwd
 diff docker/var/runtime/node_modules/awslambda/index.js lambda/var/runtime/node_modules/awslambda/index.js
 diff -qr docker lambda
 
-cd ../python2.7
+cd ${DIFF_DIR}/nodejs8.10
+pwd
+diff docker/var/runtime/node_modules/awslambda/index.js lambda/var/runtime/node_modules/awslambda/index.js
+diff -qr docker lambda
+
+cd ${DIFF_DIR}/python2.7
+pwd
 diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
 diff -qr docker lambda
 
-cd ../python3.6
+cd ${DIFF_DIR}/python3.6
+pwd
 diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
 diff -qr docker lambda | grep -v __pycache__
 
-cd ../java8
+cd ${DIFF_DIR}/java8
+pwd
 diff -qr docker lambda
 
-cd ../go1.x
+cd ${DIFF_DIR}/go1.x
+pwd
 diff -qr docker lambda
 
-cd ../dotnetcore2.0
+cd ${DIFF_DIR}/dotnetcore2.0
+pwd
+diff -qr docker lambda
+
+cd ${DIFF_DIR}/dotnetcore2.1
+pwd
 diff -qr docker lambda
