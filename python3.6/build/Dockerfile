@@ -12,7 +12,7 @@ RUN rm -rf /var/runtime /var/lang && \
   curl https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tar.xz | tar -xJ && \
   cd Python-3.6.1 && \
   LIBS="$LIBS -lutil -lrt" ./configure --prefix=/var/lang && \
-  make -j$(getconf _NPROCESSORS_ONLN) libinstall inclinstall && \
+  make -j$(getconf _NPROCESSORS_ONLN) libinstall libainstall inclinstall && \
   cd .. && \
   rm -rf Python-3.6.1 && \
   pip3 install -U pip awscli virtualenv pipenv --no-cache-dir
