@@ -1,6 +1,6 @@
 FROM lambci/lambda-base:build
 
-ENV GOLANG_VERSION=1.10.3 \
+ENV GOLANG_VERSION=1.11 \
     GOPATH=/go \
     PATH=/go/bin:/usr/local/go/bin:$PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_go1.x
