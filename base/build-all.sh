@@ -11,11 +11,11 @@ for RUNTIME in $RUNTIMES; do
 
   [ -x ./update_libs.sh ] && ./update_libs.sh
 
-  docker build -t lambci/lambda:${RUNTIME} .
+  docker build --no-cache -t lambci/lambda:${RUNTIME} .
 
   cd ${TOP_DIR}/${RUNTIME}/build
 
-  docker build -t lambci/lambda:build-${RUNTIME} .
+  docker build --no-cache -t lambci/lambda:build-${RUNTIME} .
 done
 
 docker tag lambci/lambda:nodejs4.3 lambci/lambda:latest
