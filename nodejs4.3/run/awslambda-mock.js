@@ -15,6 +15,7 @@ var ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || 'SOME_ACCESS_KEY_ID'
 var SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || 'SOME_SECRET_ACCESS_KEY'
 var SESSION_TOKEN = process.env.AWS_SESSION_TOKEN
 var INVOKED_ARN = process.env.AWS_LAMBDA_FUNCTION_INVOKED_ARN || arn(REGION, ACCOUNT_ID, FN_NAME)
+var XRAY_TRACE_ID = process.env._X_AMZN_TRACE_ID
 
 function consoleLog(str) {
   process.stderr.write(formatConsole(str))
@@ -70,6 +71,8 @@ var OPTIONS = {
 
 // Some weird spelling error in the source?
 OPTIONS.invokeid = OPTIONS.invokeId
+
+OPTIONS['x-amzn-trace-id'] = XRAY_TRACE_ID
 
 var invoked = false
 var errored = false
