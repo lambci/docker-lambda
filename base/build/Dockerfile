@@ -15,8 +15,7 @@ yum_conf.write(f); \
 f.close();" && \
   rpm --rebuilddb && \
   yum install -y yum-plugin-ovl && \
-  yum reinstall -y filesystem; \
-  yum reinstall -y shadow-utils && \
+  yum reinstall -y setup pam shadow-utils audit-libs glibc glibc-common openssl iptables && \
   yum groupinstall -y development && \
   yum install -y clang cmake aws-cli docker \
     openssl-devel libffi-devel python27-devel python34-devel \
