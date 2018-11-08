@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -7,18 +9,41 @@ using AWSLambda.Internal.Bootstrap.Context;
 
 namespace MockLambdaRuntime
 {
-    class Program
+    internal class Program
     {
+        private const string WaitForDebuggerFlagName = "d";
+
+        private const bool WaitForDebuggerFlagDefaultValue = false;
+
         /// Task root of lambda task
-        static string lambdaTaskRoot = EnvHelper.GetOrDefault("LAMBDA_TASK_ROOT", "/var/task");
+        private static readonly string lambdaTaskRoot = EnvHelper.GetOrDefault("LAMBDA_TASK_ROOT", "/var/task");
 
         /// Program entry point
-        static void Main(string[] args)
+        internal static void Main(string[] args)
         {
             AssemblyLoadContext.Default.Resolving += OnAssemblyResolving;
 
-            var handler = GetFunctionHandler(args);
-            var body = GetEventBody(args);
+            if (args.Length > 3)
+            {
+                Console.Error.WriteLine("Too many arguments");
+                return;
+            }
+
+            var shouldWaitForDebugger = GetShouldWaitForDebuggerFlag(args, out var positionalArgs);
+
+            if (!TryGetFunctionHandler(positionalArgs, out var handler))
+            {
+                Console.Error.WriteLine("Handler was not specified");
+                return;
+            }
+            
+            var body = GetEventBody(positionalArgs);
+
+            if (shouldWaitForDebugger && !TryWaitForDebugger())
+            {
+                Console.Error.WriteLine("Debugger failed to attach. Terminating.");
+                return;
+            }
 
             var lambdaContext = new MockLambdaContext(handler, body);
 
@@ -56,6 +81,65 @@ namespace MockLambdaRuntime
             }
         }
 
+        /// <summary>
+        /// Tries to wait for the debugger to attach
+        /// </summary>
+        /// <returns><c>True</c> is debugger was attached <c>False</c> otherwise</returns>
+        private static bool TryWaitForDebugger()
+        {
+            if (Debugger.IsAttached) return true;
+
+            try
+            {
+                var processId = Process.GetCurrentProcess().Id;
+                Console.WriteLine($"Started processId: {processId}");
+            }
+            catch (Exception ex) when (ex is InvalidOperationException || ex is PlatformNotSupportedException)
+            {
+                Console.Error.WriteLine($"Failed to get process ID: {ex.Message}");
+            }
+
+            Console.WriteLine("Attach debugger and press any key to continue execution...");
+            Console.Read();
+
+            return Debugger.IsAttached;
+        }
+
+        /// <summary>
+        /// Extracts "waitForDebugger" flag from args. Returns other unprocessed arguments.
+        /// </summary>
+        /// <param name="args">Args to look through</param>
+        /// <param name="unprocessed">Arguments except for the "waitForDebugger" ones</param>
+        /// <returns>"waitForDebugger" flag value</returns>
+        private static bool GetShouldWaitForDebuggerFlag(IReadOnlyList<string> args, out IReadOnlyList<string> unprocessed)
+        {
+            var flagValue = WaitForDebuggerFlagDefaultValue;
+
+            var unprocessedList = new List<string>();
+            foreach (var argument in args)
+            {
+                if (argument.StartsWith('-'))
+                {
+                    var flag = argument.TrimStart('-');
+                    if (flag == WaitForDebuggerFlagName)
+                    {
+                        flagValue = true;
+                        continue;
+                    }
+                }
+
+                unprocessedList.Add(argument);
+            }
+
+            if (!flagValue)
+            {
+                flagValue = Environment.GetEnvironmentVariable("_SHOULD_WAIT_FOR_DEBUGGER") != null;                
+            }
+
+            unprocessed = unprocessedList.AsReadOnly();
+            return flagValue;
+        }
+
         /// Called when an assembly could not be resolved
         private static Assembly OnAssemblyResolving(AssemblyLoadContext context, AssemblyName assembly)
         {
@@ -68,12 +152,12 @@ namespace MockLambdaRuntime
             Console.Error.WriteLine(text);
         }
 
-        static void LogRequestStart(MockLambdaContext context)
+        private static void LogRequestStart(MockLambdaContext context)
         {
             Console.Error.WriteLine($"START RequestId: {context.RequestId} Version: {context.FunctionVersion}");
         }
 
-        static void LogRequestEnd(MockLambdaContext context)
+        private static void LogRequestEnd(MockLambdaContext context)
         {
             Console.Error.WriteLine($"END  RequestId: {context.RequestId}");
 
@@ -85,20 +169,21 @@ namespace MockLambdaRuntime
         }
 
         /// Gets the function handler from arguments or environment
-        static string GetFunctionHandler(string[] args)
+        private static bool TryGetFunctionHandler(IReadOnlyList<string> args, out string handler)
         {
-            return args.Length > 0 ? args[0] : EnvHelper.GetOrDefault("AWS_LAMBDA_FUNCTION_HANDLER", string.Empty);
+            handler = args.Count > 0 ? args[0] : EnvHelper.GetOrDefault("AWS_LAMBDA_FUNCTION_HANDLER", string.Empty);
+            return !string.IsNullOrWhiteSpace(handler);
         }
 
         /// Gets the event body from arguments or environment
-        static string GetEventBody(string[] args)
+        static string GetEventBody(IReadOnlyList<string> args)
         {
-            return args.Length > 1 ? args[1] : (Environment.GetEnvironmentVariable("AWS_LAMBDA_EVENT_BODY") ??
-              (Environment.GetEnvironmentVariable("DOCKER_LAMBDA_USE_STDIN") != null ? Console.In.ReadToEnd() : "{}"));
+            return args.Count > 1 ? args[1] : (Environment.GetEnvironmentVariable("AWS_LAMBDA_EVENT_BODY") ??
+              (Environment.GetEnvironmentVariable("DOCKER_LAMBDA_USE_STDIN") != null ? Console.In.ReadToEnd() : "'{}'"));
         }
     }
 
-    class EnvHelper
+    internal static class EnvHelper
     {
         /// Gets the given environment variable with a fallback if it doesn't exist
         public static string GetOrDefault(string name, string fallback)

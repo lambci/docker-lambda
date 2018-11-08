@@ -5,12 +5,12 @@ using System.Text;
 
 namespace MockLambdaRuntime
 {
-    public class MockLambdaContext
+    internal sealed class MockLambdaContext
     {
-        static readonly Random random = new Random();
+        private static readonly Random _random = new Random();
 
         /// Creates a mock context from a given Lambda handler and event
-        public MockLambdaContext(string handler, string eventBody)
+        internal MockLambdaContext(string handler, string eventBody)
         {
             RequestId = Guid.NewGuid().ToString();
             StartTime = DateTime.Now;
@@ -38,6 +38,7 @@ namespace MockLambdaRuntime
         }
 
         public long Duration => (long)(DateTime.Now - StartTime).TotalMilliseconds;
+
         public long BilledDuration => (long)(Math.Ceiling((DateTime.Now - StartTime).TotalMilliseconds / 100)) * 100;
 
         public long MemoryUsed => Process.GetCurrentProcess().WorkingSet64;
@@ -59,6 +60,7 @@ namespace MockLambdaRuntime
         }
 
         public string RequestId { get; }
+
         public DateTime StartTime { get; }
 
         public int Timeout => Convert.ToInt32(EnvHelper.GetOrDefault("AWS_LAMBDA_FUNCTION_TIMEOUT", "300"));
@@ -79,6 +81,6 @@ namespace MockLambdaRuntime
 
         public string Arn => EnvHelper.GetOrDefault("AWS_LAMBDA_FUNCTION_INVOKED_ARN", $"arn:aws:lambda:{Region}:{AccountId}:function:{FunctionName}");
 
-        string RandomLogStreamName => $"{DateTime.Now.ToString("yyyy/MM/dd")}/[{FunctionVersion}]{random.Next().ToString("x") + random.Next().ToString("x")}";
+        string RandomLogStreamName => $"{DateTime.Now.ToString("yyyy/MM/dd")}/[{FunctionVersion}]{_random.Next().ToString("x") + _random.Next().ToString("x")}";
     }
 }
