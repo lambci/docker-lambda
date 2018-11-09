@@ -9,7 +9,7 @@ using AWSLambda.Internal.Bootstrap.Context;
 
 namespace MockLambdaRuntime
 {
-    internal class Program
+    internal static class Program
     {
         private const string WaitForDebuggerFlagName = "d";
 
@@ -18,8 +18,11 @@ namespace MockLambdaRuntime
         /// Task root of lambda task
         private static readonly string lambdaTaskRoot = EnvHelper.GetOrDefault("LAMBDA_TASK_ROOT", "/var/task");
 
+        private static readonly TimeSpan _debuggerStatusQueryInterval = TimeSpan.FromMilliseconds(50);
+        private static readonly TimeSpan _debuggerStatusQueryTimeout = TimeSpan.FromMinutes(10);
+
         /// Program entry point
-        internal static void Main(string[] args)
+        public static void Main(string[] args)
         {
             AssemblyLoadContext.Default.Resolving += OnAssemblyResolving;
 
@@ -39,10 +42,15 @@ namespace MockLambdaRuntime
             
             var body = GetEventBody(positionalArgs);
 
-            if (shouldWaitForDebugger && !TryWaitForDebugger())
+            if (shouldWaitForDebugger)
             {
-                Console.Error.WriteLine("Debugger failed to attach. Terminating.");
-                return;
+                TryDisplayProcessId();
+                Console.Error.WriteLine("Waiting for the debugger to attach...");
+
+                if (!DebuggerExtensions.TryWaitForAttaching(_debuggerStatusQueryInterval, _debuggerStatusQueryTimeout))
+                {
+                    Console.Error.WriteLine("Timeout. Proceeding without debugger.");
+                }
             }
 
             var lambdaContext = new MockLambdaContext(handler, body);
@@ -82,27 +90,19 @@ namespace MockLambdaRuntime
         }
 
         /// <summary>
-        /// Tries to wait for the debugger to attach
+        /// Tries to display PID of the started program to simplify attaching.
         /// </summary>
-        /// <returns><c>True</c> is debugger was attached <c>False</c> otherwise</returns>
-        private static bool TryWaitForDebugger()
+        private static void TryDisplayProcessId()
         {
-            if (Debugger.IsAttached) return true;
-
             try
             {
                 var processId = Process.GetCurrentProcess().Id;
-                Console.WriteLine($"Started processId: {processId}");
+                Console.Error.WriteLine($"Attach to processId: {processId}.");
             }
             catch (Exception ex) when (ex is InvalidOperationException || ex is PlatformNotSupportedException)
             {
-                Console.Error.WriteLine($"Failed to get process ID: {ex.Message}");
+                Console.Error.WriteLine($"Failed to get process ID: {ex.Message}.");
             }
-
-            Console.WriteLine("Attach debugger and press any key to continue execution...");
-            Console.Read();
-
-            return Debugger.IsAttached;
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace MockLambdaRuntime
         }
 
         /// Gets the event body from arguments or environment
-        static string GetEventBody(IReadOnlyList<string> args)
+        private static string GetEventBody(IReadOnlyList<string> args)
         {
             return args.Count > 1 ? args[1] : (Environment.GetEnvironmentVariable("AWS_LAMBDA_EVENT_BODY") ??
               (Environment.GetEnvironmentVariable("DOCKER_LAMBDA_USE_STDIN") != null ? Console.In.ReadToEnd() : "'{}'"));
