@@ -24,3 +24,6 @@ f.close();" && \
   rm -rf /var/cache/yum /var/lib/rpm/__db.* && \
   > /var/log/yum.log
 
+RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python &&  \
+    pip install -U pip setuptools --no-cache-dir && \
+    pip install aws-lambda-builders==0.0.1-dev
