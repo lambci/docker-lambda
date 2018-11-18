@@ -1,6 +1,6 @@
 FROM lambci/lambda-base
 
-ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
 
 # A couple of packages are either missing critical-ish files, or didn't make it into the tar
 # Reinstalling filesystem might not succeed fully, but continue anyway

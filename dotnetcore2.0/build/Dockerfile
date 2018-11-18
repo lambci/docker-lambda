@@ -1,7 +1,7 @@
 FROM lambci/lambda-base:build
 
-ENV PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin \
-    LD_LIBRARY_PATH=/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib \
+ENV PATH=/var/lang/bin:$PATH \
+    LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_dotnetcore2.0 \
     DOTNET_SDK_VERSION=2.1.202 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \

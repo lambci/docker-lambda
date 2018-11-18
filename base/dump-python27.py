@@ -41,8 +41,8 @@ def lambda_handler(event, context):
 #  {
 #  'AWS_LAMBDA_FUNCTION_VERSION': '$LATEST',
 #  'LAMBDA_TASK_ROOT': '/var/task',
-#  'PATH': '/usr/local/bin:/usr/bin/:/bin',
-#  'LD_LIBRARY_PATH': '/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib',
+#  'PATH': '/usr/local/bin:/usr/bin/:/bin:/opt/bin',
+#  'LD_LIBRARY_PATH': '/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib',
 #  'LANG': 'en_US.UTF-8',
 #  'AWS_LAMBDA_FUNCTION_NAME': 'dump-python27',
 #  'AWS_REGION': 'us-east-1',

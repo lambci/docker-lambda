@@ -5,8 +5,8 @@ FROM scratch
 # So this is expected to be downloaded from https://lambci.s3.amazonaws.com/fs/nodejs4.3.tgz
 ADD ./nodejs4.3.tgz /
 
-ENV PATH=/usr/local/bin:/usr/bin/:/bin \
-    LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib \
+ENV PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin \
+    LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib \
     LANG=en_US.UTF-8 \
     TZ=:UTC \
     LAMBDA_TASK_ROOT=/var/task \

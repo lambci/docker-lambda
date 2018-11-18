@@ -70,10 +70,10 @@ func main() {
 }
 
 /*
-PATH=/usr/local/bin:/usr/bin/:/bin
+PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin
 LANG=en_US.UTF-8
 TZ=:UTC
-LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib
+LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib
 _LAMBDA_CONTROL_SOCKET=15
 _LAMBDA_CONSOLE_SOCKET=17
 LAMBDA_TASK_ROOT=/var/task
@@ -99,10 +99,10 @@ _LAMBDA_RUNTIME_LOAD_TIME=1522376103407
 /var/task
 /var/task/my_handler
 
-PATH=/usr/local/bin:/usr/bin/:/bin
+PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin
 LANG=en_US.UTF-8
 TZ=:UTC
-LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib
+LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib
 _LAMBDA_CONTROL_SOCKET=15
 _LAMBDA_CONSOLE_SOCKET=17
 LAMBDA_TASK_ROOT=/var/task

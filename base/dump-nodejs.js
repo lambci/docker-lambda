@@ -49,9 +49,9 @@ exports.handler = function(event, context) {
 // /var/task
 // /var/task/index.js
 // {
-// PATH: '/usr/local/bin:/usr/bin/:/bin',
+// PATH: '/usr/local/bin:/usr/bin/:/bin:/opt/bin',
 // LANG: 'en_US.UTF-8',
-// LD_LIBRARY_PATH: '/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib',
+// LD_LIBRARY_PATH: '/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib',
 // LAMBDA_TASK_ROOT: '/var/task',
 // LAMBDA_RUNTIME_DIR: '/var/runtime',
 // AWS_REGION: 'us-east-1',

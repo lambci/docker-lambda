@@ -1,7 +1,7 @@
 FROM lambci/lambda-base
 
-ENV PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin \
-    LD_LIBRARY_PATH=/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib \
+ENV PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin \
+    LD_LIBRARY_PATH=/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib \
     AWS_EXECUTION_ENV=AWS_Lambda_nodejs8.10 \
     NODE_PATH=/var/runtime:/var/task:/var/runtime/node_modules
 
