@@ -15,5 +15,8 @@ RUN rm -rf /var/runtime /var/lang && \
   LIBS="$LIBS -lutil -lrt" ./configure --prefix=/var/lang && \
   make -j$(getconf _NPROCESSORS_ONLN) libinstall libainstall inclinstall && \
   cd .. && \
-  rm -rf Python-3.6.1 && \
-  pip3 install -U pip awscli virtualenv pipenv --no-cache-dir
+  rm -rf Python-3.6.1
+
+# Add these as a separate layer as they get updated frequently
+RUN pip install -U pip setuptools --no-cache-dir && \
+  pip install -U virtualenv pipenv awscli boto3 aws-sam-cli aws-lambda-builders==0.0.1-dev --no-cache-dir

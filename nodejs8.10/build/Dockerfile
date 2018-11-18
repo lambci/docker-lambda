@@ -9,4 +9,8 @@ ENV PATH=/var/lang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/
 RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/nodejs8.10.tgz | tar -zx -C /
 
+# Add these as a separate layer as they get updated frequently
+RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python && \
+  pip install -U virtualenv pipenv awscli boto3 aws-sam-cli aws-lambda-builders==0.0.1-dev --no-cache-dir
+
 CMD ["npm", "rebuild"]

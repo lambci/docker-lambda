@@ -14,4 +14,8 @@ RUN rm -rf /var/runtime /var/lang && \
   go install github.com/golang/dep/cmd/dep && \
   go get golang.org/x/vgo
 
+# Add these as a separate layer as they get updated frequently
+RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python && \
+  pip install -U virtualenv pipenv awscli boto3 aws-sam-cli aws-lambda-builders==0.0.1-dev --no-cache-dir
+
 CMD ["dep", "ensure"]
