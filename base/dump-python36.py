@@ -31,6 +31,9 @@ def lambda_handler(event, context):
     print(__file__)
     print(os.environ)
     print(context.__dict__)
+    print(subprocess.check_output(['ps', 'aux']).decode('utf-8'))
+    print(subprocess.check_output(['sh', '-c', 'xargs -n 1 -0 < /proc/1/environ']).decode('utf-8'))
+    print(sys.path)
 
     return data
 
