@@ -3,7 +3,7 @@ FROM lambci/lambda-base:build
 ENV PATH=/var/lang/bin:$PATH \
     LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_nodejs8.10 \
-    NODE_PATH=/var/runtime:/var/task:/var/runtime/node_modules \
+    NODE_PATH=/opt/nodejs/node8/node_modules:/opt/nodejs/node_modules:/var/runtime/node_modules:/var/runtime:/var/task:/var/runtime/node_modules \
     npm_config_unsafe-perm=true
 
 RUN rm -rf /var/runtime /var/lang && \

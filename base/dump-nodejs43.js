@@ -37,6 +37,8 @@ exports.handler = function(event, context, cb) {
       console.log(process.cwd())
       console.log(__filename)
       console.log(process.env)
+      console.log(childProcess.execSync('xargs -n 1 -0 < /proc/1/environ', { encoding: 'utf8' }))
+      console.log(childProcess.execSync('ps aux', { encoding: 'utf8' }))
       console.log(context)
 
       cb(null, data)
