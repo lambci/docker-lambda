@@ -21,6 +21,7 @@ public class ExampleHandler implements RequestHandler<Object, String> {
         logger.log(System.getProperty("sun.java.command") + "\n");
         logger.log(System.getProperty("java.home") + "\n");
         logger.log(System.getProperty("java.library.path") + "\n");
+        logger.log(System.getProperty("java.class.path") + "\n");
         logger.log(System.getProperty("user.dir") + "\n");
         logger.log(System.getProperty("user.home") + "\n");
         logger.log(System.getProperty("user.name") + "\n");

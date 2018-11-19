@@ -21,12 +21,13 @@ public class DumpJava8 implements RequestHandler<Object, PutObjectResult> {
         String cmd = "tar -cpzf /tmp/" + filename + " --numeric-owner --ignore-failed-read /var/runtime /var/lang";
 //        String filename = "java8.fs.txt";
 //        String cmd = "find / -ls | grep -v /proc | grep -v /var/runtime | grep -v /var/task | grep -v /var/lang | sort -k11 > /tmp/" + filename;
-        AmazonS3 s3client = AmazonS3ClientBuilder.defaultClient();
+        AmazonS3 s3client = AmazonS3ClientBuilder.standard().withRegion("us-east-1").build();
 
         System.out.println(ManagementFactory.getRuntimeMXBean().getInputArguments().toString());
         System.out.println(System.getProperty("sun.java.command"));
         System.out.println(System.getProperty("java.home"));
         System.out.println(System.getProperty("java.library.path"));
+        System.out.println(System.getProperty("java.class.path"));
         System.out.println(System.getProperty("user.dir"));
         System.out.println(System.getProperty("user.home"));
         System.out.println(System.getProperty("user.name"));
