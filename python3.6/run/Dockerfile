@@ -2,8 +2,7 @@ FROM lambci/lambda-base
 
 ENV PATH=/var/lang/bin:$PATH \
     LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
-    AWS_EXECUTION_ENV=AWS_Lambda_python3.6 \
-    PYTHONPATH=/var/runtime
+    AWS_EXECUTION_ENV=AWS_Lambda_python3.6
 
 RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/python3.6.tgz | tar -zx -C /

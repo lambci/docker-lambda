@@ -1,6 +1,7 @@
 from __future__ import print_function
 import os
 import sys
+import subprocess
 
 # Just a test lambda, run with:
 # docker run --rm -v "$PWD":/var/task lambci/lambda:python2.7
@@ -14,6 +15,9 @@ def lambda_handler(event, context):
     print(os.path.basename(__file__))
     for key in os.environ.keys():
         print('{0}={1}'.format(key,os.environ[key]))
+    print(subprocess.check_output(['ps', 'aux']).decode('utf-8'))
+    print(subprocess.check_output(['sh', '-c', 'xargs -n 1 -0 < /proc/1/environ']).decode('utf-8'))
+    print(sys.path)
     print(os.getuid())
     print(os.getgid())
     print(os.geteuid())
