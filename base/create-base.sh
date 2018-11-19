@@ -1,7 +1,7 @@
 #!/bin/bash
 
-curl -O https://lambci.s3.amazonaws.com/fs/nodejs4.3.tgz
+curl -O https://lambci.s3.amazonaws.com/fs/base.tgz
 
 docker build --squash -t lambci/lambda-base .
 
-rm ./nodejs4.3.tgz
+rm ./base.tgz

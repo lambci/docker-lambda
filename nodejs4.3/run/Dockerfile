@@ -6,7 +6,7 @@ ENV PATH=/usr/local/lib64/node-v4.3.x/bin:$PATH \
     NODE_PATH=/var/runtime:/var/task:/var/runtime/node_modules
 
 RUN rm -rf /var/runtime /var/lang && \
-  curl https://lambci.s3.amazonaws.com/fs/nodejs4.3.tgz | tar -zx -C / -- var/runtime var/lang
+  curl https://lambci.s3.amazonaws.com/fs/nodejs4.3.tgz | tar -zx -C /
 
 COPY awslambda-mock.js /var/runtime/node_modules/awslambda/build/Release/awslambda.js
 

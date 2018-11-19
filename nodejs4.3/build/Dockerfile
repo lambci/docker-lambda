@@ -7,7 +7,7 @@ ENV PATH=/usr/local/lib64/node-v4.3.x/bin:$PATH \
     npm_config_unsafe-perm=true
 
 RUN rm -rf /var/runtime /var/lang && \
-  curl https://lambci.s3.amazonaws.com/fs/nodejs4.3.tgz | tar -zx -C / -- var/runtime var/lang
+  curl https://lambci.s3.amazonaws.com/fs/nodejs4.3.tgz | tar -zx -C /
 
 # Add these as a separate layer as they get updated frequently
 RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python && \

@@ -2,8 +2,8 @@ FROM scratch
 
 # Docker doesn't support unpacking from remote URLs with ADD,
 # and we don't want to 'docker import' because we can't squash into a small layer
-# So this is expected to be downloaded from https://lambci.s3.amazonaws.com/fs/nodejs4.3.tgz
-ADD ./nodejs4.3.tgz /
+# So this is expected to be downloaded from https://lambci.s3.amazonaws.com/fs/base.tgz
+ADD ./base.tgz /
 
 ENV PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin \
     LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib \
@@ -24,7 +24,7 @@ ENV PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin \
     _X_AMZN_TRACE_ID='Parent=11560be54abce8ed'
 
 RUN yum reinstall -y filesystem; \
-  rm -rf /var/cache/yum /var/lib/rpm/__db.* /var/runtime /var/lang && \
+  rm -rf /var/cache/yum /var/lib/rpm/__db.* && \
   > /var/log/yum.log && \
   mkdir /tmp && \
   chown sbx_user1051:495 /tmp && \

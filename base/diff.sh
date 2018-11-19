@@ -23,13 +23,18 @@ for RUNTIME in $RUNTIMES; do
   curl https://lambci.s3.amazonaws.com/fs/${RUNTIME}.fs.txt > ./diff/${RUNTIME}/fs.full.lambda.txt
 done
 
-docker run --rm --entrypoint find lambci/lambda:nodejs4.3 / | sed 's/^\///' | sort > ./diff/nodejs4.3/fs.docker.txt
+docker run --rm --entrypoint find lambci/lambda:python2.7 / | sed 's/^\///' | sort > ./diff/python2.7/fs.docker.txt
 
 DIFF_DIR="${PWD}/diff"
 
-cd ${DIFF_DIR}/nodejs4.3
+cd ${DIFF_DIR}/python2.7
 pwd
 diff fs.docker.txt fs.lambda.txt | grep -v '^< dev/' | grep -v '^< proc/' | grep -v '^< sys/' | grep -v 'var/runtime/'
+diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
+diff -qr docker lambda
+
+cd ${DIFF_DIR}/nodejs4.3
+pwd
 diff docker/var/runtime/node_modules/awslambda/index.js lambda/var/runtime/node_modules/awslambda/index.js
 diff -qr docker lambda
 
@@ -41,11 +46,6 @@ diff -qr docker lambda
 cd ${DIFF_DIR}/nodejs8.10
 pwd
 diff docker/var/runtime/node_modules/awslambda/index.js lambda/var/runtime/node_modules/awslambda/index.js
-diff -qr docker lambda
-
-cd ${DIFF_DIR}/python2.7
-pwd
-diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
 diff -qr docker lambda
 
 cd ${DIFF_DIR}/python3.6

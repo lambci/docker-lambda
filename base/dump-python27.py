@@ -13,15 +13,19 @@ def lambda_handler(event, context):
     if ('cmd' in event):
         return print(subprocess.check_output(['sh', '-c', event['cmd']]))
 
-    filename = 'python2.7.tgz'
-    cmd = 'tar -cpzf /tmp/{} --numeric-owner --ignore-failed-read /var/runtime /var/lang'.format(filename)
+    subprocess.call(['sh', '-c', 'tar -cpzf /tmp/base.tgz -C / ' +
+        '--exclude=/proc --exclude=/sys --exclude=/dev --exclude=/tmp ' +
+        '--exclude=/var/task/* --exclude=/var/runtime/* --exclude=/var/lang/* ' +
+        '--numeric-owner --ignore-failed-read /'])
 
-    subprocess.call(['sh', '-c', cmd])
+    subprocess.call(['sh', '-c', 'tar -cpzf /tmp/python2.7.tgz ' +
+        '--numeric-owner --ignore-failed-read /var/runtime /var/lang'])
 
     print('Zipping done! Uploading...')
 
-    data = transfer.upload_file('/tmp/' + filename, 'lambci', 'fs/' + filename,
-                                extra_args={'ACL': 'public-read'})
+    data = transfer.upload_file('/tmp/base.tgz', 'lambci', 'fs/base.tgz', extra_args={'ACL': 'public-read'})
+
+    transfer.upload_file('/tmp/python2.7.tgz', 'lambci', 'fs/python2.7.tgz', extra_args={'ACL': 'public-read'})
 
     print('Uploading done!')
 
