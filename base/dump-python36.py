@@ -3,77 +3,128 @@ from __future__ import print_function
 import os
 import sys
 import subprocess
+import json
 import boto3
 from boto3.s3.transfer import S3Transfer
 
-client = boto3.client('s3')
-transfer = S3Transfer(client)
+TRANSFER = S3Transfer(boto3.client('s3'))
+
 
 def lambda_handler(event, context):
-    if ('cmd' in event):
+    if 'cmd' in event:
         return print(subprocess.check_output(['sh', '-c', event['cmd']]))
 
-    filename = 'python3.6.tgz'
-    cmd = 'tar -cpzf /tmp/{} --numeric-owner --ignore-failed-read /var/runtime /var/lang'.format(filename)
-
-    subprocess.call(['sh', '-c', cmd])
+    subprocess.call(['sh', '-c', 'tar -cpzf /tmp/python3.6.tgz --numeric-owner --ignore-failed-read ' +
+                     '/var/runtime /var/lang /var/rapid'])
 
     print('Zipping done! Uploading...')
 
-    data = transfer.upload_file('/tmp/' + filename, 'lambci', 'fs/' + filename,
-                                extra_args={'ACL': 'public-read'})
+    TRANSFER.upload_file('/tmp/python3.6.tgz', 'lambci', 'fs/python3.6.tgz', extra_args={'ACL': 'public-read'})
 
     print('Uploading done!')
 
-    print(sys.executable)
-    print(sys.argv)
-    print(os.getcwd())
-    print(__file__)
-    print(os.environ)
-    print(context.__dict__)
-    print(subprocess.check_output(['ps', 'aux']).decode('utf-8'))
-    print(subprocess.check_output(['sh', '-c', 'xargs -n 1 -0 < /proc/1/environ']).decode('utf-8'))
-    print(sys.path)
+    info = {'sys.executable': sys.executable,
+            'sys.argv': sys.argv,
+            'sys.path': sys.path,
+            'os.getcwd': os.getcwd(),
+            '__file__': __file__,
+            'os.environ': {k: str(v) for k, v in os.environ.items()},
+            'context': {k: str(v) for k, v in context.__dict__.items()},
+            'ps aux': subprocess.check_output(['ps', 'aux']).decode('utf-8').splitlines(),
+            'proc environ': subprocess.check_output(
+                ['sh', '-c', 'xargs -n 1 -0 < /proc/1/environ']).decode('utf-8').splitlines()}
 
-    return data
+    print(json.dumps(info, indent=2))
 
-#  /var/lang/bin/python3.6
-#  ['/var/runtime/awslambda/bootstrap.py']
-#  /var/task
-#  /var/task/lambda_function.py
-#  environ({
-#  'PATH': '/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin',
-#  'LANG': 'en_US.UTF-8',
-#  'LD_LIBRARY_PATH': '/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib',
-#  'LAMBDA_TASK_ROOT': '/var/task',
-#  'LAMBDA_RUNTIME_DIR': '/var/runtime',
-#  'AWS_REGION': 'us-east-1',
-#  'AWS_DEFAULT_REGION': 'us-east-1',
-#  'AWS_LAMBDA_LOG_GROUP_NAME': '/aws/lambda/dump-python36',
-#  'AWS_LAMBDA_LOG_STREAM_NAME': '2017/04/30/[$LATEST]55cf2f4a9b924101b800f0b9f10ab74c',
-#  'AWS_LAMBDA_FUNCTION_NAME': 'dump-python36',
-#  'AWS_LAMBDA_FUNCTION_MEMORY_SIZE': '1536',
-#  'AWS_LAMBDA_FUNCTION_VERSION': '$LATEST',
-#  '_AWS_XRAY_DAEMON_ADDRESS': '169.254.79.2',
-#  '_AWS_XRAY_DAEMON_PORT': '2000',
-#  'AWS_XRAY_DAEMON_ADDRESS': '169.254.79.2:2000',
-#  'AWS_XRAY_CONTEXT_MISSING': 'LOG_ERROR',
-#  '_X_AMZN_TRACE_ID': 'Root=1-5905f755-a3ea01f9783851b148e19f51;Parent=6b4656b818d2c094;Sampled=0',
-#  'AWS_EXECUTION_ENV': 'AWS_Lambda_python3.6',
-#  'PYTHONPATH': '/var/runtime',
-#  'AWS_ACCESS_KEY_ID': 'ASIAJDXI4GKGONVRYCJA',
-#  'AWS_SECRET_ACCESS_KEY': '0QFwsOM3a2q96n6Ddx6qp/e9qFAMTfRShXp51Rvb',
-#  'AWS_SESSION_TOKEN': 'FQoDYXdzEHgaDAdBKrOATj5IDnzbdCLmAYPYsS4f+w9OQMpop0Bam28jBXR5IU0qglCtzh4wzMyWp8xHJTej3JACkO/yYWcooKjGaUJ7OaiZjPT9L2GmC+7zxTS7RpXsHDQGLX4f67TuMZ45DgQu43DyawwUWjQcYqJEr+v9NjpxtqB8h8EmIKNtApvieSLCUjdFVppmva17fm87tj4Ep9P3qHmNWpKyaiTBiIvYU1YASNIzhwa/0XBMynudAQhbqlr8UfmYTjEUZG7CjgCPgICl1LOIqzN8PZ5KFutLq1eBcRFpProhhqt4tNZsED97hoZPxb6aZCs//J5UcaL7KNXul8gF',
-#  'AWS_SECURITY_TOKEN': 'FQoDYXdzEHgaDAdBKrOATj5IDnzbdCLmAYPYsS4f+w9OQMpop0Bam28jBXR5IU0qglCtzh4wzMyWp8xHJTej3JACkO/yYWcooKjGaUJ7OaiZjPT9L2GmC+7zxTS7RpXsHDQGLX4f67TuMZ45DgQu43DyawwUWjQcYqJEr+v9NjpxtqB8h8EmIKNtApvieSLCUjdFVppmva17fm87tj4Ep9P3qHmNWpKyaiTBiIvYU1YASNIzhwa/0XBMynudAQhbqlr8UfmYTjEUZG7CjgCPgICl1LOIqzN8PZ5KFutLq1eBcRFpProhhqt4tNZsED97hoZPxb6aZCs//J5UcaL7KNXul8gF'
-#  })
-#  {
-#  'aws_request_id': '1fcdc383-a9e8-4228-bc1c-8db17629e183',
-#  'log_group_name': '/aws/lambda/dump-python36',
-#  'log_stream_name': '2017/03/23/[$LATEST]c079a84d433534434534ef0ddc99d00f',
-#  'function_name': 'dump-python36',
-#  'memory_limit_in_mb': '1536',
-#  'function_version': '$LATEST',
-#  'invoked_function_arn': 'arn:aws:lambda:us-east-1:879423879432:function:dump-python36',
-#  'client_context': None,
-#  'identity': <__main__.CognitoIdentity object at 0x7f79c5974eb8>
-#  }
+    return info
+
+#  "sys.executable": "/var/lang/bin/python3.6",
+#  "sys.argv": [
+  #  "/var/runtime/awslambda/bootstrap.py"
+#  ],
+#  "sys.path": [
+  #  "/var/task",
+  #  "/opt/python/lib/python3.6/site-packages",
+  #  "/opt/python",
+  #  "/var/runtime",
+  #  "/var/runtime/awslambda",
+  #  "/var/lang/lib/python36.zip",
+  #  "/var/lang/lib/python3.6",
+  #  "/var/lang/lib/python3.6/lib-dynload",
+  #  "/var/lang/lib/python3.6/site-packages",
+  #  "/opt/python/lib/python3.6/site-packages",
+  #  "/opt/python"
+#  ],
+#  "os.getcwd": "/var/task",
+#  "__file__": "/var/task/lambda_function.py",
+#  "os.environ": {
+  #  "PATH": "/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin",
+  #  "LD_LIBRARY_PATH": "/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib",
+  #  "LANG": "en_US.UTF-8",
+  #  "TZ": ":UTC",
+  #  "LAMBDA_TASK_ROOT": "/var/task",
+  #  "LAMBDA_RUNTIME_DIR": "/var/runtime",
+  #  "AWS_REGION": "us-east-1",
+  #  "AWS_DEFAULT_REGION": "us-east-1",
+  #  "AWS_LAMBDA_LOG_GROUP_NAME": "/aws/lambda/dump-python36",
+  #  "AWS_LAMBDA_LOG_STREAM_NAME": "2018/11/20/[$LATEST]bed1311f89d44a4ca0153b20afe94ed5",
+  #  "AWS_LAMBDA_FUNCTION_NAME": "dump-python36",
+  #  "AWS_LAMBDA_FUNCTION_MEMORY_SIZE": "1536",
+  #  "AWS_LAMBDA_FUNCTION_VERSION": "$LATEST",
+  #  "_AWS_XRAY_DAEMON_ADDRESS": "169.254.79.2",
+  #  "_AWS_XRAY_DAEMON_PORT": "2000",
+  #  "AWS_XRAY_DAEMON_ADDRESS": "169.254.79.2:2000",
+  #  "AWS_XRAY_CONTEXT_MISSING": "LOG_ERROR",
+  #  "_X_AMZN_TRACE_ID": "Root=1-5bf37642-635d5f0017b99334b0dc0a0a;Parent=68f7884d5be55d38;Sampled=0",
+  #  "AWS_EXECUTION_ENV": "AWS_Lambda_python3.6",
+  #  "_HANDLER": "lambda_function.lambda_handler",
+  #  "AWS_ACCESS_KEY_ID": "ASIAYBQ3XNZIETZUEWMI",
+  #  "AWS_SECRET_ACCESS_KEY": "84k...",
+  #  "AWS_SESSION_TOKEN": "FQoGZ...",
+  #  "AWS_SECURITY_TOKEN": "FQoGZ...",
+  #  "PYTHONPATH": "/var/runtime"
+#  },
+#  "context": {
+  #  "aws_request_id": "ec20cbf4-ec6e-11e8-ae2f-1900152991b2",
+  #  "log_group_name": "/aws/lambda/dump-python36",
+  #  "log_stream_name": "2018/11/20/[$LATEST]bed1311f89d44a4ca0153b20afe94ed5",
+  #  "function_name": "dump-python36",
+  #  "memory_limit_in_mb": "1536",
+  #  "function_version": "$LATEST",
+  #  "invoked_function_arn": "arn:aws:lambda:us-east-1:999999999999:function:dump-python36",
+  #  "client_context": "None",
+  #  "identity": "<__main__.CognitoIdentity object at 0x7f157ab6bd68>"
+#  },
+#  "ps aux": [
+  #  "USER PID %CPU %MEM    VSZ   RSS TTY STAT START TIME COMMAND",
+  #  "488    1 13.5  0.7 183460 30112 ?   Ss   02:49 0:00 /var/lang/bin/python3.6 /var/runtime/awslambda/bootstrap.py",
+  #  "488    5  0.0  0.0 117224  2492 ?   R    02:49 0:00 ps aux"
+#  ],
+#  "proc environ": [
+  #  "PATH=/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin",
+  #  "LD_LIBRARY_PATH=/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib",
+  #  "LANG=en_US.UTF-8",
+  #  "TZ=:UTC",
+  #  "_LAMBDA_CONTROL_SOCKET=15",
+  #  "_LAMBDA_CONSOLE_SOCKET=17",
+  #  "LAMBDA_TASK_ROOT=/var/task",
+  #  "LAMBDA_RUNTIME_DIR=/var/runtime",
+  #  "_LAMBDA_LOG_FD=24",
+  #  "_LAMBDA_SB_ID=8",
+  #  "_LAMBDA_SHARED_MEM_FD=12",
+  #  "AWS_REGION=us-east-1",
+  #  "AWS_DEFAULT_REGION=us-east-1",
+  #  "AWS_LAMBDA_LOG_GROUP_NAME=/aws/lambda/dump-python36",
+  #  "AWS_LAMBDA_LOG_STREAM_NAME=2018/11/20/[$LATEST]bed1311f89d44a4ca0153b20afe94ed5",
+  #  "AWS_LAMBDA_FUNCTION_NAME=dump-python36",
+  #  "AWS_LAMBDA_FUNCTION_MEMORY_SIZE=1536",
+  #  "AWS_LAMBDA_FUNCTION_VERSION=$LATEST",
+  #  "_AWS_XRAY_DAEMON_ADDRESS=169.254.79.2",
+  #  "_AWS_XRAY_DAEMON_PORT=2000",
+  #  "AWS_XRAY_DAEMON_ADDRESS=169.254.79.2:2000",
+  #  "AWS_XRAY_CONTEXT_MISSING=LOG_ERROR",
+  #  "_X_AMZN_TRACE_ID=Parent=3f4f839064ce33c1",
+  #  "AWS_EXECUTION_ENV=AWS_Lambda_python3.6",
+  #  "_HANDLER=lambda_function.lambda_handler",
+  #  "_LAMBDA_RUNTIME_LOAD_TIME=39954026786"
+#  ]
