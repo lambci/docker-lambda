@@ -85,7 +85,7 @@ func main() {
 		delveArgs := []string{
 			"--listen=:" + *delvePort,
 			"--headless=true",
-			"--api-version=1",
+			"--api-version=2",
 			"--log",
 			"exec",
 			"/var/task/" + handler,
