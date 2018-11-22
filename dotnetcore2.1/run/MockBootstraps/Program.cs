@@ -11,7 +11,7 @@ namespace MockLambdaRuntime
 {
     class Program
     {
-        private const string WaitForDebuggerFlagName = "d";
+        private const string WaitForDebuggerFlag = "-d";
         private const bool WaitForDebuggerFlagDefaultValue = false;
 
         /// Task root of lambda task
@@ -130,24 +130,13 @@ namespace MockLambdaRuntime
 
             foreach (var argument in args)
             {
-                if (argument.StartsWith('-'))
+                if (argument == WaitForDebuggerFlag)
                 {
-                    var flag = argument.TrimStart('-');
-
-                    if (flag == WaitForDebuggerFlagName)
-                    {
-                        flagValue = true;
-                        continue;
-                    }
+                    flagValue = true;
+                    continue;
                 }
 
                 unprocessedList.Add(argument);
-            }
-
-            // Flag was not set from args, try environment variable
-            if (!flagValue)
-            {
-                flagValue = Environment.GetEnvironmentVariable("_SHOULD_WAIT_FOR_DEBUGGER") != null;
             }
 
             unprocessed = unprocessedList.ToArray();
