@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNTIMES="nodejs4.3 nodejs6.10 nodejs8.10 python2.7 python3.6 java8 go1.x dotnetcore2.0 dotnetcore2.1 provided"
+RUNTIMES="nodejs4.3 nodejs6.10 nodejs8.10 python2.7 python3.6 python3.7 java8 go1.x dotnetcore2.0 dotnetcore2.1 provided"
 
 rm -rf diff
 mkdir -p diff
@@ -51,6 +51,13 @@ diff -qr docker lambda
 cd ${DIFF_DIR}/python3.6
 pwd
 diff docker/var/runtime/awslambda/bootstrap.py lambda/var/runtime/awslambda/bootstrap.py
+diff -qr docker lambda | grep -v __pycache__
+
+cd ${DIFF_DIR}/python3.7
+pwd
+diff docker/var/runtime/bootstrap lambda/var/runtime/bootstrap
+diff docker/var/runtime/bootstrap.py lambda/var/runtime/bootstrap.py
+diff docker/var/runtime/lambda_runtime_client.py lambda/var/runtime/lambda_runtime_client.py
 diff -qr docker lambda | grep -v __pycache__
 
 cd ${DIFF_DIR}/java8

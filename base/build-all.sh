@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNTIMES="nodejs4.3 nodejs6.10 nodejs8.10 python2.7 python3.6 java8 go1.x dotnetcore2.0 dotnetcore2.1 provided"
+RUNTIMES="nodejs4.3 nodejs6.10 nodejs8.10 python2.7 python3.6 python3.7 java8 go1.x dotnetcore2.0 dotnetcore2.1 provided"
 
 TOP_DIR="${PWD}/.."
 

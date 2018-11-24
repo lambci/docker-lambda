@@ -60,6 +60,9 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:python2.7
 # Test on Python 3.6 with a custom file named my_module.py containing a my_handler function
 docker run --rm -v "$PWD":/var/task lambci/lambda:python3.6 my_module.my_handler
 
+# Python 3.7 requires the handler be given explicitly
+docker run --rm -v "$PWD":/var/task lambci/lambda:python3.7 lambda_function.lambda_handler
+
 # Test on Go 1.x with a compiled handler named my_handler and a custom event
 docker run --rm -v "$PWD":/var/task lambci/lambda:go1.x my_handler '{"some": "event"}'
 
@@ -204,6 +207,7 @@ Docker tags (follow the Lambda runtime names):
   - `nodejs8.10`
   - `python2.7`
   - `python3.6`
+  - `python3.7`
   - `java8`
   - `go1.x`
   - `dotnetcore2.0`
@@ -214,6 +218,7 @@ Docker tags (follow the Lambda runtime names):
   - `build-nodejs8.10`
   - `build-python2.7`
   - `build-python3.6`
+  - `build-python3.7`
   - `build-java8`
   - `build-go1.x`
   - `build-dotnetcore2.0`

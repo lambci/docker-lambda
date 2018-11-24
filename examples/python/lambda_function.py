@@ -7,37 +7,28 @@ import subprocess
 # docker run --rm -v "$PWD":/var/task lambci/lambda:python2.7
 # OR
 # docker run --rm -v "$PWD":/var/task lambci/lambda:python3.6
+# OR
+# docker run --rm -v "$PWD":/var/task lambci/lambda:python3.7 lambda_function.lambda_handler
 
 def lambda_handler(event, context):
-    for arg in sys.argv:
-        print(arg)
+    context.log('Hello!')
+    context.log('Hmmm, does not add newlines in 3.7?')
+    context.log('\n')
+
+    print(sys.executable)
+    print(sys.argv)
     print(os.getcwd())
-    print(os.path.basename(__file__))
-    for key in os.environ.keys():
-        print('{0}={1}'.format(key,os.environ[key]))
-    print(subprocess.check_output(['ps', 'aux']).decode('utf-8'))
-    print(subprocess.check_output(['sh', '-c', 'xargs -n 1 -0 < /proc/1/environ']).decode('utf-8'))
-    print(sys.path)
-    print(os.getuid())
-    print(os.getgid())
-    print(os.geteuid())
-    print(os.getegid())
-    print(os.getgroups())
-    print(os.umask(0o222))
+    print(__file__)
+    print(os.environ)
+    print(context.__dict__)
 
-    print(event)
-    print(context.get_remaining_time_in_millis())
-    print(context.aws_request_id)
-    if context.client_context:
-        print(context.client_context)
-    print(context.function_name)
-    print(context.function_version)
-    print(context.identity.cognito_identity_id)
-    print(context.identity.cognito_identity_pool_id)
-    print(context.invoked_function_arn)
-    print(context.log('Log this for me please'))
-    print(context.log_group_name)
-    print(context.log_stream_name)
-    print(context.memory_limit_in_mb)
-
-    return 'It works!'
+    return {
+        "executable": str(sys.executable),
+        "sys.argv": str(sys.argv),
+        "os.getcwd": str(os.getcwd()),
+        "__file__": str(__file__),
+        "os.environ": str(os.environ),
+        "context.__dict__": str(context.__dict__),
+        "ps aux": str(subprocess.check_output(['ps', 'aux'])),
+        "event": event
+    }
