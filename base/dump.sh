@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNTIMES="node43 node610 node810 python27 python36 java8 go1x dotnetcore20 dotnetcore21"
+RUNTIMES="node43 node610 node810 python27 python36 java8 go1x dotnetcore20 dotnetcore21 provided"
 
 for RUNTIME in $RUNTIMES; do
   echo $RUNTIME

@@ -14,8 +14,7 @@ also use it to [compile native dependencies](#build-examples) knowing that you'r
 same library versions that exist on AWS Lambda and then deploy using
 the [AWS CLI](https://aws.amazon.com/cli/).
 
-This project consists of a set of Docker images for each of the supported Lambda runtimes
-(Node.js 4.3, 6.10 and 8.10, Python 2.7 and 3.6, Java 8, .NET Core 2.0 and 2.1, and Go 1.x).
+This project consists of a set of Docker images for each of the supported Lambda runtimes.
 
 There are also a set of build images that include packages like gcc-c++, git,
 zip and the aws-cli for compiling and deploying.
@@ -31,7 +30,19 @@ Run Examples
 ------------
 
 You can run your Lambdas from local directories using the `-v` arg with
-`docker run` – logging goes to stderr and the callback result goes to stdout:
+`docker run` – logging goes to stderr and the callback result goes to stdout.
+
+You mount your (unzipped) lambda code at `/var/task` and any (unzipped) layer
+code at `/opt`, and most runtimes take two arguments – the first for the
+handler and the second for the event, ie:
+
+```sh
+docker run [--rm] -v <code_dir>:/var/task [-v <layer_dir>:/opt] lambci/lambda:<runtime> [<handler>] [<event>]
+```
+
+(the `--rm` flag will remove the docker container once it has run, which is usually what you want)
+
+Eg:
 
 ```sh
 # Test an index.handler function from the current directory on Node.js v8.10
@@ -65,6 +76,12 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:dotnetcore2.0 test::test.Funct
 
 # Test on .NET Core 2.1 in the same way
 docker run --rm -v "$PWD":/var/task lambci/lambda:dotnetcore2.1 test::test.Function::FunctionHandler '{"some": "event"}'
+
+# Test with a provided runtime (assumes you have a bootstrap file in the current directory)
+docker run --rm -v "$PWD":/var/task lambci/lambda:provided handler '{"some": "event"}'
+
+# Test with layers (assumes all layers have been unzipped to ../opt)
+docker run --rm -v "$PWD":/var/task -v "$PWD"/../opt:/opt lambci/lambda:nodejs8.10
 
 # Run custom commands
 docker run --rm --entrypoint node lambci/lambda:nodejs8.10 -v
@@ -125,8 +142,10 @@ COPY . .
 
 RUN npm install
 
-CMD cat .lambdaignore | xargs zip -9qyr lambda.zip . -x && \
-  aws lambda update-function-code --function-name mylambda --zip-file fileb://lambda.zip
+# Assumes you have a .lambdaignore file with a list of files you don't want in your zip
+RUN cat .lambdaignore | xargs zip -9qyr lambda.zip . -x
+
+CMD aws lambda update-function-code --function-name mylambda --zip-file fileb://lambda.zip
 
 # docker build -t mylambda .
 # docker run --rm -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY mylambda
@@ -167,9 +186,9 @@ Questions
 * *Is it really necessary to replicate exactly to this degree?*
 
   Not for many scenarios – some compiled Linux binaries work out of the box
-  and a CentOS Docker image can compile some binaries that work on Lambda too,
-  for example – but for testing it's great to be able to reliably verify
-  permissions issues, library linking issues, etc.
+  and an Amazon Linux Docker image can compile some binaries that work on
+  Lambda too, for example – but for testing it's great to be able to reliably
+  verify permissions issues, library linking issues, etc.
 
 * *What's this got to do with LambCI?*
 
@@ -189,6 +208,7 @@ Docker tags (follow the Lambda runtime names):
   - `go1.x`
   - `dotnetcore2.0`
   - `dotnetcore2.1`
+  - `provided`
   - `build-nodejs4.3`
   - `build-nodejs6.10`
   - `build-nodejs8.10`
@@ -198,6 +218,7 @@ Docker tags (follow the Lambda runtime names):
   - `build-go1.x`
   - `build-dotnetcore2.0`
   - `build-dotnetcore2.1`
+  - `build-provided`
 
 Env vars:
   - `AWS_LAMBDA_FUNCTION_NAME`

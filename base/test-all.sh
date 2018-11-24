@@ -33,3 +33,6 @@ docker run --rm -v "$PWD"/pub:/var/task lambci/lambda:dotnetcore2.1 test::test.F
 cd ${EXAMPLES_DIR}/go1.x
 docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x sh -c 'dep ensure && go build handler.go'
 docker run --rm -v "$PWD":/var/task lambci/lambda:go1.x handler '{"Records": []}'
+
+cd ${EXAMPLES_DIR}/provided
+docker run --rm -v "$PWD":/var/task lambci/lambda:provided handler '{"some": "event"}'
