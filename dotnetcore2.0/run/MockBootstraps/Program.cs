@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -34,7 +33,6 @@ namespace MockLambdaRuntime
 
                 if (shouldWaitForDebugger)
                 {
-                    TryDisplayProcessId();
                     Console.Error.WriteLine("Waiting for the debugger to attach...");
 
                     if (!DebuggerExtensions.TryWaitForAttaching(
@@ -100,22 +98,6 @@ namespace MockLambdaRuntime
             Console.Error.WriteLine(text);
         }
 
-        /// <summary>
-        /// Tries to display PID of the started program to simplify attaching.
-        /// </summary>
-        private static void TryDisplayProcessId()
-        {
-            try
-            {
-                var processId = Process.GetCurrentProcess().Id;
-
-                Console.Error.WriteLine($"Attach to process id: {processId}.");
-            }
-            catch (Exception ex) when (ex is InvalidOperationException || ex is PlatformNotSupportedException)
-            {
-                Console.Error.WriteLine($"Failed to get process id: {ex.Message}.");
-            }
-        }
         /// <summary>
         /// Extracts "waitForDebugger" flag from args. Returns other unprocessed arguments.
         /// </summary>
