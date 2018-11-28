@@ -17,6 +17,7 @@ npm test
 cd ${EXAMPLES_DIR}/python
 docker run --rm -v "$PWD":/var/task lambci/lambda:python2.7
 docker run --rm -v "$PWD":/var/task lambci/lambda:python3.6
+docker run --rm -v "$PWD":/var/task lambci/lambda:python3.7
 
 cd ${EXAMPLES_DIR}/java
 gradle build
