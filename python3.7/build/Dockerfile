@@ -1,0 +1,23 @@
+FROM lambci/lambda-base:build
+
+ENV PATH=/var/lang/bin:$PATH \
+    LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
+    AWS_EXECUTION_ENV=AWS_Lambda_python3.7 \
+    PYTHONPATH=/var/runtime \
+    PKG_CONFIG_PATH=/var/lang/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/share/pkgconfig
+
+RUN rm -rf /var/runtime /var/lang && \
+  curl https://lambci.s3.amazonaws.com/fs/python3.7.tgz | tar -xz -C / && \
+  yum install -y bzip2-devel && \
+  sed -i '/^prefix=/c\prefix=/var/lang' /var/lang/lib/pkgconfig/python-3.7.pc && \
+  curl https://www.python.org/ftp/python/3.7.1/Python-3.7.1.tar.xz | tar -xJ && \
+  cd Python-3.7.1 && \
+  LIBS="$LIBS -lutil -lrt" ./configure --prefix=/var/lang && \
+  make -j$(getconf _NPROCESSORS_ONLN) libinstall libainstall inclinstall && \
+  cd .. && \
+  rm -rf Python-3.7.1
+
+# Add these as a separate layer as they get updated frequently
+RUN pip install -U pip setuptools --no-cache-dir && \
+  pip install -U virtualenv pipenv --no-cache-dir && \
+  pip install -U awscli boto3 aws-sam-cli aws-lambda-builders==0.0.3 --no-cache-dir
