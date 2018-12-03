@@ -10,7 +10,7 @@ namespace MockLambdaRuntime
 {
     class Program
     {
-        private const string WaitForDebuggerFlag = "-d";
+        private const string WaitForDebuggerFlag = "--debugger-spin-wait";
         private const bool WaitForDebuggerFlagDefaultValue = false;
 
         /// Task root of lambda task
