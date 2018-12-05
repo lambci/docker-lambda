@@ -18,8 +18,10 @@ f.close();" && \
   yum reinstall -y setup pam shadow-utils audit-libs glibc glibc-common openssl iptables && \
   yum groupinstall -y development && \
   yum install -y clang cmake docker \
-    openssl-devel libffi-devel python27-devel python34-devel \
-    libmpc-devel mpfr-devel gmp-devel && \
+    libssh2-devel libffi-devel python27-devel python34-devel \
+    libmpc-devel mpfr-devel gmp-devel pcre-devel cairo-devel ImageMagick-devel \
+    libcurl-devel expat-devel libicu-devel libxml2-devel libxslt-devel lua-devel \
+    ncurses-devel readline-devel db4-devel gdbm-devel sqlite-devel && \
   rm -rf /var/cache/yum /var/lib/rpm/__db.* && \
   > /var/log/yum.log
 
