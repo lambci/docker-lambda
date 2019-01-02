@@ -100,18 +100,16 @@ func main() {
 	os.Setenv("_X_AMZN_TRACE_ID", mockContext.XAmznTraceId)
 	os.Setenv("_HANDLER", handler)
 
-	cmdPath := *bootstrapPath
-	if _, err := os.Stat(cmdPath); os.IsNotExist(err) {
-		cmdPath = "/var/task/bootstrap"
-		if _, err := os.Stat(cmdPath); os.IsNotExist(err) {
-			cmdPath = "/opt/bootstrap"
-			if _, err := os.Stat(cmdPath); os.IsNotExist(err) {
-				abortRequest(fmt.Errorf("Couldn't find valid bootstrap(s): [/var/task/bootstrap /opt/bootstrap]"))
-				return
-			}
+	var cmd *exec.Cmd
+	for _, cmdPath := range []string{*bootstrapPath, "/var/task/bootstrap", "/opt/bootstrap"} {
+		if fi, err := os.Stat(cmdPath); err == nil && !fi.IsDir() {
+			cmd = exec.Command(cmdPath)
+			break
 		}
 	}
-	cmd := exec.Command(cmdPath)
+	if cmd == nil {
+		abortRequest(fmt.Errorf("Couldn't find valid bootstrap(s): [/var/task/bootstrap /opt/bootstrap]"))
+	}
 
 	cmd.Env = append(os.Environ(),
 		"AWS_LAMBDA_RUNTIME_API=127.0.0.1:9001",
