@@ -102,11 +102,11 @@ func main() {
 
 	cmdPath := *bootstrapPath
 	if _, err := os.Stat(cmdPath); os.IsNotExist(err) {
-		cmdPath = "/var/task/bootstrap"
+		cmdPath = "/opt/bootstrap"
 		if _, err := os.Stat(cmdPath); os.IsNotExist(err) {
-			cmdPath = "/opt/bootstrap"
+			cmdPath = "/var/task/bootstrap"
 			if _, err := os.Stat(cmdPath); os.IsNotExist(err) {
-				abortRequest(fmt.Errorf("Couldn't find valid bootstrap(s): [/var/task/bootstrap /opt/bootstrap]"))
+				abortRequest(fmt.Errorf("Couldn't find valid bootstrap(s): [/opt/bootstrap /var/task/bootstrap]"))
 				return
 			}
 		}
