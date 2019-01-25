@@ -106,14 +106,14 @@ To use the build images, for compilation, deployment, etc:
 
 ```sh
 # To compile native deps in node_modules (runs `npm rebuild`)
-docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs8.10
+docker run --rm -v "$PWD":/var/task:delegated lambci/lambda:build-nodejs8.10
 
 # To resolve dependencies on go1.x (working directory is /go/src/handler, will run `dep ensure`)
-docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x
+docker run --rm -v "$PWD":/go/src/handler:delegated lambci/lambda:build-go1.x
 
 # For .NET Core 2.0, this will publish the compiled code to `./pub`,
 # which you can then use to run with `-v "$PWD"/pub:/var/task`
-docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnetcore2.0 dotnet publish -c Release -o pub
+docker run --rm -v "$PWD":/var/task:delegated lambci/lambda:build-dotnetcore2.0 dotnet publish -c Release -o pub
 
 # Run custom commands on a build container
 docker run --rm lambci/lambda:build-python2.7 aws --version
@@ -157,6 +157,11 @@ CMD aws lambda update-function-code --function-name mylambda --zip-file fileb://
 # docker run --rm -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY mylambda
 ```
 
+A note on mount flags
+---------------------
+To reproduce the read-only access to the task directory on AWS, add `:ro` to the `-v` argument. This mounts the task read-only, which is not quite the same as on AWS where the task runs as a different user, but already useful. 
+
+To speed up I/O on the task directory, especially on macOS, add `:delegated` to the `-v` argument. This tells Docker that it is ok for the host system to see inconsistencies in the task dir for a short time, and it will greatly improve build speeds.
 
 Questions
 ---------
