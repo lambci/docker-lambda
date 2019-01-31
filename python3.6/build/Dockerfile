@@ -10,12 +10,12 @@ RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/python3.6.tgz | tar -xz -C / && \
   yum install -y bzip2-devel && \
   sed -i '/^prefix=/c\prefix=/var/lang' /var/lang/lib/pkgconfig/python-3.6.pc && \
-  curl https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tar.xz | tar -xJ && \
-  cd Python-3.6.1 && \
+  curl https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz | tar -xJ && \
+  cd Python-3.6.8 && \
   LIBS="$LIBS -lutil -lrt" ./configure --prefix=/var/lang && \
   make -j$(getconf _NPROCESSORS_ONLN) libinstall libainstall inclinstall && \
   cd .. && \
-  rm -rf Python-3.6.1
+  rm -rf Python-3.6.8
 
 # Add these as a separate layer as they get updated frequently
 RUN pip install -U pip setuptools --no-cache-dir && \
