@@ -9,7 +9,7 @@ ENV PATH=/var/lang/bin:$PATH \
 
 RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/dotnetcore2.1.tgz | tar -zx -C / && \
-  yum install -y libunwind && \
+  yum install -y --releasever=latest libunwind && \
   curl https://dot.net/v1/dotnet-install.sh | bash -s -- -v $DOTNET_SDK_VERSION -i /var/lang/bin && \
   mkdir /tmp/warmup && \
   cd /tmp/warmup && \

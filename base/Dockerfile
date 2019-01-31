@@ -23,7 +23,7 @@ ENV PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin \
     AWS_XRAY_CONTEXT_MISSING=LOG_ERROR \
     _X_AMZN_TRACE_ID='Parent=11560be54abce8ed'
 
-RUN yum reinstall -y filesystem; \
+RUN yum reinstall -y --releasever=latest filesystem; \
   rm -rf /var/cache/yum /var/lib/rpm/__db.* && \
   > /var/log/yum.log && \
   mkdir /tmp && \
