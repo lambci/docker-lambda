@@ -5,12 +5,13 @@ ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
 # A couple of packages are either missing critical-ish files, or didn't make it into the tar
 # Reinstalling filesystem might not succeed fully, but continue anyway
 RUN chmod 1777 /tmp && \
+  yum install -y --releasever=latest glibc-devel; \
   /usr/bin/python3 -c "from configparser import SafeConfigParser; \
 yum_conf = SafeConfigParser(); \
-yum_conf.read('/etc/yum.conf'); \
+yum_conf.read('/etc/yum/yum.conf'); \
 yum_conf.has_section('main') or yum_conf.add_section('main'); \
 yum_conf.set('main', 'plugins', '1'); \
-f = open('/etc/yum.conf', 'w'); \
+f = open('/etc/yum/yum.conf', 'w'); \
 yum_conf.write(f); \
 f.close();" && \
   rpm --rebuilddb && \
