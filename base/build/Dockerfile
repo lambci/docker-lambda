@@ -16,16 +16,18 @@ f.close();" && \
   rpm --rebuilddb && \
   yum install -y --releasever=latest yum-plugin-ovl && \
   yum reinstall -y --releasever=latest setup pam shadow-utils audit-libs glibc glibc-common iptables fipscheck-lib && \
-  rm -rf /var/cache/yum && \
+  yum clean all && \
   yum reinstall -y openssl openssh-clients && \
-  rm -rf /var/cache/yum && \
+  yum clean all && \
   yum install -y --releasever=latest glibc-devel && \
-  yum groupinstall -y --releasever=latest development && \
-  yum install -y --releasever=latest clang cmake docker \
-    libssh2-devel libffi-devel python27-devel python34-devel \
-    libmpc-devel mpfr-devel gmp-devel pcre-devel cairo-devel ImageMagick-devel \
-    libcurl-devel expat-devel libicu-devel libxml2-devel libxslt-devel lua-devel \
-    ncurses-devel readline-devel db4-devel gdbm-devel sqlite-devel && \
+  yum clean all && \
+  yum groupinstall -y development && \
+  yum install -y clang cmake docker libffi-devel python27-devel python34-devel \
+    libmpc-devel mpfr-devel gmp-devel cairo-devel expat-devel libicu-devel lua-devel \
+    ncurses-devel readline-devel db4-devel gdbm-devel sqlite-devel keyutils-libs-devel libcom_err-devel && \
+  yum clean all && \
+  yum install -y --releasever=latest pcre-devel ImageMagick-devel libxml2-devel libxslt-devel libcurl-devel krb5-devel && \
+  yum clean all && \
+  yum install -y libssh2-devel && \
   rm -rf /var/cache/yum /var/lib/rpm/__db.* && \
   > /var/log/yum.log
-
