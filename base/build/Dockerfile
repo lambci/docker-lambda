@@ -15,9 +15,12 @@ yum_conf.write(f); \
 f.close();" && \
   rpm --rebuilddb && \
   yum install -y --releasever=latest yum-plugin-ovl && \
-  yum reinstall -y --releasever=latest setup pam shadow-utils audit-libs glibc glibc-common iptables fipscheck-lib && \
   yum clean all && \
-  yum reinstall -y openssl openssh-clients && \
+  yum reinstall -y setup pam shadow-utils audit-libs iptables && \
+  yum clean all && \
+  yum reinstall -y --releasever=latest glibc glibc-common && \
+  yum clean all && \
+  yum list installed | grep installed | awk '{print $1}' | xargs yum reinstall -y && \
   yum clean all && \
   yum install -y --releasever=latest glibc-devel && \
   yum clean all && \
@@ -26,7 +29,9 @@ f.close();" && \
     libmpc-devel mpfr-devel gmp-devel cairo-devel expat-devel libicu-devel lua-devel \
     ncurses-devel readline-devel db4-devel gdbm-devel sqlite-devel keyutils-libs-devel libcom_err-devel && \
   yum clean all && \
-  yum install -y --releasever=latest pcre-devel ImageMagick-devel libxml2-devel libxslt-devel libcurl-devel krb5-devel && \
+  yum install -y --releasever=latest pcre-devel ImageMagick-devel libxml2-devel libxslt-devel && \
+  yum install -y --releasever=latest libcurl-devel-$(yum list installed | grep libcurl | awk '{print $2}') && \
+  yum install -y --releasever=latest krb5-devel-$(yum list installed | grep krb5 | awk '{print $2}') && \
   yum clean all && \
   yum install -y libssh2-devel && \
   rm -rf /var/cache/yum /var/lib/rpm/__db.* && \
