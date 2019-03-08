@@ -28,6 +28,7 @@ func main() {
 	debugMode := flag.Bool("debug", false, "enables delve debugging")
 	delvePath := flag.String("delvePath", "/tmp/lambci_debug_files/dlv", "path to delve")
 	delvePort := flag.String("delvePort", "5985", "port to start delve server on")
+	delveAPI  := flag.String("delveAPI", "1", "delve api version")
 	flag.Parse()
 	positionalArgs := flag.Args()
 	var handler string
@@ -85,7 +86,7 @@ func main() {
 		delveArgs := []string{
 			"--listen=:" + *delvePort,
 			"--headless=true",
-			"--api-version=1",
+			"--api-version=" + *delveAPI,
 			"--log",
 			"exec",
 			"/var/task/" + handler,
