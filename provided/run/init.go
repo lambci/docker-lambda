@@ -8,8 +8,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 	"io/ioutil"
 	"math"
 	"math/rand"
@@ -22,6 +20,9 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/render"
 )
 
 var okStatusResponse = &StatusResponse{Status: "OK", HTTPStatusCode: 202}
@@ -42,9 +43,16 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	bootstrapPath := flag.String("bootstrap", "/var/runtime/bootstrap", "path to bootstrap")
+	bootstrapArgsString := flag.String("bootstrap-args", "[]", "additional arguments passed to bootstrap, as a stringified JSON Array")
 
 	flag.Parse()
 	positionalArgs := flag.Args()
+
+	var bootstrapArgs []string
+	if err := json.Unmarshal([]byte(*bootstrapArgsString), &bootstrapArgs); err != nil {
+		abortRequest(fmt.Errorf("Value of --bootstrap-args should be a JSON Array. Error: %s", err))
+		return
+	}
 
 	var handler string
 	if len(positionalArgs) > 0 {
@@ -103,7 +111,7 @@ func main() {
 	var cmd *exec.Cmd
 	for _, cmdPath := range []string{*bootstrapPath, "/var/task/bootstrap", "/opt/bootstrap"} {
 		if fi, err := os.Stat(cmdPath); err == nil && !fi.IsDir() {
-			cmd = exec.Command(cmdPath)
+			cmd = exec.Command(cmdPath, bootstrapArgs...)
 			break
 		}
 	}
