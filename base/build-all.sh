@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNTIMES="nodejs4.3 nodejs6.10 nodejs8.10 python2.7 python3.6 python3.7 ruby2.5 java8 go1.x dotnetcore2.0 dotnetcore2.1 provided"
+RUNTIMES="provided nodejs4.3 nodejs6.10 nodejs8.10 python2.7 python3.6 python3.7 ruby2.5 java8 go1.x dotnetcore2.0 dotnetcore2.1"
 
 TOP_DIR="${PWD}/.."
 
@@ -11,7 +11,7 @@ for RUNTIME in $RUNTIMES; do
 
   [ -x ./update_libs.sh ] && ./update_libs.sh
 
-  docker build --no-cache -t lambci/lambda:${RUNTIME} .
+  docker build -t lambci/lambda:${RUNTIME} .
 done
 docker tag lambci/lambda:nodejs4.3 lambci/lambda:latest
 
@@ -20,6 +20,6 @@ for RUNTIME in $RUNTIMES; do
 
   cd ${TOP_DIR}/${RUNTIME}/build
 
-  docker build --no-cache -t lambci/lambda:build-${RUNTIME} .
+  docker build -t lambci/lambda:build-${RUNTIME} .
 done
 docker tag lambci/lambda:build-nodejs4.3 lambci/lambda:build
