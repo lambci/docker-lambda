@@ -23,6 +23,10 @@ for RUNTIME in $RUNTIMES; do
   curl https://lambci.s3.amazonaws.com/fs/${RUNTIME}.fs.txt > ./diff/${RUNTIME}/fs.full.lambda.txt
 done
 
+curl https://lambci.s3.amazonaws.com/fs/base.tgz > ./diff/base.tgz
+
+{ tar -ztf ./diff/python2.7.tgz; tar -ztf ./diff/base.tgz; } | sed 's/\/$//' | sort > ./diff/python2.7/fs.lambda.txt
+
 docker run --rm --entrypoint find lambci/lambda:python2.7 / | sed 's/^\///' | sort > ./diff/python2.7/fs.docker.txt
 
 DIFF_DIR="${PWD}/diff"
