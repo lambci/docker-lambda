@@ -22,7 +22,7 @@ f.close();" && \
   yum clean all && \
   yum list installed | grep installed | awk '{print $1}' | xargs yum reinstall -y && \
   yum clean all && \
-  yum install -y --releasever=latest glibc-devel && \
+  yum install -y --releasever=latest glibc-devel libdrm-devel && \
   yum clean all && \
   yum groupinstall -y development && \
   yum install -y clang cmake docker libffi-devel python27-devel python34-devel \
