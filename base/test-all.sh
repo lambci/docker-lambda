@@ -12,7 +12,7 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs8.10
 docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs10.x index.handler
 
 cd ${EXAMPLES_DIR}/nodejs-native-module
-docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs4.3
+npm run build
 npm test
 
 cd ${EXAMPLES_DIR}/python

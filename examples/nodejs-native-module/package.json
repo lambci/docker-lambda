@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "docker run --rm -v \"$PWD\":/var/task lambci/lambda:build-nodejs4.3",
+    "build": "docker run --rm -v \"$PWD\":/var/task lambci/lambda:build-nodejs6.10 npm rebuild",
     "test": "node test.js"
   },
   "dependencies": {

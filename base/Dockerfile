@@ -24,8 +24,8 @@ ENV PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin \
     _X_AMZN_TRACE_ID='Parent=11560be54abce8ed'
 
 RUN yum reinstall -y filesystem; \
-  rm -rf /var/cache/yum /var/lib/rpm/__db.* && \
-  > /var/log/yum.log && \
+  yum clean all && \
+  rm -rf /var/cache/yum && \
   mkdir /tmp && \
   chown sbx_user1051:495 /tmp && \
   chmod 700 /tmp

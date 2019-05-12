@@ -6,7 +6,7 @@ WORKDIR /
 
 RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/java8.tgz | tar -zx -C / && \
-  yum install -y --releasever=latest java-1.8.0-openjdk-devel-1.8.0.181 && \
+  yum install -y java-1.8.0-openjdk-devel && \
   mkdir /usr/local/gradle && curl -L -o gradle.zip https://services.gradle.org/distributions/gradle-5.2-bin.zip && \
   unzip -d /usr/local/gradle gradle.zip && rm gradle.zip && mkdir /usr/local/maven && \
   curl -L http://mirror.metrocast.net/apache/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz | \

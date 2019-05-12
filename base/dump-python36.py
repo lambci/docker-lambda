@@ -12,7 +12,7 @@ TRANSFER = S3Transfer(boto3.client('s3'))
 
 def lambda_handler(event, context):
     if 'cmd' in event:
-        return print(subprocess.check_output(['sh', '-c', event['cmd']]))
+        return print(subprocess.check_output(['sh', '-c', event['cmd']]).decode('utf-8'))
 
     filename = 'python3.6.tgz'
 
