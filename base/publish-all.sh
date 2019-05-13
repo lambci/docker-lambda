@@ -1,8 +1,9 @@
 #!/bin/bash
 
-RUNTIMES="provided nodejs4.3 nodejs6.10 nodejs8.10 python2.7 python3.6 python3.7 ruby2.5 java8 go1.x dotnetcore2.0 dotnetcore2.1"
+RUNTIMES="provided nodejs4.3 nodejs6.10 nodejs8.10 nodejs10.x python2.7 python3.6 python3.7 ruby2.5 java8 go1.x dotnetcore2.0 dotnetcore2.1"
 
 docker push lambci/lambda-base
+docker push lambci/lambda-base-2
 
 for RUNTIME in $RUNTIMES; do
   echo $RUNTIME
@@ -10,6 +11,7 @@ for RUNTIME in $RUNTIMES; do
 done
 
 docker push lambci/lambda-base:build
+docker push lambci/lambda-base-2:build
 
 for RUNTIME in $RUNTIMES; do
   echo build-${RUNTIME}

@@ -9,6 +9,7 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs8.10
 
 cd ${EXAMPLES_DIR}/nodejs8.10
 docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs8.10
+docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs10.x index.handler
 
 cd ${EXAMPLES_DIR}/nodejs-native-module
 docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs4.3

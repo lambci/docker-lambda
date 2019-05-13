@@ -45,13 +45,16 @@ docker run [--rm] -v <code_dir>:/var/task [-v <layer_dir>:/opt] lambci/lambda:<r
 Eg:
 
 ```sh
-# Test an index.handler function from the current directory on Node.js v8.10
-docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs8.10
+# Test an index.handler function from the current directory on Node.js v10.x
+docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs10.x index.handler
 
 # If using a function other than index.handler, with a custom event
-docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs8.10 index.myHandler '{"some": "event"}'
+docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs10.x index.myHandler '{"some": "event"}'
 
-# Use the Node.js v6.10 runtime
+# Use the Node.js v8.10 runtime in a similar fashion
+docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs8.10 index.myHandler '{}'
+ 
+# Use the Node.js v6.10 runtime with the default handler (index.handler)
 docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs6.10
 
 # Test a default function (lambda_function.lambda_handler) from the current directory on Python 2.7
@@ -105,8 +108,8 @@ Build Examples
 To use the build images, for compilation, deployment, etc:
 
 ```sh
-# To compile native deps in node_modules (runs `npm rebuild`)
-docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs8.10
+# To compile native deps in node_modules
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs10.x npm rebuild
 
 # To resolve dependencies on go1.x (working directory is /go/src/handler, will run `dep ensure`)
 docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x
@@ -208,6 +211,7 @@ Docker tags (follow the Lambda runtime names):
   - `nodejs4.3`
   - `nodejs6.10`
   - `nodejs8.10`
+  - `nodejs10.x`
   - `python2.7`
   - `python3.6`
   - `python3.7`
@@ -220,6 +224,7 @@ Docker tags (follow the Lambda runtime names):
   - `build-nodejs4.3`
   - `build-nodejs6.10`
   - `build-nodejs8.10`
+  - `build-nodejs10.x`
   - `build-python2.7`
   - `build-python3.6`
   - `build-python3.7`

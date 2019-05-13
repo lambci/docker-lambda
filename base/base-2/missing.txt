@@ -1,0 +1,10 @@
+/etc/securetty
+/etc/shadow
+/etc/gshadow
+/var/log/yum.log
+/var/lib/yum/history/2019-04-17/1
+/var/lib/yum/history/history-2019-04-17.sqlite
+/var/cache/ldconfig
+/usr/sbin/build-locale-archive
+/usr/sbin/glibc_post_upgrade.x86_64
+/root/
