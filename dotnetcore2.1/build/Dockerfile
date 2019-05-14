@@ -1,9 +1,10 @@
 FROM lambci/lambda-base:build
 
+# Check https://dotnet.microsoft.com/download/dotnet-core/2.1 for versions
 ENV PATH=/var/lang/bin:$PATH \
     LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_dotnetcore2.1 \
-    DOTNET_SDK_VERSION=2.1.504 \
+    DOTNET_SDK_VERSION=2.1.603 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     NUGET_XMLDOC_MODE=skip
 
