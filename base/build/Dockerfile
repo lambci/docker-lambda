@@ -16,7 +16,7 @@ f.close();" && \
   yum install -y yum-plugin-ovl && \
   yum reinstall -y setup pam shadow-utils audit-libs && \
   yum groupinstall -y development && \
-  yum install -y clang cmake docker python27-devel python36-devel \
+  yum install -y gcc72-c++ clang cmake docker python27-devel python36-devel \
     ImageMagick-devel cairo-devel libssh2-devel libxslt-devel libmpc-devel readline-devel db4-devel \
     libffi-devel expat-devel libicu-devel lua-devel gdbm-devel sqlite-devel pcre-devel libcurl-devel && \
   yum clean all && \
