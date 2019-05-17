@@ -1,7 +1,8 @@
-FROM lambci/lambda-base:build
+﻿FROM lambci/lambda-base:build
 
 # Check https://dotnet.microsoft.com/download/dotnet-core/2.1 for versions
-ENV PATH=/var/lang/bin:$PATH \
+ENV DOTNET_ROOT=/var/lang/bin \
+    PATH=$DOTNET_ROOT:~/.dotnet/tools:$PATH \
     LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_dotnetcore2.1 \
     DOTNET_SDK_VERSION=2.1.603 \
@@ -11,7 +12,7 @@ ENV PATH=/var/lang/bin:$PATH \
 RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/dotnetcore2.1.tgz | tar -zx -C / && \
   yum install -y libunwind && \
-  curl https://dot.net/v1/dotnet-install.sh | bash -s -- -v $DOTNET_SDK_VERSION -i /var/lang/bin && \
+  curl https://dot.net/v1/dotnet-install.sh | bash -s -- -v $DOTNET_SDK_VERSION -i $DOTNET_ROOT && \
   mkdir /tmp/warmup && \
   cd /tmp/warmup && \
   dotnet new && \
