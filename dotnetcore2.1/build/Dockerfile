@@ -1,8 +1,8 @@
 ﻿FROM lambci/lambda-base:build
 
 # Check https://dotnet.microsoft.com/download/dotnet-core/2.1 for versions
-ENV DOTNET_ROOT=/var/lang/bin \
-    PATH=$DOTNET_ROOT:~/.dotnet/tools:$PATH \
+ENV DOTNET_ROOT=/var/lang/bin
+ENV PATH=/root/.dotnet/tools:$DOTNET_ROOT:$PATH \
     LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_dotnetcore2.1 \
     DOTNET_SDK_VERSION=2.1.603 \
@@ -17,7 +17,7 @@ RUN rm -rf /var/runtime /var/lang && \
   cd /tmp/warmup && \
   dotnet new && \
   cd / && \
-  rm -rf /tmp/warmup /tmp/NuGetScratch
+  rm -rf /tmp/warmup /tmp/NuGetScratch /tmp/.dotnet
 
 # Add these as a separate layer as they get updated frequently
 RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python && \
