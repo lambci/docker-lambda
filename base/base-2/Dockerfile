@@ -25,7 +25,8 @@ ENV PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin \
 
 RUN rm -rf /var/cache/yum /var/lib/rpm/__db.* && \
   > /var/log/yum.log && \
-  mkdir /tmp && \
+  mkdir -p /root /tmp && \
+  chmod 550 /root && \
   chown sbx_user1051:495 /tmp && \
   chmod 700 /tmp
 
