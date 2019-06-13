@@ -204,7 +204,7 @@ func main() {
 		})
 	})
 
-	listener, err := net.Listen("tcp", ":9001")
+	listener, err := net.Listen("tcp", "127.0.0.1:9001")
 	if err != nil {
 		abortRequest(err)
 		return
@@ -214,7 +214,7 @@ func main() {
 
 	go server.Serve(listener)
 
-	res, err := http.Get("http://" + listener.Addr().String() + "/2018-06-01/ping")
+	res, err := http.Get("http://127.0.0.1:9001/2018-06-01/ping")
 	if err != nil {
 		abortRequest(err)
 		return
