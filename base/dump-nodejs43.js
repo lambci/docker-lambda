@@ -45,15 +45,15 @@ exports.handler = function(event, context, cb) {
   })
 }
 
-// /usr/local/lib64/node-v4.3.x/bin/node
-// [ '--max-old-space-size=1229', '--max-semi-space-size=76', '--max-executable-size=153', '--expose-gc' ]
-// [ '/usr/local/lib64/node-v4.3.x/bin/node', '/var/runtime/node_modules/awslambda/index.js' ]
+// /var/lang/bin/node
+// [ '--max-old-space-size=2547', '--max-semi-space-size=150', '--max-executable-size=160', '--expose-gc' ]
+// [ '/var/lang/bin/node', '/var/runtime/node_modules/awslambda/index.js' ]
 // /var/task
 // /var/task/index.js
 // {
-// PATH: '/usr/local/lib64/node-v4.3.x/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin',
+// PATH: '/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin',
 // LANG: 'en_US.UTF-8',
-// LD_LIBRARY_PATH: '/usr/local/lib64/node-v4.3.x/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib',
+// LD_LIBRARY_PATH: '/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib',
 // LAMBDA_TASK_ROOT: '/var/task',
 // LAMBDA_RUNTIME_DIR: '/var/runtime',
 // AWS_REGION: 'us-east-1',

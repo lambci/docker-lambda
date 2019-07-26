@@ -1,7 +1,7 @@
 FROM lambci/lambda-base:build
 
-ENV PATH=/usr/local/lib64/node-v4.3.x/bin:$PATH \
-    LD_LIBRARY_PATH=/usr/local/lib64/node-v4.3.x/lib:$LD_LIBRARY_PATH \
+ENV PATH=/var/lang/bin:$PATH \
+    LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_nodejs4.3 \
     NODE_PATH=/var/runtime:/var/task:/var/runtime/node_modules \
     npm_config_unsafe-perm=true
