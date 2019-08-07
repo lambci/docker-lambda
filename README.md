@@ -263,21 +263,27 @@ Options to pass to `dockerLambda()`:
   - `returnSpawnResult`
 
 Yum packages installed on build images:
+  - `development` (group, includes `gcc-c++`, `autoconf`, `automake`, `git`, `vim`, etc)
   - `aws-cli`
-  - `zip`
-  - `git`
-  - `vim`
+  - `aws-sam-cli`
   - `docker` (Docker in Docker!)
-  - `gcc-c++`
   - `clang`
-  - `openssl-devel`
   - `cmake`
-  - `autoconf`
-  - `automake`
-  - `libtool`
-  - `xz-libs`
-  - `libffi-devel`
   - `python27-devel`
+  - `python36-devel`
+  - `ImageMagick-devel`
+  - `cairo-devel`
+  - `libssh2-devel`
+  - `libxslt-devel`
   - `libmpc-devel`
-  - `mpfr-devel`
-  - `gmp-devel`
+  - `readline-devel`
+  - `db4-devel`
+  - `libffi-devel`
+  - `expat-devel`
+  - `libicu-devel`
+  - `lua-devel`
+  - `gdbm-devel`
+  - `sqlite-devel`
+  - `pcre-devel`
+  - `libcurl-devel`
+  - `yum-plugin-ovl`
