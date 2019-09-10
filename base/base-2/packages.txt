@@ -28,7 +28,7 @@ ncurses-6.0-8.20170212.amzn2.1.2.x86_64
 ncurses-base-6.0-8.20170212.amzn2.1.2.noarch
 ncurses-libs-6.0-8.20170212.amzn2.1.2.x86_64
 nspr-4.19.0-1.amzn2.x86_64
-nss-softokn-freebl-3.36.0-5.amzn2.x86_64
+nss-softokn-freebl-3.36.0-5.amzn2.0.1.x86_64
 nss-util-3.36.0-1.amzn2.x86_64
 openssl-libs-1.0.2k-16.amzn2.1.1.x86_64
 p11-kit-0.23.5-3.amzn2.0.2.x86_64

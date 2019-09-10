@@ -1,4 +1,4 @@
-amazon-linux-extras-1.6.7-1.amzn2.noarch
+amazon-linux-extras-1.6.9-1.amzn2.noarch
 basesystem-10.0-7.amzn2.0.1.noarch
 bash-4.2.46-30.amzn2.x86_64
 bzip2-libs-1.0.6-13.amzn2.0.2.x86_64
@@ -6,7 +6,7 @@ ca-certificates-2018.2.22-70.0.amzn2.noarch
 chkconfig-1.7.4-1.amzn2.0.2.x86_64
 coreutils-8.22-21.amzn2.x86_64
 cpio-2.11-27.amzn2.x86_64
-curl-7.61.1-9.amzn2.0.1.x86_64
+curl-7.61.1-11.amzn2.0.2.x86_64
 cyrus-sasl-lib-2.1.26-23.amzn2.x86_64
 diffutils-3.3-4.amzn2.0.2.x86_64
 elfutils-libelf-0.170-4.amzn2.x86_64
@@ -35,7 +35,7 @@ libblkid-2.30.2-2.amzn2.0.4.x86_64
 libcap-2.22-9.amzn2.0.2.x86_64
 libcom_err-1.42.9-12.amzn2.0.2.x86_64
 libcrypt-2.26-32.amzn2.0.1.x86_64
-libcurl-7.61.1-9.amzn2.0.1.x86_64
+libcurl-7.61.1-11.amzn2.0.2.x86_64
 libdb-5.3.21-24.amzn2.0.3.x86_64
 libdb-utils-5.3.21-24.amzn2.0.3.x86_64
 libffi-3.0.13-18.amzn2.0.2.x86_64
@@ -48,7 +48,7 @@ libmount-2.30.2-2.amzn2.0.4.x86_64
 libnghttp2-1.31.1-1.amzn2.0.2.x86_64
 libselinux-2.5-12.amzn2.0.2.x86_64
 libsepol-2.5-8.1.amzn2.0.2.x86_64
-libssh2-1.4.3-12.amzn2.2.x86_64
+libssh2-1.4.3-12.amzn2.2.1.x86_64
 libstdc++-7.3.1-5.amzn2.0.2.x86_64
 libtasn1-4.10-1.amzn2.0.2.x86_64
 libunistring-0.9.3-9.amzn2.0.2.x86_64
@@ -62,8 +62,8 @@ ncurses-libs-6.0-8.20170212.amzn2.1.2.x86_64
 nspr-4.19.0-1.amzn2.x86_64
 nss-3.36.0-7.amzn2.x86_64
 nss-pem-1.0.3-5.amzn2.x86_64
-nss-softokn-3.36.0-5.amzn2.x86_64
-nss-softokn-freebl-3.36.0-5.amzn2.x86_64
+nss-softokn-3.36.0-5.amzn2.0.1.x86_64
+nss-softokn-freebl-3.36.0-5.amzn2.0.1.x86_64
 nss-sysinit-3.36.0-7.amzn2.x86_64
 nss-tools-3.36.0-7.amzn2.x86_64
 nss-util-3.36.0-1.amzn2.x86_64
@@ -77,9 +77,9 @@ popt-1.13-16.amzn2.0.2.x86_64
 pth-2.0.7-23.amzn2.0.2.x86_64
 pygpgme-0.3-9.amzn2.0.2.x86_64
 pyliblzma-0.5.3-11.amzn2.0.2.x86_64
-python-2.7.14-58.amzn2.0.4.x86_64
+python-2.7.16-2.amzn2.0.1.x86_64
 python-iniparse-0.4-9.amzn2.noarch
-python-libs-2.7.14-58.amzn2.0.4.x86_64
+python-libs-2.7.16-2.amzn2.0.1.x86_64
 python-pycurl-7.19.0-19.amzn2.0.2.x86_64
 python-urlgrabber-3.10-8.amzn2.noarch
 pyxattr-0.5.1-5.amzn2.0.2.x86_64
@@ -94,7 +94,7 @@ shared-mime-info-1.8-4.amzn2.x86_64
 sqlite-3.7.17-8.amzn2.0.2.x86_64
 system-release-2-10.amzn2.x86_64
 tzdata-2018i-1.amzn2.noarch
-vim-minimal-7.4.160-4.amzn2.0.16.x86_64
+vim-minimal-8.1.1602-1.amzn2.x86_64
 xz-libs-5.2.2-1.amzn2.0.2.x86_64
 yum-3.4.3-158.amzn2.0.2.noarch
 yum-metadata-parser-1.1.4-10.amzn2.0.2.x86_64
