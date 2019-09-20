@@ -41,6 +41,7 @@ var mockContext = &MockLambdaContext{}
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
+	curRequestID = fakeGuid()
 
 	bootstrapPath := flag.String("bootstrap", "/var/runtime/bootstrap", "path to bootstrap")
 	bootstrapArgsString := flag.String("bootstrap-args", "[]", "additional arguments passed to bootstrap, as a stringified JSON Array")
