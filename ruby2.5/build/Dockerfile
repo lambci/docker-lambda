@@ -14,4 +14,4 @@ RUN rm -rf /var/runtime /var/lang /var/rapid && \
 RUN gem update --system --no-document && \
   gem install --no-document bundler && \
   curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python && \
-  pip install -U awscli boto3 aws-sam-cli==0.19.0 aws-lambda-builders==0.4.0 --no-cache-dir
+  pip install -U awscli boto3 aws-sam-cli==0.22.0 aws-lambda-builders==0.4.0 --no-cache-dir
