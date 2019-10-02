@@ -35,5 +35,7 @@ DIFF_DIR="${PWD}/diff-2"
 cd ${DIFF_DIR}/nodejs10.x
 pwd
 diff fs.docker.txt fs.lambda.txt | grep -v 'var/runtime/' | grep -v 'var/lang'
+echo
 diff docker/var/runtime lambda/var/runtime
+echo
 diff -qr docker lambda
