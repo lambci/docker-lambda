@@ -25,9 +25,15 @@ import (
 	"github.com/go-chi/render"
 )
 
-var okStatusResponse = &StatusResponse{Status: "OK", HTTPStatusCode: 202}
+type key int
 
-var curRequestID = fakeGuid()
+const (
+	keyRequestID key = iota
+)
+
+var okStatusResponse = &statusResponse{Status: "OK", HTTPStatusCode: 202}
+
+var curRequestID = fakeGUID()
 var curState = "STATE_INIT"
 
 var transitions = map[string]map[string]bool{
@@ -37,11 +43,11 @@ var transitions = map[string]map[string]bool{
 	"STATE_INVOKE_ERROR":    map[string]bool{"STATE_INVOKE_NEXT": true},
 }
 
-var mockContext = &MockLambdaContext{}
+var mockContext = &mockLambdaContext{}
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	curRequestID = fakeGuid()
+	curRequestID = fakeGUID()
 
 	bootstrapPath := flag.String("bootstrap", "/var/runtime/bootstrap", "path to bootstrap")
 	bootstrapArgsString := flag.String("bootstrap-args", "[]", "additional arguments passed to bootstrap, as a stringified JSON Array")
@@ -77,15 +83,15 @@ func main() {
 		}
 	}
 
-	mockContext = &MockLambdaContext{
+	mockContext = &mockLambdaContext{
 		EventBody:       eventBody,
 		FnName:          getEnv("AWS_LAMBDA_FUNCTION_NAME", "test"),
 		Version:         getEnv("AWS_LAMBDA_FUNCTION_VERSION", "$LATEST"),
 		MemSize:         getEnv("AWS_LAMBDA_FUNCTION_MEMORY_SIZE", "1536"),
 		Timeout:         getEnv("AWS_LAMBDA_FUNCTION_TIMEOUT", "300"),
 		Region:          getEnv("AWS_REGION", getEnv("AWS_DEFAULT_REGION", "us-east-1")),
-		AccountId:       getEnv("AWS_ACCOUNT_ID", strconv.FormatInt(int64(rand.Int31()), 10)),
-		XAmznTraceId:    getEnv("_X_AMZN_TRACE_ID", ""),
+		AccountID:       getEnv("AWS_ACCOUNT_ID", strconv.FormatInt(int64(rand.Int31()), 10)),
+		XAmznTraceID:    getEnv("_X_AMZN_TRACE_ID", ""),
 		ClientContext:   getEnv("AWS_LAMBDA_CLIENT_CONTEXT", ""),
 		CognitoIdentity: getEnv("AWS_LAMBDA_COGNITO_IDENTITY", ""),
 		Start:           time.Now(),
@@ -106,7 +112,7 @@ func main() {
 	os.Setenv("AWS_LAMBDA_LOG_STREAM_NAME", logStreamName(mockContext.Version))
 	os.Setenv("AWS_REGION", mockContext.Region)
 	os.Setenv("AWS_DEFAULT_REGION", mockContext.Region)
-	os.Setenv("_X_AMZN_TRACE_ID", mockContext.XAmznTraceId)
+	os.Setenv("_X_AMZN_TRACE_ID", mockContext.XAmznTraceID)
 	os.Setenv("_HANDLER", handler)
 
 	var cmd *exec.Cmd
@@ -134,7 +140,7 @@ func main() {
 
 	mockContext.Cmd = cmd
 
-	render.Respond = renderJson
+	render.Respond = renderJSON
 
 	r := chi.NewRouter()
 
@@ -151,8 +157,8 @@ func main() {
 			r.
 				With(updateState("STATE_INVOKE_NEXT")).
 				Get("/invocation/next", func(w http.ResponseWriter, r *http.Request) {
-					if mockContext.RequestId == "" {
-						mockContext.RequestId = curRequestID
+					if mockContext.RequestID == "" {
+						mockContext.RequestID = curRequestID
 						mockContext.InitEnd = time.Now()
 						logStartRequest()
 					} else if mockContext.Reply != nil {
@@ -164,7 +170,7 @@ func main() {
 					w.Header().Set("Lambda-Runtime-Aws-Request-Id", curRequestID)
 					w.Header().Set("Lambda-Runtime-Deadline-Ms", strconv.FormatInt(mockContext.Deadline().UnixNano()/1e6, 10))
 					w.Header().Set("Lambda-Runtime-Invoked-Function-Arn", mockContext.InvokedFunctionArn)
-					w.Header().Set("Lambda-Runtime-Trace-Id", mockContext.XAmznTraceId)
+					w.Header().Set("Lambda-Runtime-Trace-Id", mockContext.XAmznTraceID)
 
 					if mockContext.ClientContext != "" {
 						w.Header().Set("Lambda-Runtime-Client-Context", mockContext.ClientContext)
@@ -184,7 +190,7 @@ func main() {
 					Post("/response", func(w http.ResponseWriter, r *http.Request) {
 						body, err := ioutil.ReadAll(r.Body)
 						if err != nil {
-							render.Render(w, r, &ErrResponse{
+							render.Render(w, r, &errResponse{
 								HTTPStatusCode: 500,
 								ErrorType:      "BodyReadError", // TODO: not sure what this would be in production?
 								ErrorMessage:   err.Error(),
@@ -192,7 +198,7 @@ func main() {
 							return
 						}
 
-						mockContext.Reply = &InvokeResponse{Payload: body}
+						mockContext.Reply = &invokeResponse{Payload: body}
 
 						render.Render(w, r, okStatusResponse)
 						w.(http.Flusher).Flush()
@@ -241,12 +247,12 @@ func main() {
 }
 
 func handleErrorRequest(w http.ResponseWriter, r *http.Request) {
-	lambdaErr := &LambdaError{}
-	statusResponse := okStatusResponse
+	lambdaErr := &lambdaError{}
+	response := okStatusResponse
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil || json.Unmarshal(body, lambdaErr) != nil {
-		statusResponse = &StatusResponse{Status: "InvalidErrorShape", HTTPStatusCode: 299}
+		response = &statusResponse{Status: "InvalidErrorShape", HTTPStatusCode: 299}
 	}
 
 	errorType := r.Header.Get("Lambda-Runtime-Function-Error-Type")
@@ -254,9 +260,9 @@ func handleErrorRequest(w http.ResponseWriter, r *http.Request) {
 		lambdaErr.Type = errorType
 	}
 
-	mockContext.Reply = &InvokeResponse{Error: lambdaErr}
+	mockContext.Reply = &invokeResponse{Error: lambdaErr}
 
-	render.Render(w, r, statusResponse)
+	render.Render(w, r, response)
 	w.(http.Flusher).Flush()
 
 	endInvoke(nil)
@@ -266,7 +272,7 @@ func updateState(nextState string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if _, ok := transitions[nextState][curState]; !ok {
-				render.Render(w, r, &ErrResponse{
+				render.Render(w, r, &errResponse{
 					HTTPStatusCode: 403,
 					ErrorType:      "InvalidStateTransition",
 					ErrorMessage:   fmt.Sprintf("Transition from %s to %s is not allowed.", curState, nextState),
@@ -284,7 +290,7 @@ func awsRequestIDValidator(next http.Handler) http.Handler {
 		requestID := chi.URLParam(r, "requestID")
 
 		if requestID != curRequestID {
-			render.Render(w, r, &ErrResponse{
+			render.Render(w, r, &errResponse{
 				HTTPStatusCode: 400,
 				ErrorType:      "InvalidRequestID",
 				ErrorMessage:   "Invalid request ID",
@@ -292,34 +298,34 @@ func awsRequestIDValidator(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "requestID", requestID)
+		ctx := context.WithValue(r.Context(), keyRequestID, requestID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-type StatusResponse struct {
+type statusResponse struct {
 	HTTPStatusCode int    `json:"-"`
 	Status         string `json:"status"`
 }
 
-func (sr *StatusResponse) Render(w http.ResponseWriter, r *http.Request) error {
+func (sr *statusResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	render.Status(r, sr.HTTPStatusCode)
 	return nil
 }
 
-type ErrResponse struct {
+type errResponse struct {
 	HTTPStatusCode int    `json:"-"`
 	ErrorType      string `json:"errorType,omitempty"`
 	ErrorMessage   string `json:"errorMessage"`
 }
 
-func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
+func (e *errResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	render.Status(r, e.HTTPStatusCode)
 	return nil
 }
 
-func renderJson(w http.ResponseWriter, r *http.Request, v interface{}) {
+func renderJSON(w http.ResponseWriter, r *http.Request, v interface{}) {
 	buf := &bytes.Buffer{}
 	enc := json.NewEncoder(buf)
 	enc.SetEscapeHTML(true)
@@ -336,13 +342,13 @@ func renderJson(w http.ResponseWriter, r *http.Request, v interface{}) {
 }
 
 func abortRequest(err error) {
-	endInvoke(&ExitError{err: err})
+	endInvoke(&exitError{err: err})
 }
 
 func endInvoke(err error) {
 	logStart := false
-	if mockContext.RequestId == "" {
-		mockContext.RequestId = curRequestID
+	if mockContext.RequestID == "" {
+		mockContext.RequestID = curRequestID
 		logStart = true
 	}
 	mockContext.MaxMem, _ = allProcsMemoryInMb()
@@ -357,7 +363,7 @@ func endInvoke(err error) {
 }
 
 func logStartRequest() {
-	systemLog("START RequestId: " + mockContext.RequestId + " Version: " + mockContext.Version)
+	systemLog("START RequestId: " + mockContext.RequestID + " Version: " + mockContext.Version)
 }
 
 func logEndRequest(err error) {
@@ -376,7 +382,7 @@ func logEndRequest(err error) {
 		initStr = fmt.Sprintf("Init Duration: %.2f ms\t", initDiffMs)
 	}
 
-	systemLog("END RequestId: " + mockContext.RequestId)
+	systemLog("END RequestId: " + mockContext.RequestID)
 	systemLog(fmt.Sprintf(
 		"REPORT RequestId: %s\t"+
 			initStr+
@@ -384,21 +390,21 @@ func logEndRequest(err error) {
 			"Billed Duration: %.f ms\t"+
 			"Memory Size: %s MB\t"+
 			"Max Memory Used: %d MB\t",
-		mockContext.RequestId, diffMs, math.Ceil(diffMs/100)*100, mockContext.MemSize, mockContext.MaxMem))
+		mockContext.RequestID, diffMs, math.Ceil(diffMs/100)*100, mockContext.MemSize, mockContext.MaxMem))
 
 	if err == nil && mockContext.HasExpired() {
 		err = mockContext.TimeoutErr()
 	}
 
 	if err != nil {
-		responseErr := LambdaError{
+		responseErr := lambdaError{
 			Message: err.Error(),
 			Type:    getErrorType(err),
 		}
 		if responseErr.Type == "errorString" {
 			responseErr.Type = ""
 			if responseErr.Message == "unexpected EOF" {
-				responseErr.Message = "RequestId: " + mockContext.RequestId + " Process exited before completing request"
+				responseErr.Message = "RequestId: " + mockContext.RequestID + " Process exited before completing request"
 			}
 		} else if responseErr.Type == "ExitError" {
 			responseErr.Type = "Runtime.ExitError" // XXX: Hack to add 'Runtime.' to error type
@@ -432,7 +438,7 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-func fakeGuid() string {
+func fakeGUID() string {
 	randBuf := make([]byte, 16)
 	rand.Read(randBuf)
 
@@ -463,9 +469,9 @@ func logStreamName(version string) string {
 	return time.Now().Format("2006/01/02") + "/[" + version + "]" + string(hexBuf)
 }
 
-func arn(region string, accountId string, fnName string) string {
+func arn(region string, accountID string, fnName string) string {
 	nonDigit := regexp.MustCompile(`[^\d]`)
-	return "arn:aws:lambda:" + region + ":" + nonDigit.ReplaceAllString(accountId, "") + ":function:" + fnName
+	return "arn:aws:lambda:" + region + ":" + nonDigit.ReplaceAllString(accountID, "") + ":function:" + fnName
 }
 
 func allProcsMemoryInMb() (uint64, error) {
@@ -516,11 +522,11 @@ func calculateMemoryInKb(pid int) (uint64, error) {
 }
 
 func getErrorType(err interface{}) string {
-	if errorType := reflect.TypeOf(err); errorType.Kind() == reflect.Ptr {
+	errorType := reflect.TypeOf(err)
+	if errorType.Kind() == reflect.Ptr {
 		return errorType.Elem().Name()
-	} else {
-		return errorType.Name()
 	}
+	return errorType.Name()
 }
 
 func systemLog(msg string) {
@@ -528,35 +534,35 @@ func systemLog(msg string) {
 }
 
 // Try to match the output of the Lambda web console
-func systemErr(err *LambdaError) {
+func systemErr(err *lambdaError) {
 	jsonBytes, _ := json.MarshalIndent(err, "", "  ")
 	fmt.Fprintln(os.Stderr, "\033[31m"+string(jsonBytes)+"\033[0m")
 }
 
-type ExitError struct {
+type exitError struct {
 	err error
 }
 
-func (e *ExitError) Error() string {
+func (e *exitError) Error() string {
 	return fmt.Sprintf("RequestId: %s Error: %s", curRequestID, e.err.Error())
 }
 
-type LambdaError struct {
+type lambdaError struct {
 	Type       string    `json:"errorType,omitempty"`
 	Message    string    `json:"errorMessage"`
 	StackTrace []*string `json:"stackTrace,omitempty"`
 }
 
-type MockLambdaContext struct {
-	RequestId          string
+type mockLambdaContext struct {
+	RequestID          string
 	EventBody          string
 	FnName             string
 	Version            string
 	MemSize            string
 	Timeout            string
 	Region             string
-	AccountId          string
-	XAmznTraceId       string
+	AccountID          string
+	XAmznTraceID       string
 	InvokedFunctionArn string
 	ClientContext      string
 	CognitoIdentity    string
@@ -564,13 +570,13 @@ type MockLambdaContext struct {
 	InitEnd            time.Time
 	TimeoutDuration    time.Duration
 	Pid                int
-	Reply              *InvokeResponse
+	Reply              *invokeResponse
 	Done               chan bool
 	Cmd                *exec.Cmd
 	MaxMem             uint64
 }
 
-func (mc *MockLambdaContext) ParseTimeout() {
+func (mc *mockLambdaContext) ParseTimeout() {
 	timeoutDuration, err := time.ParseDuration(mc.Timeout + "s")
 	if err != nil {
 		panic(err)
@@ -578,24 +584,24 @@ func (mc *MockLambdaContext) ParseTimeout() {
 	mc.TimeoutDuration = timeoutDuration
 }
 
-func (mc *MockLambdaContext) ParseFunctionArn() {
-	mc.InvokedFunctionArn = getEnv("AWS_LAMBDA_FUNCTION_INVOKED_ARN", arn(mc.Region, mc.AccountId, mc.FnName))
+func (mc *mockLambdaContext) ParseFunctionArn() {
+	mc.InvokedFunctionArn = getEnv("AWS_LAMBDA_FUNCTION_INVOKED_ARN", arn(mc.Region, mc.AccountID, mc.FnName))
 }
 
-func (mc *MockLambdaContext) Deadline() time.Time {
+func (mc *mockLambdaContext) Deadline() time.Time {
 	return mc.Start.Add(mc.TimeoutDuration)
 }
 
-func (mc *MockLambdaContext) HasExpired() bool {
+func (mc *mockLambdaContext) HasExpired() bool {
 	return time.Now().After(mc.Deadline())
 }
 
-func (mc *MockLambdaContext) TimeoutErr() error {
+func (mc *mockLambdaContext) TimeoutErr() error {
 	return fmt.Errorf("%s %s Task timed out after %s.00 seconds", time.Now().Format("2006-01-02T15:04:05.999Z"),
-		mc.RequestId, mc.Timeout)
+		mc.RequestID, mc.Timeout)
 }
 
-type InvokeResponse struct {
+type invokeResponse struct {
 	Payload []byte
-	Error   *LambdaError
+	Error   *lambdaError
 }
