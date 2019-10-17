@@ -7,11 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-      <Reference Include="Bootstrap">
-        <HintPath>lib\Bootstrap.dll</HintPath>
-      </Reference>
-      <Reference Include="Amazon.Lambda.Core">
-        <HintPath>lib\Amazon.Lambda.Core.dll</HintPath>
-      </Reference>
-    </ItemGroup>
+    <Reference Include="Bootstrap">
+      <HintPath>lib\Bootstrap.dll</HintPath>
+    </Reference>
+    <Reference Include="Amazon.Lambda.Core">
+      <HintPath>lib\Amazon.Lambda.Core.dll</HintPath>
+    </Reference>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
 </Project>
