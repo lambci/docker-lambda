@@ -13,7 +13,7 @@
     <Reference Include="Amazon.Lambda.Core">
       <HintPath>lib\Amazon.Lambda.Core.dll</HintPath>
     </Reference>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.0" />
   </ItemGroup>
 
 </Project>
