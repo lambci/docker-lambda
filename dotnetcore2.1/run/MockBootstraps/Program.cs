@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using AWSLambda.Internal.Bootstrap;
 using AWSLambda.Internal.Bootstrap.Context;
+using System.Linq;
 
 namespace MockLambdaRuntime
 {
@@ -14,14 +15,21 @@ namespace MockLambdaRuntime
         private const bool WaitForDebuggerFlagDefaultValue = false;
 
         /// Task root of lambda task
-        static string lambdaTaskRoot = EnvHelper.GetOrDefault("LAMBDA_TASK_ROOT", "/var/task");
+        static readonly string lambdaTaskRoot = EnvHelper.GetOrDefault("LAMBDA_TASK_ROOT", "/var/task");
 
         private static readonly TimeSpan _debuggerStatusQueryInterval = TimeSpan.FromMilliseconds(50);
         private static readonly TimeSpan _debuggerStatusQueryTimeout = TimeSpan.FromMinutes(10);
 
+        private static readonly IList<string> assemblyDirs = new List<string> { lambdaTaskRoot };
+
         /// Program entry point
         static void Main(string[] args)
         {
+            // Add all /var/lang/bin/shared/*/* directories to the search path
+            foreach (var di in new DirectoryInfo("/var/lang/bin/shared").EnumerateDirectories().SelectMany(di => di.EnumerateDirectories().Select(di2 => di2)))
+            {
+                assemblyDirs.Add(di.FullName);
+            }
             AssemblyLoadContext.Default.Resolving += OnAssemblyResolving;
 
             try
@@ -87,9 +95,20 @@ namespace MockLambdaRuntime
         }
 
         /// Called when an assembly could not be resolved
-        private static Assembly OnAssemblyResolving(AssemblyLoadContext context, AssemblyName assembly)
+        private static Assembly OnAssemblyResolving(AssemblyLoadContext context, AssemblyName assemblyName)
         {
-            return context.LoadFromAssemblyPath(Path.Combine(lambdaTaskRoot, $"{assembly.Name}.dll"));
+            foreach (var dir in assemblyDirs)
+            {
+                try
+                {
+                    return context.LoadFromAssemblyPath(Path.Combine(dir, $"{assemblyName.Name}.dll"));
+                }
+                catch (FileNotFoundException)
+                {
+                    continue;
+                }
+            }
+            throw new FileNotFoundException($"{assemblyName.Name}.dll");
         }
 
         /// Try to log everything to stderr except the function result
