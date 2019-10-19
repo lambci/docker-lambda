@@ -4,6 +4,9 @@ COPY ./lambda-runtime-mock /src
 RUN apk add --no-cache curl && ./build.sh
 
 
+FROM lambci/lambda:provided
+
+
 FROM lambci/lambda-base
 
 ENV AWS_EXECUTION_ENV=AWS_Lambda_java8
@@ -12,6 +15,8 @@ RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/java8.tgz | tar -zx -C /
 
 COPY --from=0 /src/LambdaSandboxJava-1.0.jar /var/runtime/lib/
+
+COPY --from=1 /var/runtime/init /var/runtime/mockserver
 
 WORKDIR /
 
