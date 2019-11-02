@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/aws/aws-lambda-go/lambda/messages"
 	"io/ioutil"
 	"math"
 	"math/rand"
@@ -20,6 +19,8 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/aws/aws-lambda-go/lambda/messages"
 )
 
 func main() {
@@ -28,7 +29,7 @@ func main() {
 	debugMode := flag.Bool("debug", false, "enables delve debugging")
 	delvePath := flag.String("delvePath", "/tmp/lambci_debug_files/dlv", "path to delve")
 	delvePort := flag.String("delvePort", "5985", "port to start delve server on")
-	delveAPI  := flag.String("delveAPI", "1", "delve api version")
+	delveAPI := flag.String("delveAPI", "1", "delve api version")
 	flag.Parse()
 	positionalArgs := flag.Args()
 	var handler string
@@ -53,15 +54,15 @@ func main() {
 		}
 	}
 
-	mockContext := &MockLambdaContext{
-		RequestId: fakeGuid(),
+	mockContext := &mockLambdaContext{
+		RequestID: fakeGUID(),
 		EventBody: eventBody,
 		FnName:    getEnv("AWS_LAMBDA_FUNCTION_NAME", "test"),
 		Version:   getEnv("AWS_LAMBDA_FUNCTION_VERSION", "$LATEST"),
 		MemSize:   getEnv("AWS_LAMBDA_FUNCTION_MEMORY_SIZE", "1536"),
 		Timeout:   getEnv("AWS_LAMBDA_FUNCTION_TIMEOUT", "300"),
 		Region:    getEnv("AWS_REGION", getEnv("AWS_DEFAULT_REGION", "us-east-1")),
-		AccountId: getEnv("AWS_ACCOUNT_ID", strconv.FormatInt(int64(rand.Int31()), 10)),
+		AccountID: getEnv("AWS_ACCOUNT_ID", strconv.FormatInt(int64(rand.Int31()), 10)),
 		Start:     time.Now(),
 		Pid:       1,
 	}
@@ -170,28 +171,28 @@ func main() {
 	defer logEndRequest(mockContext, err)
 }
 
-func abortRequest(mockContext *MockLambdaContext, err error) {
+func abortRequest(mockContext *mockLambdaContext, err error) {
 	logStartRequest(mockContext)
 	logEndRequest(mockContext, err)
 }
 
-func logStartRequest(mockContext *MockLambdaContext) {
-	systemLog("START RequestId: " + mockContext.RequestId + " Version: " + mockContext.Version)
+func logStartRequest(mockContext *mockLambdaContext) {
+	systemLog("START RequestId: " + mockContext.RequestID + " Version: " + mockContext.Version)
 }
 
-func logEndRequest(mockContext *MockLambdaContext, err error) {
+func logEndRequest(mockContext *mockLambdaContext, err error) {
 	curMem, _ := calculateMemoryInMb(mockContext.Pid)
 	diffMs := math.Min(float64(time.Now().Sub(mockContext.Start).Nanoseconds()),
 		float64(mockContext.TimeoutDuration.Nanoseconds())) / 1e6
 
-	systemLog("END RequestId: " + mockContext.RequestId)
+	systemLog("END RequestId: " + mockContext.RequestID)
 	systemLog(fmt.Sprintf(
 		"REPORT RequestId: %s\t"+
 			"Duration: %.2f ms\t"+
 			"Billed Duration: %.f ms\t"+
 			"Memory Size: %s MB\t"+
 			"Max Memory Used: %d MB\t",
-		mockContext.RequestId, diffMs, math.Ceil(diffMs/100)*100, mockContext.MemSize, curMem))
+		mockContext.RequestID, diffMs, math.Ceil(diffMs/100)*100, mockContext.MemSize, curMem))
 
 	if err == nil && mockContext.HasExpired() {
 		err = mockContext.TimeoutErr()
@@ -205,7 +206,7 @@ func logEndRequest(mockContext *MockLambdaContext, err error) {
 		if responseErr.Type == "errorString" {
 			responseErr.Type = ""
 			if responseErr.Message == "unexpected EOF" {
-				responseErr.Message = "RequestId: " + mockContext.RequestId + " Process exited before completing request"
+				responseErr.Message = "RequestId: " + mockContext.RequestID + " Process exited before completing request"
 			}
 		}
 		systemErr(&responseErr)
@@ -228,7 +229,7 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-func fakeGuid() string {
+func fakeGUID() string {
 	randBuf := make([]byte, 16)
 	rand.Read(randBuf)
 
@@ -259,9 +260,9 @@ func logStreamName(version string) string {
 	return time.Now().Format("2006/01/02") + "/[" + version + "]" + string(hexBuf)
 }
 
-func arn(region string, accountId string, fnName string) string {
+func arn(region string, accountID string, fnName string) string {
 	nonDigit := regexp.MustCompile(`[^\d]`)
-	return "arn:aws:lambda:" + region + ":" + nonDigit.ReplaceAllString(accountId, "") + ":function:" + fnName
+	return "arn:aws:lambda:" + region + ":" + nonDigit.ReplaceAllString(accountID, "") + ":function:" + fnName
 }
 
 // Thanks to https://stackoverflow.com/a/31881979
@@ -294,11 +295,11 @@ func calculateMemoryInMb(pid int) (uint64, error) {
 }
 
 func getErrorType(err interface{}) string {
-	if errorType := reflect.TypeOf(err); errorType.Kind() == reflect.Ptr {
+	errorType := reflect.TypeOf(err)
+	if errorType.Kind() == reflect.Ptr {
 		return errorType.Elem().Name()
-	} else {
-		return errorType.Name()
 	}
+	return errorType.Name()
 }
 
 func systemLog(msg string) {
@@ -307,7 +308,7 @@ func systemLog(msg string) {
 
 // Try to match the output of the Lambda web console
 func systemErr(err *messages.InvokeResponse_Error) {
-	jsonBytes, _ := json.MarshalIndent(LambdaError{
+	jsonBytes, _ := json.MarshalIndent(lambdaError{
 		Message:    err.Message,
 		Type:       err.Type,
 		StackTrace: err.StackTrace,
@@ -315,28 +316,28 @@ func systemErr(err *messages.InvokeResponse_Error) {
 	fmt.Fprintln(os.Stderr, "\033[31m"+string(jsonBytes)+"\033[0m")
 }
 
-type LambdaError struct {
+type lambdaError struct {
 	Message    string                                      `json:"errorMessage"`
 	Type       string                                      `json:"errorType,omitempty"`
 	StackTrace []*messages.InvokeResponse_Error_StackFrame `json:"stackTrace,omitempty"`
 }
 
-type MockLambdaContext struct {
-	RequestId       string
+type mockLambdaContext struct {
+	RequestID       string
 	EventBody       string
 	FnName          string
 	Version         string
 	MemSize         string
 	Timeout         string
 	Region          string
-	AccountId       string
+	AccountID       string
 	Start           time.Time
 	TimeoutDuration time.Duration
 	Pid             int
 	Reply           *messages.InvokeResponse
 }
 
-func (mc *MockLambdaContext) ParseTimeout() {
+func (mc *mockLambdaContext) ParseTimeout() {
 	timeoutDuration, err := time.ParseDuration(mc.Timeout + "s")
 	if err != nil {
 		panic(err)
@@ -344,20 +345,20 @@ func (mc *MockLambdaContext) ParseTimeout() {
 	mc.TimeoutDuration = timeoutDuration
 }
 
-func (mc *MockLambdaContext) Deadline() time.Time {
+func (mc *mockLambdaContext) Deadline() time.Time {
 	return mc.Start.Add(mc.TimeoutDuration)
 }
 
-func (mc *MockLambdaContext) HasExpired() bool {
+func (mc *mockLambdaContext) HasExpired() bool {
 	return time.Now().After(mc.Deadline())
 }
 
-func (mc *MockLambdaContext) Request() *messages.InvokeRequest {
+func (mc *mockLambdaContext) Request() *messages.InvokeRequest {
 	return &messages.InvokeRequest{
 		Payload:            []byte(mc.EventBody),
-		RequestId:          mc.RequestId,
+		RequestId:          mc.RequestID,
 		XAmznTraceId:       getEnv("_X_AMZN_TRACE_ID", ""),
-		InvokedFunctionArn: getEnv("AWS_LAMBDA_FUNCTION_INVOKED_ARN", arn(mc.Region, mc.AccountId, mc.FnName)),
+		InvokedFunctionArn: getEnv("AWS_LAMBDA_FUNCTION_INVOKED_ARN", arn(mc.Region, mc.AccountID, mc.FnName)),
 		Deadline: messages.InvokeRequest_Timestamp{
 			Seconds: mc.Deadline().Unix(),
 			Nanos:   int64(mc.Deadline().Nanosecond()),
@@ -365,7 +366,7 @@ func (mc *MockLambdaContext) Request() *messages.InvokeRequest {
 	}
 }
 
-func (mc *MockLambdaContext) TimeoutErr() error {
+func (mc *mockLambdaContext) TimeoutErr() error {
 	return fmt.Errorf("%s %s Task timed out after %s.00 seconds", time.Now().Format("2006-01-02T15:04:05.999Z"),
-		mc.RequestId, mc.Timeout)
+		mc.RequestID, mc.Timeout)
 }
