@@ -1,6 +1,6 @@
 FROM golang:1
 WORKDIR /app
-COPY go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
 COPY init.go ./
 RUN GOARCH=amd64 GOOS=linux go build init.go
