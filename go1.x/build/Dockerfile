@@ -1,7 +1,7 @@
 FROM lambci/lambda-base:build
 
 # https://golang.org/doc/devel/release.html
-ENV GOLANG_VERSION=1.13.1 \
+ENV GOLANG_VERSION=1.13.4 \
     GOPATH=/go \
     PATH=/go/bin:/usr/local/go/bin:$PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_go1.x
@@ -16,7 +16,7 @@ RUN rm -rf /var/runtime /var/lang && \
   go get golang.org/x/vgo
 
 # Add these as a separate layer as they get updated frequently
-RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python && \
-  pip install -U awscli boto3 aws-sam-cli==0.22.0 aws-lambda-builders==0.5.0 --no-cache-dir
+RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python3 && \
+  pip install -U awscli boto3 aws-sam-cli==0.30.0 aws-lambda-builders==0.5.0 --no-cache-dir
 
 CMD ["dep", "ensure"]

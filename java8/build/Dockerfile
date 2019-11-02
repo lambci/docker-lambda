@@ -15,5 +15,5 @@ RUN rm -rf /var/runtime /var/lang && \
 ENV PATH="/usr/local/gradle/gradle-5.2/bin:/usr/local/maven/apache-maven-3.6.0/bin:${PATH}"
 
 # Add these as a separate layer as they get updated frequently
-RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python && \
-  pip install -U awscli boto3 aws-sam-cli==0.22.0 aws-lambda-builders==0.5.0 --no-cache-dir
+RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python3 && \
+  pip install -U awscli boto3 aws-sam-cli==0.30.0 aws-lambda-builders==0.5.0 --no-cache-dir
