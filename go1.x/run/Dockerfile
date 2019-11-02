@@ -1,8 +1,8 @@
 FROM golang:1
-WORKDIR /go/src/github.com/lambci/docker-lambda
-RUN curl -sSL -o /usr/local/bin/dep https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 && chmod +x /usr/local/bin/dep
-COPY aws-lambda-mock.go Gopkg.toml Gopkg.lock ./
-RUN dep ensure
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY aws-lambda-mock.go ./
 RUN GOARCH=amd64 GOOS=linux go build aws-lambda-mock.go
 
 
@@ -13,7 +13,7 @@ ENV AWS_EXECUTION_ENV=AWS_Lambda_go1.x
 RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/go1.x.tgz | tar -zx -C /
 
-COPY --from=0 /go/src/github.com/lambci/docker-lambda/aws-lambda-mock /var/runtime/aws-lambda-go
+COPY --from=0 /app/aws-lambda-mock /var/runtime/aws-lambda-go
 
 USER sbx_user1051
 
