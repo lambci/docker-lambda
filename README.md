@@ -78,7 +78,7 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:python2.7
 # Test on Python 3.6 with a custom file named my_module.py containing a my_handler function
 docker run --rm -v "$PWD":/var/task lambci/lambda:python3.6 my_module.my_handler
 
-# Python 3.7 requires the handler be given explicitly
+# Python 3.7/3.8 require the handler be given explicitly
 docker run --rm -v "$PWD":/var/task lambci/lambda:python3.7 lambda_function.lambda_handler
 
 # Similarly with Ruby 2.5
@@ -204,6 +204,7 @@ These follow the Lambda runtime names:
   - `python2.7`
   - `python3.6`
   - `python3.7`
+  - `python3.8`
   - `ruby2.5`
   - `java8`
   - `go1.x`
@@ -218,6 +219,7 @@ These follow the Lambda runtime names:
   - `build-python2.7`
   - `build-python3.6`
   - `build-python3.7`
+  - `build-python3.8`
   - `build-ruby2.5`
   - `build-java8`
   - `build-go1.x`

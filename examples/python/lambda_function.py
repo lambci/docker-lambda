@@ -29,6 +29,5 @@ def lambda_handler(event, context):
         "__file__": str(__file__),
         "os.environ": str(os.environ),
         "context.__dict__": str(context.__dict__),
-        "ps aux": str(subprocess.check_output(['ps', 'aux'])),
         "event": event
     }
