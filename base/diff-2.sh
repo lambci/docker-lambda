@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNTIMES="nodejs10.x nodejs12.x python3.8"
+RUNTIMES="nodejs10.x nodejs12.x python3.8 java11"
 
 rm -rf diff-2
 mkdir -p diff-2
@@ -47,6 +47,12 @@ diff -qr docker lambda
 echo
 
 cd ${DIFF_DIR}/python3.8
+pwd
+diff docker/var/runtime lambda/var/runtime
+diff -qr docker lambda
+echo
+
+cd ${DIFF_DIR}/java11
 pwd
 diff docker/var/runtime lambda/var/runtime
 diff -qr docker lambda

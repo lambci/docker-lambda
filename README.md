@@ -207,6 +207,7 @@ These follow the Lambda runtime names:
   - `python3.8`
   - `ruby2.5`
   - `java8`
+  - `java11`
   - `go1.x`
   - `dotnetcore2.0`
   - `dotnetcore2.1`
@@ -222,6 +223,7 @@ These follow the Lambda runtime names:
   - `build-python3.8`
   - `build-ruby2.5`
   - `build-java8`
+  - `build-java11`
   - `build-go1.x`
   - `build-dotnetcore2.0`
   - `build-dotnetcore2.1`

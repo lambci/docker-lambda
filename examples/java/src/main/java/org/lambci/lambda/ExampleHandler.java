@@ -36,8 +36,10 @@ public class ExampleHandler implements RequestHandler<Object, String> {
         logger.log(context.getInvokedFunctionArn() + "\n");
         logger.log(context.getLogGroupName() + "\n");
         logger.log(context.getLogStreamName() + "\n");
-        logger.log(context.getIdentity().getIdentityId() + "\n");
-        logger.log(context.getIdentity().getIdentityPoolId() + "\n");
+        if (context.getIdentity() != null) {
+            logger.log(context.getIdentity().getIdentityId() + "\n");
+            logger.log(context.getIdentity().getIdentityPoolId() + "\n");
+        }
         logger.log(context.getClientContext() + "\n");
         logger.log(context.getMemoryLimitInMB() + "\n");
         logger.log(context.getRemainingTimeInMillis() + "\n");

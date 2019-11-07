@@ -33,6 +33,7 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:ruby2.5 lambda_function.lambda
 cd ${EXAMPLES_DIR}/java
 docker run --rm -v "$PWD":/app -w /app gradle gradle build
 docker run --rm -v "$PWD/build/docker":/var/task lambci/lambda:java8 org.lambci.lambda.ExampleHandler '{"some": "event"}'
+docker run --rm -v "$PWD/build/docker":/var/task lambci/lambda:java11 org.lambci.lambda.ExampleHandler '{"some": "event"}'
 
 cd ${EXAMPLES_DIR}/dotnetcore2.0
 docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnetcore2.0 dotnet publish -c Release -o pub

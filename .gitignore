@@ -15,3 +15,7 @@ examples/go1.x/handler
 examples/dotnetcore2.0/pub
 examples/dotnetcore2.1/pub
 base/tar-find-layer/layer.zip
+base/dump-java11/build
+base/dump-java11/.settings
+base/dump-java11/.project
+base/dump-java11/.vscode
