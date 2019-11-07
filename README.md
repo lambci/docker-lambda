@@ -60,11 +60,11 @@ You can also use [yumda](https://github.com/lambci/yumda) to install precompiled
 ## Run Examples
 
 ```sh
-# Test an index.handler function from the current directory on Node.js v10.x
-docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs10.x index.handler
+# Test an index.handler function from the current directory on Node.js v12.x
+docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs12.x index.handler
 
 # If using a function other than index.handler, with a custom event
-docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs10.x index.myHandler '{"some": "event"}'
+docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs12.x index.myHandler '{"some": "event"}'
 
 # Use the Node.js v8.10 runtime in a similar fashion
 docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs8.10 index.myHandler '{}'
@@ -123,7 +123,7 @@ To use the build images, for compilation, deployment, etc:
 
 ```sh
 # To compile native deps in node_modules
-docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs10.x npm rebuild
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs12.x npm rebuild
 
 # To resolve dependencies on go1.x (working directory is /go/src/handler)
 docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x go mod download
@@ -200,6 +200,7 @@ These follow the Lambda runtime names:
   - `nodejs6.10`
   - `nodejs8.10`
   - `nodejs10.x`
+  - `nodejs12.x`
   - `python2.7`
   - `python3.6`
   - `python3.7`
@@ -213,6 +214,7 @@ These follow the Lambda runtime names:
   - `build-nodejs6.10`
   - `build-nodejs8.10`
   - `build-nodejs10.x`
+  - `build-nodejs12.x`
   - `build-python2.7`
   - `build-python3.6`
   - `build-python3.7`

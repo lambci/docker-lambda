@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNTIMES="nodejs10.x"
+RUNTIMES="nodejs10.x nodejs12.x"
 
 rm -rf diff-2
 mkdir -p diff-2
@@ -39,3 +39,9 @@ echo
 diff docker/var/runtime lambda/var/runtime
 echo
 diff -qr docker lambda
+
+cd ${DIFF_DIR}/nodejs12.x
+pwd
+diff docker/var/runtime lambda/var/runtime
+diff -qr docker lambda
+echo
