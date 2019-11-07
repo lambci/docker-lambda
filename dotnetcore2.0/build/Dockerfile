@@ -12,7 +12,7 @@ ENV PATH=/var/lang/bin:$PATH \
 RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/dotnetcore2.0.tgz | tar -zx -C / && \
   yum install -y libunwind && \
-  curl https://dot.net/v1/dotnet-install.sh | bash -s -- -v $DOTNET_SDK_VERSION -i /var/lang/bin && \
+  curl -L https://dot.net/v1/dotnet-install.sh | bash -s -- -v $DOTNET_SDK_VERSION -i /var/lang/bin && \
   mkdir /tmp/warmup && \
   cd /tmp/warmup && \
   dotnet new && \
@@ -20,7 +20,6 @@ RUN rm -rf /var/runtime /var/lang && \
   rm -rf /tmp/warmup /tmp/NuGetScratch
 
 # Add these as a separate layer as they get updated frequently
-RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python3 && \
-  pip install -U virtualenv pipenv awscli boto3 aws-sam-cli==0.31.0 aws-lambda-builders==0.5.0 --no-cache-dir
+RUN pip install -U virtualenv pipenv awscli boto3 aws-sam-cli==0.31.0 aws-lambda-builders==0.5.0 --no-cache-dir
 
 CMD ["dotnet", "build"]
