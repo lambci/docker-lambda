@@ -101,6 +101,7 @@ func main() {
 
 	bootstrapPath = flag.String("bootstrap", "/var/runtime/bootstrap", "path to bootstrap")
 	bootstrapArgsString := flag.String("bootstrap-args", "[]", "additional arguments passed to bootstrap, as a stringified JSON Array")
+	flag.Bool("enable-msg-logs", false, "enable message logs")
 
 	flag.Parse()
 	positionalArgs := flag.Args()
