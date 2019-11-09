@@ -15,7 +15,6 @@ namespace MockLambdaRuntime
             RequestId = Guid.NewGuid().ToString();
             StartTime = DateTime.Now;
             InputStream = new MemoryStream();
-            OutputStream = new MemoryStream();
 
             var eventData = Encoding.UTF8.GetBytes(eventBody);
             InputStream.Write(eventData, 0, eventData.Length);
@@ -43,20 +42,6 @@ namespace MockLambdaRuntime
         public long MemoryUsed => Process.GetCurrentProcess().WorkingSet64;
 
         public Stream InputStream { get; }
-
-        public Stream OutputStream { get; }
-
-        public string OutputText
-        {
-            get
-            {
-                OutputStream.Position = 0;
-                using (TextReader reader = new StreamReader(OutputStream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-        }
 
         public string RequestId { get; }
         public DateTime StartTime { get; }
