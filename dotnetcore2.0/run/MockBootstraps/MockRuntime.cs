@@ -98,7 +98,7 @@ namespace AWSLambda.Internal.Bootstrap
 
         public void ReportDone(string invokeId, string errorType, bool waitForExit)
         {
-            if (!invoked) return;
+            if (!invoked && invokeError == null) return;
 
             Console.Error.WriteLine($"END  RequestId: {context.RequestId}");
 
