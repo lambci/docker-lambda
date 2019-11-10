@@ -21,4 +21,6 @@ RUN rm -rf /var/runtime /var/lang && \
 
 COPY --from=0 /app/MockBootstraps.* /var/runtime/
 
+USER sbx_user1051
+
 ENTRYPOINT ["/var/lang/bin/dotnet", "/var/runtime/MockBootstraps.dll"]
