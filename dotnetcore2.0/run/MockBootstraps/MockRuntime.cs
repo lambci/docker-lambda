@@ -64,7 +64,10 @@ namespace AWSLambda.Internal.Bootstrap
 
             invoked = true;
 
-            curSBSharedMem = new SBSharedMem(sharedMem);
+            var outputStream = new MemoryStream(outputBuffer);
+            outputStream.SetLength(0);
+
+           curSBSharedMem = new SBSharedMem(sharedMem);
             return new InvokeData(curSBSharedMem)
             {
                 RequestId = context.RequestId,
@@ -76,7 +79,7 @@ namespace AWSLambda.Internal.Bootstrap
                 },
                 XAmznTraceId = EnvHelper.GetOrDefault("_X_AMZN_TRACE_ID", ""),
                 InputStream = context.InputStream,
-                OutputStream = new MemoryStream(outputBuffer),
+                OutputStream = outputStream,
                 LambdaContextInternal = new LambdaContextInternal(
                     context.RemainingTime,
                     SendCustomerLogMessage,
