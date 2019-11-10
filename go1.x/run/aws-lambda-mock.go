@@ -1,17 +1,20 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
-	"math"
+	"log"
 	"math/rand"
 	"net"
+	"net/http"
 	"net/rpc"
+	"net/url"
 	"os"
 	"os/exec"
 	"reflect"
@@ -23,6 +26,8 @@ import (
 	"github.com/aws/aws-lambda-go/lambda/messages"
 )
 
+var apiBase = "http://127.0.0.1:9001/2018-06-01"
+
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
@@ -32,6 +37,7 @@ func main() {
 	delveAPI := flag.String("delveAPI", "1", "delve api version")
 	flag.Parse()
 	positionalArgs := flag.Args()
+
 	var handler string
 	if len(positionalArgs) > 0 {
 		handler = positionalArgs[0]
@@ -54,6 +60,8 @@ func main() {
 		}
 	}
 
+	stayOpen := os.Getenv("DOCKER_LAMBDA_STAY_OPEN") != ""
+
 	mockContext := &mockLambdaContext{
 		RequestID: fakeGUID(),
 		EventBody: eventBody,
@@ -64,7 +72,6 @@ func main() {
 		Region:    getEnv("AWS_REGION", getEnv("AWS_DEFAULT_REGION", "us-east-1")),
 		AccountID: getEnv("AWS_ACCOUNT_ID", strconv.FormatInt(int64(rand.Int31()), 10)),
 		Start:     time.Now(),
-		Pid:       1,
 	}
 	mockContext.ParseTimeout()
 
@@ -81,6 +88,54 @@ func main() {
 	os.Setenv("AWS_REGION", mockContext.Region)
 	os.Setenv("AWS_DEFAULT_REGION", mockContext.Region)
 	os.Setenv("_HANDLER", handler)
+
+	var err error
+
+	var mockServerCmd = exec.Command("/var/runtime/mockserver")
+	mockServerCmd.Env = append(os.Environ(),
+		"DOCKER_LAMBDA_NO_BOOTSTRAP=1",
+		"DOCKER_LAMBDA_USE_STDIN=1",
+	)
+	mockServerCmd.Stdout = os.Stdout
+	mockServerCmd.Stderr = os.Stderr
+	stdin, _ := mockServerCmd.StdinPipe()
+	if err = mockServerCmd.Start(); err != nil {
+		log.Fatalf("Error starting mock server: %s", err.Error())
+		return
+	}
+	stdin.Write([]byte(eventBody))
+	stdin.Close()
+
+	defer mockServerCmd.Wait()
+
+	maxRetries := 20
+
+	for i := 1; i <= maxRetries; i++ {
+		resp, err := http.Get(apiBase + "/ping")
+		if err != nil {
+			if uerr, ok := err.(*url.Error); ok {
+				if oerr, ok := uerr.Unwrap().(*net.OpError); ok {
+					// Connection refused, try again
+					if oerr.Op == "dial" && oerr.Net == "tcp" {
+						if i == maxRetries {
+							log.Fatal("Mock server did not start in time")
+							return
+						}
+						time.Sleep(5 * time.Millisecond)
+						continue
+					}
+				}
+			}
+			log.Fatal(err)
+			return
+		}
+		if resp.StatusCode != 200 {
+			log.Fatal("Non 200 status code from local server")
+			return
+		}
+		resp.Body.Close()
+		break
+	}
 
 	var cmd *exec.Cmd
 	if *debugMode == true {
@@ -110,26 +165,31 @@ func main() {
 			"AWS_SECURITY_TOKEN="+awsSessionToken,
 		)
 	}
-	cmd.Stdout = os.Stderr
-	cmd.Stderr = os.Stderr
+
+	var logsBuf bytes.Buffer
+
+	if stayOpen {
+		cmd.Stdout = io.MultiWriter(os.Stdout, &logsBuf)
+		cmd.Stderr = io.MultiWriter(os.Stderr, &logsBuf)
+	} else {
+		cmd.Stdout = os.Stderr
+		cmd.Stderr = os.Stderr
+	}
+
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
-	var err error
-
 	if err = cmd.Start(); err != nil {
-		defer abortRequest(mockContext, err)
+		defer abortInit(mockContext, err)
 		return
 	}
 
-	mockContext.Pid = cmd.Process.Pid
-
-	defer syscall.Kill(-mockContext.Pid, syscall.SIGKILL)
+	defer syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 
 	var conn net.Conn
 	for {
 		conn, err = net.Dial("tcp", ":"+port)
 		if mockContext.HasExpired() {
-			defer abortRequest(mockContext, mockContext.TimeoutErr())
+			defer abortInit(mockContext, mockContext.TimeoutErr())
 			return
 		}
 		if err == nil {
@@ -142,7 +202,7 @@ func main() {
 				continue
 			}
 		}
-		defer abortRequest(mockContext, err)
+		defer abortInit(mockContext, err)
 		return
 	}
 
@@ -151,7 +211,7 @@ func main() {
 	for {
 		err = client.Call("Function.Ping", messages.PingRequest{}, &messages.PingResponse{})
 		if mockContext.HasExpired() {
-			defer abortRequest(mockContext, mockContext.TimeoutErr())
+			defer abortInit(mockContext, mockContext.TimeoutErr())
 			return
 		}
 		if err == nil {
@@ -160,65 +220,137 @@ func main() {
 		time.Sleep(5 * time.Millisecond)
 	}
 
-	// XXX: The Go runtime seems to amortize the startup time, reset it here
-	mockContext.Start = time.Now()
-
-	logStartRequest(mockContext)
-
-	err = client.Call("Function.Invoke", mockContext.Request(), &mockContext.Reply)
-
-	// We want the process killed before this, so defer it
-	defer logEndRequest(mockContext, err)
-}
-
-func abortRequest(mockContext *mockLambdaContext, err error) {
-	logStartRequest(mockContext)
-	logEndRequest(mockContext, err)
-}
-
-func logStartRequest(mockContext *mockLambdaContext) {
-	systemLog("START RequestId: " + mockContext.RequestID + " Version: " + mockContext.Version)
-}
-
-func logEndRequest(mockContext *mockLambdaContext, err error) {
-	curMem, _ := calculateMemoryInMb(mockContext.Pid)
-	diffMs := math.Min(float64(time.Now().Sub(mockContext.Start).Nanoseconds()),
-		float64(mockContext.TimeoutDuration.Nanoseconds())) / 1e6
-
-	systemLog("END RequestId: " + mockContext.RequestID)
-	systemLog(fmt.Sprintf(
-		"REPORT RequestId: %s\t"+
-			"Duration: %.2f ms\t"+
-			"Billed Duration: %.f ms\t"+
-			"Memory Size: %s MB\t"+
-			"Max Memory Used: %d MB\t",
-		mockContext.RequestID, diffMs, math.Ceil(diffMs/100)*100, mockContext.MemSize, curMem))
-
-	if err == nil && mockContext.HasExpired() {
-		err = mockContext.TimeoutErr()
-	}
-
-	if err != nil {
-		responseErr := messages.InvokeResponse_Error{
-			Message: err.Error(),
-			Type:    getErrorType(err),
+	for {
+		resp, err := http.Get(apiBase + "/runtime/invocation/next")
+		if err != nil {
+			if uerr, ok := err.(*url.Error); ok {
+				if uerr.Unwrap().Error() == "EOF" {
+					return
+				}
+			}
+			log.Fatal(err)
+			return
 		}
-		if responseErr.Type == "errorString" {
-			responseErr.Type = ""
-			if responseErr.Message == "unexpected EOF" {
-				responseErr.Message = "RequestId: " + mockContext.RequestID + " Process exited before completing request"
+		if resp.StatusCode != 200 {
+			log.Fatal("Non 200 status code from local server")
+			return
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		resp.Body.Close()
+
+		deadlineMs, _ := strconv.ParseInt(resp.Header.Get("Lambda-Runtime-Deadline-Ms"), 10, 64)
+		deadline := time.Unix(0, deadlineMs*int64(time.Millisecond))
+
+		var invokeRequest = &messages.InvokeRequest{
+			Payload:            body,
+			RequestId:          resp.Header.Get("Lambda-Runtime-Aws-Request-Id"),
+			XAmznTraceId:       resp.Header.Get("Lambda-Runtime-Trace-Id"),
+			InvokedFunctionArn: resp.Header.Get("Lambda-Runtime-Invoked-Function-Arn"),
+			Deadline: messages.InvokeRequest_Timestamp{
+				Seconds: deadline.Unix(),
+				Nanos:   int64(deadline.Nanosecond()),
+			},
+			ClientContext: []byte(resp.Header.Get("Lambda-Runtime-Client-Context")),
+		}
+
+		cognitoIdentityHeader := []byte(resp.Header.Get("Lambda-Runtime-Cognito-Identity"))
+		if len(cognitoIdentityHeader) > 0 {
+			var identityObj *cognitoIdentity
+			err := json.Unmarshal(cognitoIdentityHeader, &identityObj)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+			invokeRequest.CognitoIdentityId = identityObj.IdentityID
+			invokeRequest.CognitoIdentityPoolId = identityObj.IdentityPoolID
+		}
+
+		logTail := resp.Header.Get("Docker-Lambda-Log-Type") == "Tail"
+
+		logsBuf.Reset()
+
+		var reply *messages.InvokeResponse
+		err = client.Call("Function.Invoke", invokeRequest, &reply)
+
+		suffix := "/response"
+		payload := reply.Payload
+		if err != nil || reply.Error != nil {
+			suffix = "/error"
+			var lambdaErr lambdaError
+			if err != nil {
+				lambdaErr = toLambdaError(mockContext, err)
+			} else if reply.Error != nil {
+				lambdaErr = lambdaError{
+					Message:    reply.Error.Message,
+					Type:       reply.Error.Type,
+					StackTrace: reply.Error.StackTrace,
+				}
+			}
+			payload, _ = json.Marshal(lambdaErr)
+		}
+		req, err := http.NewRequest("POST", apiBase+"/runtime/invocation/"+invokeRequest.RequestId+suffix, bytes.NewBuffer(payload))
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		if logTail {
+			// This is very annoying but seems to be necessary to ensure we get all the stdout/stderr from the process
+			time.Sleep(1 * time.Millisecond)
+
+			logs := logsBuf.Bytes()
+
+			if len(logs) > 0 {
+				if len(logs) > 4096 {
+					logs = logs[len(logs)-4096:]
+				}
+				req.Header.Add("Docker-Lambda-Log-Result", base64.StdEncoding.EncodeToString(logs))
 			}
 		}
-		systemErr(&responseErr)
-		os.Exit(1)
-	}
 
-	if mockContext.Reply.Error != nil {
-		systemErr(mockContext.Reply.Error)
-		os.Exit(1)
+		resp, err = http.DefaultClient.Do(req)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		if resp.StatusCode != 202 {
+			log.Fatal("Non 202 status code from local server")
+			return
+		}
+		resp.Body.Close()
 	}
+}
 
-	fmt.Println(string(mockContext.Reply.Payload))
+func abortInit(mockContext *mockLambdaContext, err error) {
+	lambdaErr := toLambdaError(mockContext, err)
+	jsonBytes, _ := json.Marshal(lambdaErr)
+	resp, err := http.Post(apiBase+"/runtime/init/error", "application/json", bytes.NewBuffer(jsonBytes))
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	resp.Body.Close()
+}
+
+func toLambdaError(mockContext *mockLambdaContext, exitErr error) lambdaError {
+	err := &exitError{err: exitErr, context: mockContext}
+	responseErr := lambdaError{
+		Message: err.Error(),
+		Type:    getErrorType(err),
+	}
+	if responseErr.Type == "errorString" {
+		responseErr.Type = ""
+		if responseErr.Message == "unexpected EOF" {
+			responseErr.Message = "RequestId: " + mockContext.RequestID + " Process exited before completing request"
+		}
+	} else if responseErr.Type == "ExitError" {
+		responseErr.Type = "Runtime.ExitError" // XXX: Hack to add 'Runtime.' to error type
+	}
+	return responseErr
 }
 
 func getEnv(key, fallback string) string {
@@ -265,35 +397,6 @@ func arn(region string, accountID string, fnName string) string {
 	return "arn:aws:lambda:" + region + ":" + nonDigit.ReplaceAllString(accountID, "") + ":function:" + fnName
 }
 
-// Thanks to https://stackoverflow.com/a/31881979
-func calculateMemoryInMb(pid int) (uint64, error) {
-	f, err := os.Open(fmt.Sprintf("/proc/%d/smaps", pid))
-	if err != nil {
-		return 0, err
-	}
-	defer f.Close()
-
-	res := uint64(0)
-	pfx := []byte("Pss:")
-	r := bufio.NewScanner(f)
-	for r.Scan() {
-		line := r.Bytes()
-		if bytes.HasPrefix(line, pfx) {
-			var size uint64
-			_, err := fmt.Sscanf(string(line[4:]), "%d", &size)
-			if err != nil {
-				return 0, err
-			}
-			res += size
-		}
-	}
-	if err := r.Err(); err != nil {
-		return 0, err
-	}
-
-	return res / 1024, nil
-}
-
 func getErrorType(err interface{}) string {
 	errorType := reflect.TypeOf(err)
 	if errorType.Kind() == reflect.Ptr {
@@ -302,24 +405,19 @@ func getErrorType(err interface{}) string {
 	return errorType.Name()
 }
 
-func systemLog(msg string) {
-	fmt.Fprintln(os.Stderr, "\033[32m"+msg+"\033[0m")
-}
-
-// Try to match the output of the Lambda web console
-func systemErr(err *messages.InvokeResponse_Error) {
-	jsonBytes, _ := json.MarshalIndent(lambdaError{
-		Message:    err.Message,
-		Type:       err.Type,
-		StackTrace: err.StackTrace,
-	}, "", "  ")
-	fmt.Fprintln(os.Stderr, "\033[31m"+string(jsonBytes)+"\033[0m")
-}
-
 type lambdaError struct {
 	Message    string                                      `json:"errorMessage"`
 	Type       string                                      `json:"errorType,omitempty"`
 	StackTrace []*messages.InvokeResponse_Error_StackFrame `json:"stackTrace,omitempty"`
+}
+
+type exitError struct {
+	err     error
+	context *mockLambdaContext
+}
+
+func (e *exitError) Error() string {
+	return fmt.Sprintf("RequestId: %s Error: %s", e.context.RequestID, e.err.Error())
 }
 
 type mockLambdaContext struct {
@@ -333,8 +431,6 @@ type mockLambdaContext struct {
 	AccountID       string
 	Start           time.Time
 	TimeoutDuration time.Duration
-	Pid             int
-	Reply           *messages.InvokeResponse
 }
 
 func (mc *mockLambdaContext) ParseTimeout() {
@@ -369,4 +465,9 @@ func (mc *mockLambdaContext) Request() *messages.InvokeRequest {
 func (mc *mockLambdaContext) TimeoutErr() error {
 	return fmt.Errorf("%s %s Task timed out after %s.00 seconds", time.Now().Format("2006-01-02T15:04:05.999Z"),
 		mc.RequestID, mc.Timeout)
+}
+
+type cognitoIdentity struct {
+	IdentityID     string `json:"identity_id,omitempty"`
+	IdentityPoolID string `json:"identity_pool_id,omitempty"`
 }
