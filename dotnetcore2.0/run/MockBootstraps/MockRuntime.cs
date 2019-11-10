@@ -67,7 +67,7 @@ namespace AWSLambda.Internal.Bootstrap
             var outputStream = new MemoryStream(outputBuffer);
             outputStream.SetLength(0);
 
-           curSBSharedMem = new SBSharedMem(sharedMem);
+            curSBSharedMem = new SBSharedMem(sharedMem);
             return new InvokeData(curSBSharedMem)
             {
                 RequestId = context.RequestId,
