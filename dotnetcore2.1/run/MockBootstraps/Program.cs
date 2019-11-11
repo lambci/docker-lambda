@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -32,12 +33,30 @@ namespace MockLambdaRuntime
             }
             AssemblyLoadContext.Default.Resolving += OnAssemblyResolving;
 
+            //Console.CancelKeyPress += delegate {
+            //    // call methods to clean up
+            //};
+
+            Process mockServer = null;
+
             try
             {
                 var shouldWaitForDebugger = GetShouldWaitForDebuggerFlag(args, out var positionalArgs);
 
                 var handler = GetFunctionHandler(positionalArgs);
                 var body = GetEventBody(positionalArgs);
+
+                var lambdaRuntime = new MockRuntime(handler, body);
+
+                mockServer = new Process();
+                mockServer.StartInfo.FileName = "/var/runtime/mockserver";
+                mockServer.StartInfo.CreateNoWindow = true;
+                mockServer.StartInfo.RedirectStandardInput = true;
+                mockServer.StartInfo.Environment["DOCKER_LAMBDA_NO_BOOTSTRAP"] = "1";
+                mockServer.StartInfo.Environment["DOCKER_LAMBDA_USE_STDIN"] = "1";
+                mockServer.Start();
+                mockServer.StandardInput.Write(body);
+                mockServer.StandardInput.Close();
 
                 if (shouldWaitForDebugger)
                 {
@@ -51,8 +70,7 @@ namespace MockLambdaRuntime
                     }
                 }
 
-                var lambdaRuntime = new MockRuntime(handler, body);
-                LambdaBootstrap lambdaBootstrap = new LambdaBootstrap(lambdaRuntime, InternalLogger.NO_OP_LOGGER);
+                var lambdaBootstrap = new LambdaBootstrap(lambdaRuntime, InternalLogger.NO_OP_LOGGER);
                 UnhandledExceptionLogger.Register();
                 lambdaBootstrap.Initialize();
                 lambdaBootstrap.Invoke();
@@ -62,6 +80,10 @@ namespace MockLambdaRuntime
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"\nUnhandled exception occured in runner:\n{ex}");
+            }
+            finally
+            {
+                if (mockServer != null) mockServer.Dispose();
             }
         }
 

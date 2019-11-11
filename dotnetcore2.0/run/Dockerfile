@@ -10,6 +10,9 @@ COPY MockBootstraps/ .
 RUN dotnet publish --output /app/ --configuration Release
 
 
+FROM lambci/lambda:provided
+
+
 FROM lambci/lambda-base
 
 ENV PATH=/var/lang/bin:$PATH \
@@ -20,6 +23,8 @@ RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/dotnetcore2.0.tgz | tar -zx -C /
 
 COPY --from=0 /app/MockBootstraps.* /var/runtime/
+
+COPY --from=1 /var/runtime/init /var/runtime/mockserver
 
 USER sbx_user1051
 
