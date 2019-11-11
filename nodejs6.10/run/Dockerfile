@@ -1,3 +1,6 @@
+FROM lambci/lambda:provided
+
+
 FROM lambci/lambda-base
 
 ENV PATH=/var/lang/bin:$PATH \
@@ -9,6 +12,8 @@ RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/nodejs6.10.tgz | tar -zx -C /
 
 COPY awslambda-mock.js /var/runtime/node_modules/awslambda/build/Release/awslambda.js
+
+COPY --from=0 /var/runtime/init /var/runtime/mockserver
 
 USER sbx_user1051
 

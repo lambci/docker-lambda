@@ -1,5 +1,15 @@
 var fs = require('fs')
 var crypto = require('crypto')
+var http = require('http')
+var child_process = require('child_process')
+
+var PING_RETRIES = 20
+
+var LOGS = ''
+var LOG_TAIL = false
+var HAS_BUFFER_FROM = Buffer.from && Buffer.from !== Uint8Array.from
+
+var STAY_OPEN = process.env.DOCKER_LAMBDA_STAY_OPEN
 
 var HANDLER = process.argv[2] || process.env.AWS_LAMBDA_FUNCTION_HANDLER || process.env._HANDLER || 'index.handler'
 var EVENT_BODY = process.argv[3] || process.env.AWS_LAMBDA_EVENT_BODY ||
@@ -15,26 +25,14 @@ var ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || 'SOME_ACCESS_KEY_ID'
 var SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || 'SOME_SECRET_ACCESS_KEY'
 var SESSION_TOKEN = process.env.AWS_SESSION_TOKEN
 var INVOKED_ARN = process.env.AWS_LAMBDA_FUNCTION_INVOKED_ARN || arn(REGION, ACCOUNT_ID, FN_NAME)
+var TRACE_ID = process.env._X_AMZN_TRACE_ID || 'root=1-5d9639c7-ac2df104a29f3070f507bdb4;sampled=0'
+var CLIENT_CONTEXT = process.env.AWS_LAMBDA_CLIENT_CONTEXT
+var COGNITO_IDENTITY = process.env.AWS_LAMBDA_COGNITO_IDENTITY
+var COGNITO_IDENTITY_ID = (tryParse(COGNITO_IDENTITY) || {}).identity_id
+var COGNITO_IDENTITY_POOL_ID = (tryParse(COGNITO_IDENTITY) || {}).identity_pool_id
+var DEADLINE_MS = Date.now() + (TIMEOUT * 1000)
 
-function consoleLog(str) {
-  process.stderr.write(formatConsole(str))
-}
-
-function systemLog(str) {
-  process.stderr.write(formatSystem(str) + '\n')
-}
-
-function systemErr(str) {
-  process.stderr.write(formatErr(str) + '\n')
-}
-
-function handleResult(resultStr, cb) {
-  if (!process.stdout.write('\n' + resultStr + '\n')) {
-    process.stdout.once('drain', cb)
-  } else {
-    process.nextTick(cb)
-  }
-}
+process.on('SIGINT', () => process.exit(0))
 
 // Don't think this can be done in the Docker image
 process.umask(2)
@@ -49,8 +47,18 @@ process.env.AWS_REGION = REGION
 process.env.AWS_DEFAULT_REGION = REGION
 process.env._HANDLER = HANDLER
 
+var mockServerProcess = child_process.spawn('/var/runtime/mockserver', {
+  stdio: ['pipe', 'inherit', 'inherit'],
+  env: Object.assign({
+    DOCKER_LAMBDA_NO_BOOTSTRAP: 1,
+    DOCKER_LAMBDA_USE_STDIN: 1,
+  }, process.env)
+})
+mockServerProcess.on('error', console.error)
+mockServerProcess.stdin.end(EVENT_BODY)
+mockServerProcess.unref()
+
 var OPTIONS = {
-  initInvokeId: uuid(),
   invokeId: uuid(),
   handler: HANDLER,
   suppressInit: true,
@@ -61,11 +69,12 @@ var OPTIONS = {
   },
   eventBody: EVENT_BODY,
   contextObjects: {
-    // clientContext: '{}',
-    // cognitoIdentityId: undefined,
-    // cognitoPoolId: undefined,
+    clientContext: CLIENT_CONTEXT,
+    cognitoIdentityId: COGNITO_IDENTITY_ID,
+    cognitoPoolId: COGNITO_IDENTITY_POOL_ID,
   },
   invokedFunctionArn: INVOKED_ARN,
+  'x-amzn-trace-id': TRACE_ID
 }
 
 // Some weird spelling error in the source?
@@ -73,70 +82,132 @@ OPTIONS.invokeid = OPTIONS.invokeId
 
 var invoked = false
 var errored = false
-var start = null
+var pingPromise = new Promise(resolve => ping(PING_RETRIES, resolve))
+var reportDonePromise = new Promise(resolve => resolve())
 
 module.exports = {
-  initRuntime: function() { return OPTIONS },
-  waitForInvoke: function(fn) {
-    if (invoked) return
-    systemLog('START RequestId: ' + OPTIONS.invokeId + ' Version: ' + VERSION)
-    start = process.hrtime()
-    invoked = true
-    fn(OPTIONS)
-  },
-  reportRunning: function(invokeId) {}, // eslint-disable-line no-unused-vars
-  reportDone: function(invokeId, errType, resultStr) {
-    if (!invoked) return
-    var diffMs = hrTimeMs(process.hrtime(start))
-    var billedMs = Math.min(100 * (Math.floor(diffMs / 100) + 1), TIMEOUT * 1000)
-    systemLog('END RequestId: ' + invokeId)
-    systemLog([
-      'REPORT RequestId: ' + invokeId,
-      'Duration: ' + diffMs.toFixed(2) + ' ms',
-      'Billed Duration: ' + billedMs + ' ms',
-      'Memory Size: ' + MEM_SIZE + ' MB',
-      'Max Memory Used: ' + Math.round(process.memoryUsage().rss / (1024 * 1024)) + ' MB',
-      '',
-    ].join('\t'))
+  initRuntime: function () { return OPTIONS },
+  waitForInvoke: function (cb) {
+    Promise.all([pingPromise, reportDonePromise]).then(() => {
+      http.get({
+        hostname: '127.0.0.1',
+        port: 9001,
+        path: '/2018-06-01/runtime/invocation/next',
+      }, res => {
+        if (res.statusCode !== 200) {
+          console.error(`Mock server invocation/next returned a ${res.statusCode} response`)
+          return process.exit(1)
+        }
+        if (invoked) {
+          LOGS = ''
+        }
+        invoked = true
+        OPTIONS.invokeId = OPTIONS.initInvokeId = OPTIONS.invokeid = res.headers['lambda-runtime-aws-request-id']
+        OPTIONS.invokedFunctionArn = res.headers['lambda-runtime-invoked-function-arn']
+        OPTIONS['x-amzn-trace-id'] = res.headers['lambda-runtime-trace-id']
+        DEADLINE_MS = +res.headers['lambda-runtime-deadline-ms']
 
-    var exitCode = errored || errType ? 1 : 0
-    if (typeof resultStr === 'string') {
-      handleResult(resultStr, function() { process.exit(exitCode) })
-    } else {
-      process.exit(exitCode)
-    }
+        OPTIONS.contextObjects.clientContext = res.headers['lambda-runtime-client-context']
+        var cognitoIdentity = tryParse(res.headers['lambda-runtime-cognito-identity']) || {}
+        OPTIONS.contextObjects.cognitoIdentityId = cognitoIdentity.identity_id
+        OPTIONS.contextObjects.cognitoPoolId = cognitoIdentity.identity_pool_id
+
+        LOG_TAIL = res.headers['docker-lambda-log-type'] === 'Tail'
+
+        OPTIONS.eventBody = ''
+        res.setEncoding('utf8')
+          .on('data', data => OPTIONS.eventBody += data)
+          .on('end', () => cb(OPTIONS))
+          .on('error', function (err) {
+            console.error(err)
+            process.exit(1)
+          })
+      }).on('error', err => {
+        if (err.code === 'ECONNRESET') {
+          return process.exit(errored ? 1 : 0)
+        }
+        console.error(err)
+        process.exit(1)
+      })
+    })
   },
-  reportFault: function(invokeId, msg, errName, errStack) {
+  reportRunning: function (invokeId) { }, // eslint-disable-line no-unused-vars
+  reportDone: function (invokeId, errType, resultStr) {
+    if (!invoked) return
+    if (errType) errored = true
+    reportDonePromise = new Promise(resolve => {
+      http.request({
+        method: 'POST',
+        hostname: '127.0.0.1',
+        port: 9001,
+        path: '/2018-06-01/runtime/invocation/' + invokeId + (errType == null ? '/response' : '/error'),
+        headers: LOG_TAIL ? { 'Docker-Lambda-Log-Result': newBuffer(LOGS).slice(-4096).toString('base64') } : {},
+      }, res => {
+        if (res.statusCode !== 202) {
+          console.error(err || 'Got status code: ' + res.statusCode)
+          process.exit(1)
+        }
+        resolve()
+      }).on('error', err => {
+        console.error(err)
+        process.exit(1)
+      }).end(resultStr)
+    })
+  },
+  reportFault: function (invokeId, msg, errName, errStack) {
     errored = true
     systemErr(msg + (errName ? ': ' + errName : ''))
     if (errStack) systemErr(errStack)
   },
-  reportUserInitStart: function() {},
-  reportUserInitEnd: function() {},
-  reportUserInvokeStart: function() {},
-  reportUserInvokeEnd: function() {},
-  reportException: function() {},
-  getRemainingTime: function() {
-    return (TIMEOUT * 1000) - Math.floor(hrTimeMs(process.hrtime(start)))
-  },
+  reportUserInitStart: function () { },
+  reportUserInitEnd: function () { },
+  reportUserInvokeStart: function () { },
+  reportUserInvokeEnd: function () { },
+  reportException: function () { },
+  getRemainingTime: function () { return DEADLINE_MS - Date.now() },
   sendConsoleLogs: consoleLog,
   maxLoggerErrorSize: 256 * 1024,
+}
+
+function ping(retries, cb) {
+  http.get({ hostname: '127.0.0.1', port: 9001, path: '/2018-06-01/runtime/ping' }, cb).on('error', () => {
+    if (!retries) {
+      console.error('Mock server did not respond to pings in time')
+      process.exit(1)
+    }
+    setTimeout(ping, 5, retries - 1, cb)
+  })
+}
+
+function tryParse(cognitoIdentity) {
+  try {
+    return JSON.parse(cognitoIdentity)
+  } catch (e) {
+    return null
+  }
+}
+
+function consoleLog(str) {
+  if (STAY_OPEN) {
+    if (LOG_TAIL) {
+      LOGS += str
+    }
+    process.stdout.write(str)
+  } else {
+    process.stderr.write(formatConsole(str))
+  }
+}
+
+function systemErr(str) {
+  process.stderr.write(formatErr(str) + '\n')
 }
 
 function formatConsole(str) {
   return str.replace(/^[0-9TZ:.-]+\t[0-9a-f-]+\t/, '\u001b[34m$&\u001b[0m')
 }
 
-function formatSystem(str) {
-  return '\u001b[32m' + str + '\u001b[0m'
-}
-
 function formatErr(str) {
   return '\u001b[31m' + str + '\u001b[0m'
-}
-
-function hrTimeMs(hrtime) {
-  return (hrtime[0] * 1e9 + hrtime[1]) / 1e6
 }
 
 // Approximates the look of a v1 UUID
@@ -154,4 +225,8 @@ function randomAccountId() {
 
 function arn(region, accountId, fnName) {
   return 'arn:aws:lambda:' + region + ':' + accountId.replace(/[^\d]/g, '') + ':function:' + fnName
+}
+
+function newBuffer(str) {
+  return HAS_BUFFER_FROM ? Buffer.from(str) : new Buffer(str)
 }
