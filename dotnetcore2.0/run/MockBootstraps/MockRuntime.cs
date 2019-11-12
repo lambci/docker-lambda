@@ -18,8 +18,6 @@ namespace AWSLambda.Internal.Bootstrap
 
         private Exception invokeError;
 
-        private readonly byte[] outputBuffer = new byte[SBSharedMem.SizeOfEventBody];
-
         private readonly IntPtr sharedMem = Marshal.AllocHGlobal(SBSharedMem.UnmanagedStructSize);
 
         private SBSharedMem curSBSharedMem;
@@ -58,14 +56,11 @@ namespace AWSLambda.Internal.Bootstrap
         {
         }
 
-        public InvokeData ReceiveInvoke(IDictionary initialEnvironmentVariables, RuntimeReceiveInvokeBuffers buffers)
+        unsafe public InvokeData ReceiveInvoke(IDictionary initialEnvironmentVariables, RuntimeReceiveInvokeBuffers buffers)
         {
             Console.Error.WriteLine($"START RequestId: {context.RequestId} Version: {context.FunctionVersion}");
 
             invoked = true;
-
-            var outputStream = new MemoryStream(outputBuffer);
-            outputStream.SetLength(0);
 
             curSBSharedMem = new SBSharedMem(sharedMem);
             return new InvokeData(curSBSharedMem)
@@ -79,7 +74,7 @@ namespace AWSLambda.Internal.Bootstrap
                 },
                 XAmznTraceId = EnvHelper.GetOrDefault("_X_AMZN_TRACE_ID", ""),
                 InputStream = context.InputStream,
-                OutputStream = outputStream,
+                OutputStream = new UnmanagedMemoryStream(curSBSharedMem.EventBody, 0, SBSharedMem.SizeOfEventBody, FileAccess.Write),
                 LambdaContextInternal = new LambdaContextInternal(
                     context.RemainingTime,
                     SendCustomerLogMessage,
@@ -99,7 +94,7 @@ namespace AWSLambda.Internal.Bootstrap
             Console.Error.WriteLine(message);
         }
 
-        public void ReportDone(string invokeId, string errorType, bool waitForExit)
+        public unsafe void ReportDone(string invokeId, string errorType, bool waitForExit)
         {
             if (!invoked && invokeError == null) return;
 
@@ -118,7 +113,7 @@ namespace AWSLambda.Internal.Bootstrap
                 return;
             }
 
-            var output = Encoding.UTF8.GetString(outputBuffer, 0, curSBSharedMem.ResponseBodyLen);
+            var output = Interop.InteropUtils.ReadUTF8String(curSBSharedMem.EventBody, curSBSharedMem.ResponseBodyLen);
 
             Console.WriteLine(output);
 
