@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-    compile (
+    implementation (
         'com.amazonaws:aws-lambda-java-core:1.2.0',
         'com.amazonaws:aws-lambda-java-events:2.2.7'
     )
@@ -18,7 +18,7 @@ task buildZip(type: Zip) {
     from compileJava
     from processResources
     into('lib') {
-        from configurations.runtime
+        from configurations.runtimeClasspath
     }
 }
 
@@ -26,7 +26,7 @@ task buildDocker(type: Copy) {
     from compileJava
     from processResources
     into('lib') {
-        from configurations.runtime
+        from configurations.runtimeClasspath
     }
     into 'build/docker'
 }
