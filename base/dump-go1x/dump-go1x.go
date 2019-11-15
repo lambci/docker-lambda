@@ -12,10 +12,10 @@ import (
 	"os/exec"
 )
 
-func HandleRequest(ctx context.Context, event interface{}) (*s3.PutObjectOutput, error) {
+func handleRequest(ctx context.Context, event interface{}) (*s3.PutObjectResponse, error) {
 	filename := "go1.x.tgz"
 
-	RunShell("tar -cpzf /tmp/" + filename + " --numeric-owner --ignore-failed-read /var/runtime /var/lang")
+	runShell("tar -cpzf /tmp/" + filename + " --numeric-owner --ignore-failed-read /var/runtime /var/lang")
 
 	fmt.Println("Zipping done! Uploading...")
 
@@ -34,16 +34,16 @@ func HandleRequest(ctx context.Context, event interface{}) (*s3.PutObjectOutput,
 		Body:   file,
 		Bucket: aws.String("lambci"),
 		Key:    aws.String("fs/" + filename),
-	}).Send()
+	}).Send(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Println("Uploading done!")
 
-	RunShell("ps aux")
+	runShell("ps aux")
 
-	RunShell("xargs --null --max-args=1 < /proc/1/environ")
+	runShell("xargs --null --max-args=1 < /proc/1/environ")
 
 	for _, a := range os.Args {
 		fmt.Println(a)
@@ -58,7 +58,7 @@ func HandleRequest(ctx context.Context, event interface{}) (*s3.PutObjectOutput,
 	return resp, nil
 }
 
-func RunShell(shellCmd string) {
+func runShell(shellCmd string) {
 	cmd := exec.Command("sh", "-c", shellCmd)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -66,7 +66,7 @@ func RunShell(shellCmd string) {
 }
 
 func main() {
-	lambda.Start(HandleRequest)
+	lambda.Start(handleRequest)
 }
 
 /*
