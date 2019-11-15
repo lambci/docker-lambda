@@ -15,4 +15,4 @@ RUN rm -rf /var/runtime /var/lang && \
 ENV PATH="/usr/local/gradle/gradle-5.6/bin:/usr/local/maven/apache-maven-3.6.2/bin:${PATH}"
 
 # Add these as a separate layer as they get updated frequently
-RUN pip install -U awscli boto3 aws-sam-cli==0.31.0 aws-lambda-builders==0.5.0 --no-cache-dir
+RUN pip install -U awscli boto3 aws-sam-cli==0.31.1 aws-lambda-builders==0.5.0 --no-cache-dir
