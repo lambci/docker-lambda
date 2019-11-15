@@ -1,5 +1,4 @@
-docker-lambda
--------------
+# docker-lambda
 
 A sandboxed local environment that replicates the live [AWS Lambda](https://aws.amazon.com/lambda/)
 environment almost identically – including installed software and libraries,
@@ -14,20 +13,25 @@ also use it to [compile native dependencies](#build-examples) knowing that you'r
 same library versions that exist on AWS Lambda and then deploy using
 the [AWS CLI](https://aws.amazon.com/cli/).
 
-This project consists of a set of Docker images for each of the supported Lambda runtimes.
+---
 
-There are also a set of build images that include packages like gcc-c++, git,
-zip and the aws-cli for compiling and deploying.
+## Contents
 
-There's also an npm module to make it convenient to invoke from Node.js
+* [Usage](#usage)
+* [Run Examples](#run-examples)
+* [Build Examples](#build-examples)
+* [Using a Dockerfile to build](#using-a-dockerfile-to-build)
+* [Docker tags](#docker-tags)
+* [Verifying images](#verifying-images)
+* [Environment variables](#environment-variables)
+* [Build environment](#build-environment)
+* [Questions](#questions)
 
-Prerequisites
--------------
+---
 
-You'll need [Docker](https://www.docker.com) installed
+## Usage
 
-Run Examples
-------------
+### Running Lambda functions
 
 You can run your Lambdas from local directories using the `-v` arg with
 `docker run` – logging goes to stderr and the callback result goes to stdout.
@@ -42,7 +46,18 @@ docker run [--rm] -v <code_dir>:/var/task [-v <layer_dir>:/opt] lambci/lambda:<r
 
 (the `--rm` flag will remove the docker container once it has run, which is usually what you want)
 
-Eg:
+You can pass environment variables (eg `-e AWS_ACCESS_KEY_ID=abcd`) to talk to live AWS services,
+or modify aspects of the runtime. See [below](#environment-variables) for a list.
+
+### Building Lambda functions
+
+```sh
+docker run [--rm] -v <code_dir>:/var/task [-v <layer_dir>:/opt] lambci/lambda:build-<runtime> <build-cmd>
+```
+
+You can also use [yumda](https://github.com/lambci/yumda) to install precompiled native dependencies using `yum install`.
+
+## Run Examples
 
 ```sh
 # Test an index.handler function from the current directory on Node.js v10.x
@@ -102,8 +117,7 @@ echo '{"some": "event"}' | docker run --rm -v "$PWD":/var/task -i -e DOCKER_LAMB
 You can see more examples of how to build docker images and run different
 runtimes in the [examples](./examples) directory.
 
-Build Examples
---------------
+## Build Examples
 
 To use the build images, for compilation, deployment, etc:
 
@@ -125,6 +139,33 @@ docker run --rm lambci/lambda:build-python2.7 aws --version
 docker run -it lambci/lambda:build-python3.6 bash
 ```
 
+## Using a Dockerfile to build
+
+Create your own Docker image to build and deploy:
+
+```dockerfile
+FROM lambci/lambda:build-nodejs8.10
+
+ENV AWS_DEFAULT_REGION us-east-1
+
+COPY . .
+
+RUN npm install
+
+RUN zip -9yr lambda.zip .
+
+CMD aws lambda update-function-code --function-name mylambda --zip-file fileb://lambda.zip
+```
+
+And then:
+
+```sh
+docker build -t mylambda .
+docker run --rm -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY mylambda
+```
+
+## Node.js module
+
 Using the Node.js module (`npm install docker-lambda`) – for example in tests:
 
 ```js
@@ -140,29 +181,121 @@ lambdaCallbackResult = dockerLambda({taskDir: __dirname, dockerArgs: ['-m', '1.5
 lambdaCallbackResult = dockerLambda({dockerImage: 'lambci/lambda:nodejs6.10'})
 ```
 
-Create your own Docker image for finer control:
+Options to pass to `dockerLambda()`:
+  - `dockerImage`
+  - `handler`
+  - `event`
+  - `taskDir`
+  - `cleanUp`
+  - `addEnvVars`
+  - `dockerArgs`
+  - `spawnOptions`
+  - `returnSpawnResult`
 
-```dockerfile
-FROM lambci/lambda:build-nodejs8.10
+## Docker tags
 
-ENV AWS_DEFAULT_REGION us-east-1
+These follow the Lambda runtime names:
 
-COPY . .
+  - `nodejs4.3`
+  - `nodejs6.10`
+  - `nodejs8.10`
+  - `nodejs10.x`
+  - `python2.7`
+  - `python3.6`
+  - `python3.7`
+  - `ruby2.5`
+  - `java8`
+  - `go1.x`
+  - `dotnetcore2.0`
+  - `dotnetcore2.1`
+  - `provided`
+  - `build-nodejs4.3`
+  - `build-nodejs6.10`
+  - `build-nodejs8.10`
+  - `build-nodejs10.x`
+  - `build-python2.7`
+  - `build-python3.6`
+  - `build-python3.7`
+  - `build-ruby2.5`
+  - `build-java8`
+  - `build-go1.x`
+  - `build-dotnetcore2.0`
+  - `build-dotnetcore2.1`
+  - `build-provided`
 
-RUN npm install
+## Verifying images
 
-# Assumes you have a .lambdaignore file with a list of files you don't want in your zip
-RUN cat .lambdaignore | xargs zip -9qyr lambda.zip . -x
+These images are signed using [Docker Content Trust](https://docs.docker.com/engine/security/trust/content_trust/),
+with the following keys:
 
-CMD aws lambda update-function-code --function-name mylambda --zip-file fileb://lambda.zip
+- Repository Key: `e966126aacd4be5fb92e0160212dd007fc16a9b4366ef86d28fc7eb49f4d0809`
+- Root Key: `031d78bcdca4171be103da6ffb55e8ddfa9bd113e0ec481ade78d897d9e65c0e`
 
-# docker build -t mylambda .
-# docker run --rm -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY mylambda
+You can verify/inspect an image using `docker trust inspect`:
+
+```sh
+$ docker trust inspect --pretty lambci/lambda:provided
+
+Signatures for lambci/lambda:provided
+
+SIGNED TAG          DIGEST                                                             SIGNERS
+provided            838c42079b5fcfd6640d486f13c1ceeb52ac661e19f9f1d240b63478e53d73f8   (Repo Admin)
+
+Administrative keys for lambci/lambda:provided
+
+  Repository Key:	e966126aacd4be5fb92e0160212dd007fc16a9b4366ef86d28fc7eb49f4d0809
+  Root Key:	031d78bcdca4171be103da6ffb55e8ddfa9bd113e0ec481ade78d897d9e65c0e
 ```
 
+(The `DIGEST` for a given tag may not match the example above, but the Repository and Root keys should match)
 
-Questions
----------
+## Environment variables
+
+  - `AWS_LAMBDA_FUNCTION_HANDLER` or `_HANDLER`
+  - `AWS_LAMBDA_EVENT_BODY`
+  - `AWS_LAMBDA_FUNCTION_NAME`
+  - `AWS_LAMBDA_FUNCTION_VERSION`
+  - `AWS_LAMBDA_FUNCTION_INVOKED_ARN`
+  - `AWS_LAMBDA_FUNCTION_MEMORY_SIZE`
+  - `AWS_LAMBDA_FUNCTION_TIMEOUT`
+  - `_X_AMZN_TRACE_ID`
+  - `AWS_REGION` or `AWS_DEFAULT_REGION`
+  - `AWS_ACCOUNT_ID`
+  - `AWS_ACCESS_KEY_ID`
+  - `AWS_SECRET_ACCESS_KEY`
+  - `AWS_SESSION_TOKEN`
+  - `DOCKER_LAMBDA_USE_STDIN`
+
+## Build environment
+
+Yum packages installed on build images:
+
+  - `development` (group, includes `gcc-c++`, `autoconf`, `automake`, `git`, `vim`, etc)
+  - `aws-cli`
+  - `aws-sam-cli`
+  - `docker` (Docker in Docker!)
+  - `clang`
+  - `cmake`
+  - `python27-devel`
+  - `python36-devel`
+  - `ImageMagick-devel`
+  - `cairo-devel`
+  - `libssh2-devel`
+  - `libxslt-devel`
+  - `libmpc-devel`
+  - `readline-devel`
+  - `db4-devel`
+  - `libffi-devel`
+  - `expat-devel`
+  - `libicu-devel`
+  - `lua-devel`
+  - `gdbm-devel`
+  - `sqlite-devel`
+  - `pcre-devel`
+  - `libcurl-devel`
+  - `yum-plugin-ovl`
+
+## Questions
 
 * *When should I use this?*
 
@@ -203,87 +336,3 @@ Questions
 
   Technically nothing – it's just been incredibly useful during the building
   and testing of LambCI.
-
-Documentation
-------------
-
-Docker tags (follow the Lambda runtime names):
-  - `nodejs4.3`
-  - `nodejs6.10`
-  - `nodejs8.10`
-  - `nodejs10.x`
-  - `python2.7`
-  - `python3.6`
-  - `python3.7`
-  - `ruby2.5`
-  - `java8`
-  - `go1.x`
-  - `dotnetcore2.0`
-  - `dotnetcore2.1`
-  - `provided`
-  - `build-nodejs4.3`
-  - `build-nodejs6.10`
-  - `build-nodejs8.10`
-  - `build-nodejs10.x`
-  - `build-python2.7`
-  - `build-python3.6`
-  - `build-python3.7`
-  - `build-ruby2.5`
-  - `build-java8`
-  - `build-go1.x`
-  - `build-dotnetcore2.0`
-  - `build-dotnetcore2.1`
-  - `build-provided`
-
-Env vars:
-  - `AWS_LAMBDA_FUNCTION_NAME`
-  - `AWS_LAMBDA_FUNCTION_VERSION`
-  - `AWS_LAMBDA_FUNCTION_INVOKED_ARN`
-  - `AWS_LAMBDA_FUNCTION_MEMORY_SIZE`
-  - `AWS_LAMBDA_FUNCTION_TIMEOUT`
-  - `AWS_LAMBDA_FUNCTION_HANDLER`
-  - `AWS_LAMBDA_EVENT_BODY`
-  - `AWS_REGION`
-  - `AWS_DEFAULT_REGION`
-  - `AWS_ACCOUNT_ID`
-  - `AWS_ACCESS_KEY_ID`
-  - `AWS_SECRET_ACCESS_KEY`
-  - `AWS_SESSION_TOKEN`
-  - `DOCKER_LAMBDA_USE_STDIN`
-
-Options to pass to `dockerLambda()`:
-  - `dockerImage`
-  - `handler`
-  - `event`
-  - `taskDir`
-  - `cleanUp`
-  - `addEnvVars`
-  - `dockerArgs`
-  - `spawnOptions`
-  - `returnSpawnResult`
-
-Yum packages installed on build images:
-  - `development` (group, includes `gcc-c++`, `autoconf`, `automake`, `git`, `vim`, etc)
-  - `aws-cli`
-  - `aws-sam-cli`
-  - `docker` (Docker in Docker!)
-  - `clang`
-  - `cmake`
-  - `python27-devel`
-  - `python36-devel`
-  - `ImageMagick-devel`
-  - `cairo-devel`
-  - `libssh2-devel`
-  - `libxslt-devel`
-  - `libmpc-devel`
-  - `readline-devel`
-  - `db4-devel`
-  - `libffi-devel`
-  - `expat-devel`
-  - `libicu-devel`
-  - `lua-devel`
-  - `gdbm-devel`
-  - `sqlite-devel`
-  - `pcre-devel`
-  - `libcurl-devel`
-  - `yum-plugin-ovl`
