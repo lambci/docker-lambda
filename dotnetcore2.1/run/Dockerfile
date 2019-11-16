@@ -10,7 +10,7 @@ COPY MockBootstraps/ .
 RUN dotnet publish --output /app/ --configuration Release
 
 
-FROM lambci/lambda:provided
+FROM lambci/lambda:provided-beta
 
 
 FROM lambci/lambda-base

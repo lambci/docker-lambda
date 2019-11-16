@@ -3,7 +3,7 @@ FROM lambci/lambda-base
 RUN curl https://lambci.s3.amazonaws.com/fs/nodejs10.x.tgz | tar -zx -C /opt
 
 
-FROM lambci/lambda:provided
+FROM lambci/lambda:provided-beta
 
 
 FROM lambci/lambda-base-2

@@ -6,7 +6,7 @@ COPY aws-lambda-mock.go ./
 RUN GOARCH=amd64 GOOS=linux go build aws-lambda-mock.go
 
 
-FROM lambci/lambda:provided
+FROM lambci/lambda:provided-beta
 
 
 FROM lambci/lambda-base

@@ -9,17 +9,17 @@ for RUNTIME in $RUNTIMES; do
 
   cd ${TOP_DIR}/${RUNTIME}/run
 
-  [ -x ./update_libs.sh ] && ./update_libs.sh
+  # [ -x ./update_libs.sh ] && ./update_libs.sh
 
-  docker build -t lambci/lambda:${RUNTIME} .
+  docker build -t lambci/lambda:${RUNTIME}-beta .
 done
-docker tag lambci/lambda:nodejs4.3 lambci/lambda:latest
+# docker tag lambci/lambda:nodejs4.3 lambci/lambda:latest
 
-for RUNTIME in $RUNTIMES; do
-  echo build-${RUNTIME}
+# for RUNTIME in $RUNTIMES; do
+#   echo build-${RUNTIME}
 
-  cd ${TOP_DIR}/${RUNTIME}/build
+#   cd ${TOP_DIR}/${RUNTIME}/build
 
-  docker build -t lambci/lambda:build-${RUNTIME} .
-done
-docker tag lambci/lambda:build-nodejs4.3 lambci/lambda:build
+#   docker build -t lambci/lambda:build-${RUNTIME} .
+# done
+# docker tag lambci/lambda:build-nodejs4.3 lambci/lambda:build

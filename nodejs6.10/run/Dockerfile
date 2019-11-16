@@ -1,4 +1,4 @@
-FROM lambci/lambda:provided
+FROM lambci/lambda:provided-beta
 
 
 FROM lambci/lambda-base

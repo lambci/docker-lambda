@@ -4,7 +4,7 @@ COPY ./lambda-runtime-mock /src
 RUN apk add --no-cache curl && ./build.sh
 
 
-FROM lambci/lambda:provided
+FROM lambci/lambda:provided-beta
 
 
 FROM lambci/lambda-base
