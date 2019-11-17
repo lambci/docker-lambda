@@ -265,8 +265,8 @@ Administrative keys for lambci/lambda:provided
   - `AWS_SECRET_ACCESS_KEY`
   - `AWS_SESSION_TOKEN`
   - `DOCKER_LAMBDA_USE_STDIN`
-	- `DOCKER_LAMBDA_STAY_OPEN`
-	- `DOCKER_LAMBDA_API_PORT`
+  - `DOCKER_LAMBDA_STAY_OPEN`
+  - `DOCKER_LAMBDA_API_PORT`
 
 ## Build environment
 
