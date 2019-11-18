@@ -108,26 +108,17 @@ func main() {
 
 	defer mockServerCmd.Wait()
 
-	maxRetries := 20
+	pingTimeout := time.Now().Add(1 * time.Second)
 
-	for i := 1; i <= maxRetries; i++ {
+	for {
 		resp, err := http.Get(apiBase + "/ping")
 		if err != nil {
-			if uerr, ok := err.(*url.Error); ok {
-				if oerr, ok := uerr.Unwrap().(*net.OpError); ok {
-					// Connection refused, try again
-					if oerr.Op == "dial" && oerr.Net == "tcp" {
-						if i == maxRetries {
-							log.Fatal("Mock server did not start in time")
-							return
-						}
-						time.Sleep(5 * time.Millisecond)
-						continue
-					}
-				}
+			if time.Now().After(pingTimeout) {
+				log.Fatal("Mock server did not start in time")
+				return
 			}
-			log.Fatal(err)
-			return
+			time.Sleep(5 * time.Millisecond)
+			continue
 		}
 		if resp.StatusCode != 200 {
 			log.Fatal("Non 200 status code from local server")

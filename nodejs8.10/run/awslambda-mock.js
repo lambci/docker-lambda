@@ -82,11 +82,15 @@ OPTIONS.invokeid = OPTIONS.invokeId
 
 var invoked = false
 var errored = false
-var pingPromise = new Promise(resolve => ping(PING_RETRIES, resolve))
-var reportDonePromise = new Promise(resolve => resolve())
+var pingPromise
+var reportDonePromise
 
 module.exports = {
-  initRuntime: function () { return OPTIONS },
+  initRuntime: function () {
+    pingPromise = new Promise(resolve => ping(Date.now() + 1000, resolve))
+    reportDonePromise = new Promise(resolve => resolve())
+    return OPTIONS
+  },
   waitForInvoke: function (cb) {
     Promise.all([pingPromise, reportDonePromise]).then(() => {
       http.get({
@@ -169,13 +173,13 @@ module.exports = {
   maxLoggerErrorSize: 256 * 1024,
 }
 
-function ping(retries, cb) {
+function ping(timeout, cb) {
   http.get({ hostname: '127.0.0.1', port: 9001, path: '/2018-06-01/runtime/ping' }, cb).on('error', () => {
-    if (!retries) {
+    if (Date.now() > timeout) {
       console.error('Mock server did not respond to pings in time')
       process.exit(1)
     }
-    setTimeout(ping, 5, retries - 1, cb)
+    setTimeout(ping, 5, timeout, cb)
   })
 }
 

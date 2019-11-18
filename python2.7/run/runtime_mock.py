@@ -118,7 +118,8 @@ def report_user_invoke_end():
 def receive_start():
     global MOCKSERVER_CONN
 
-    for retry in range(20):
+    ping_timeout = time.time() + 1
+    while True:
         try:
             MOCKSERVER_CONN = HTTPConnection("127.0.0.1", 9001)
             MOCKSERVER_CONN.request("GET", "/2018-06-01/ping")
@@ -128,7 +129,7 @@ def receive_start():
             resp.read()
             break
         except Exception:
-            if retry >= 19:
+            if time.time() > ping_timeout:
                 raise
             else:
                 time.sleep(.005)

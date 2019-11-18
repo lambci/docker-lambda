@@ -99,7 +99,8 @@ public class LambdaRuntime {
     }
 
     public static void initRuntime() {
-        for (int i = 0; i < 20; i++) {
+        long pingTimeout = System.currentTimeMillis() + 1000;
+        while (true) {
             try {
                 HttpURLConnection conn = (HttpURLConnection) new URL(API_BASE + "/ping").openConnection();
                 int responseCode = conn.getResponseCode();
@@ -108,7 +109,7 @@ public class LambdaRuntime {
                 }
                 break;
             } catch (Exception e) {
-                if (i < 19)
+                if (System.currentTimeMillis() < pingTimeout)
                     continue;
                 throw new RuntimeException(e);
             }

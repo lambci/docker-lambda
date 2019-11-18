@@ -69,10 +69,26 @@ namespace AWSLambda.Internal.Bootstrap
 
         public void Init()
         {
-            var result = client.GetAsync("http://127.0.0.1:9001/2018-06-01/ping").Result;
-            if (result.StatusCode != HttpStatusCode.OK)
+            var timeout = DateTimeOffset.Now.AddSeconds(1);
+            while (true)
             {
-                throw new Exception("Got a bad response from the bootstrap");
+                try
+                {
+                    var result = client.GetAsync("http://127.0.0.1:9001/2018-06-01/ping").Result;
+                    if (result.StatusCode != HttpStatusCode.OK)
+                    {
+                        throw new Exception("Got a bad response from the bootstrap");
+                    }
+                    break;
+                }
+                catch (Exception e)
+                {
+                    if (DateTimeOffset.Now > timeout)
+                    {
+                        throw e;
+                    }
+                }
+                Thread.Sleep(5);
             }
         }
 
