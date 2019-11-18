@@ -13,7 +13,6 @@ for RUNTIME in $RUNTIMES; do
 
   docker build -t lambci/lambda:${RUNTIME} .
 done
-docker tag lambci/lambda:nodejs4.3 lambci/lambda:latest
 
 for RUNTIME in $RUNTIMES; do
   echo build-${RUNTIME}
@@ -22,4 +21,3 @@ for RUNTIME in $RUNTIMES; do
 
   docker build -t lambci/lambda:build-${RUNTIME} .
 done
-docker tag lambci/lambda:build-nodejs4.3 lambci/lambda:build
