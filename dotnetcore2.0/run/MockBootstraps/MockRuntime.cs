@@ -26,6 +26,10 @@ namespace AWSLambda.Internal.Bootstrap
 
         private bool logTail;
 
+        private bool initTimeSent;
+
+        private DateTimeOffset receivedInvokeAt = DateTimeOffset.MinValue;
+
         private string logs;
 
         private Exception invokeError;
@@ -38,9 +42,11 @@ namespace AWSLambda.Internal.Bootstrap
 
         private static readonly HttpClient client = new HttpClient();
 
+        private readonly MockXRayProfiler xRayProfiler = new MockXRayProfiler();
+
         public IEnvironment Environment { get; } = new SystemEnvironment();
 
-        public IXRayProfiler XRayProfiler { get; } = new MockXRayProfiler();
+        public IXRayProfiler XRayProfiler { get { return xRayProfiler; } }
 
         public InitData InitData
         {
@@ -94,17 +100,20 @@ namespace AWSLambda.Internal.Bootstrap
 
         unsafe InvokeData ILambdaRuntime.ReceiveInvoke(IDictionary initialEnvironmentVariables, RuntimeReceiveInvokeBuffers buffers)
         {
+            if (!invoked)
+            {
+                receivedInvokeAt = DateTimeOffset.Now;
+                invoked = true;
+            }
+            else
+            {
+                logs = "";
+            }
             var result = client.GetAsync("http://127.0.0.1:9001/2018-06-01/runtime/invocation/next").Result;
             if (result.StatusCode != HttpStatusCode.OK)
             {
                 throw new Exception("Got a bad response from the bootstrap");
             }
-
-            if (invoked)
-            {
-                logs = "";
-            }
-            invoked = true;
 
             var requestId = result.Headers.GetValues("Lambda-Runtime-Aws-Request-Id").First();
             var deadlineMs = result.Headers.GetValues("Lambda-Runtime-Deadline-Ms").First();
@@ -161,6 +170,12 @@ namespace AWSLambda.Internal.Bootstrap
                 if (logTail)
                 {
                     requestMessage.Headers.Add("Docker-Lambda-Log-Result", Convert.ToBase64String(LogsTail4k()));
+                }
+                if (!initTimeSent)
+                {
+                    requestMessage.Headers.Add("Docker-Lambda-Invoke-Wait", receivedInvokeAt.ToUnixTimeMilliseconds().ToString());
+                    requestMessage.Headers.Add("Docker-Lambda-Init-End", xRayProfiler.InitEnd.ToUnixTimeMilliseconds().ToString());
+                    initTimeSent = true;
                 }
                 requestMessage.Content = new StringContent(output);
                 task = client.SendAsync(requestMessage);
@@ -246,16 +261,13 @@ namespace AWSLambda.Internal.Bootstrap
         {
             if (!string.IsNullOrWhiteSpace(ex.StackTrace))
             {
-                string[] array = (from s in ex.StackTrace.Split(new string[]
-                    {
-                        System.Environment.NewLine
-                    }, StringSplitOptions.None)
-                                  select s.Trim() into s
-                                  where !string.IsNullOrWhiteSpace(s)
-                                  select STACK_TRACE_INDENT + s).ToArray();
-                foreach (string value in array)
+                foreach (var line in ex.StackTrace
+                    .Split(new string[] { System.Environment.NewLine }, StringSplitOptions.None)
+                    .Select(s => s.Trim())
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => STACK_TRACE_INDENT + s))
                 {
-                    builder.AppendLine(value);
+                    builder.AppendLine(line);
                 }
             }
             if (ex.InnerException != null)
@@ -313,12 +325,15 @@ namespace AWSLambda.Internal.Bootstrap
 
     internal class MockXRayProfiler : IXRayProfiler
     {
+        public DateTimeOffset InitEnd { get; private set; }
+
         public void ReportUserInitStart()
         {
         }
 
         public void ReportUserInitEnd()
         {
+            InitEnd = DateTimeOffset.Now;
         }
 
         public void ReportUserInvokeStart()

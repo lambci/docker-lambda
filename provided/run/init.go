@@ -56,6 +56,7 @@ var bootstrapPath *string
 var bootstrapArgs []string
 var bootstrapMutex sync.Mutex
 var logsBuf bytes.Buffer
+var serverInitEnd time.Time
 
 func newContext() *mockLambdaContext {
 	context := &mockLambdaContext{
@@ -167,6 +168,8 @@ func main() {
 	go runtimeServer.Serve(runtimeListener)
 
 	exitCode := 0
+
+	serverInitEnd = time.Now()
 
 	if stayOpen {
 		systemLog(fmt.Sprintf("Lambda API listening on port %s...", apiPort))
@@ -416,7 +419,7 @@ func createRuntimeRouter() *chi.Mux {
 
 					w.Header().Set("Content-Type", "application/json")
 					w.Header().Set("Lambda-Runtime-Aws-Request-Id", context.RequestID)
-					w.Header().Set("Lambda-Runtime-Deadline-Ms", strconv.FormatInt(context.Deadline().UnixNano()/1e6, 10))
+					w.Header().Set("Lambda-Runtime-Deadline-Ms", strconv.FormatInt(context.Deadline().UnixNano()/int64(time.Millisecond), 10))
 					w.Header().Set("Lambda-Runtime-Invoked-Function-Arn", context.InvokedFunctionArn)
 					w.Header().Set("Lambda-Runtime-Trace-Id", context.XAmznTraceID)
 
@@ -454,7 +457,8 @@ func createRuntimeRouter() *chi.Mux {
 						debug("Setting Reply in /response")
 						curContext.Reply = &invokeResponse{Payload: body}
 
-						curContext.LogTail = extractLogTail(r, curContext)
+						curContext.SetLogTail(r)
+						curContext.SetInitEnd(r)
 
 						render.Render(w, r, acceptedResponse)
 						w.(http.Flusher).Flush()
@@ -489,7 +493,8 @@ func handleErrorRequest(w http.ResponseWriter, r *http.Request) {
 
 	curContext.Reply = &invokeResponse{Error: lambdaErr}
 
-	curContext.LogTail = extractLogTail(r, curContext)
+	curContext.SetLogTail(r)
+	curContext.SetInitEnd(r)
 
 	render.Render(w, r, response)
 	w.(http.Flusher).Flush()
@@ -529,31 +534,6 @@ func awsRequestIDValidator(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-}
-
-func extractLogTail(r *http.Request, context *mockLambdaContext) string {
-	defer logsBuf.Reset()
-
-	if context.LogType != "Tail" {
-		return ""
-	}
-	if noBootstrap {
-		return r.Header.Get("Docker-Lambda-Log-Result")
-	}
-
-	// This is very annoying but seems to be necessary to ensure we get all the stdout/stderr from the subprocess
-	time.Sleep(1 * time.Millisecond)
-
-	logs := logsBuf.Bytes()
-
-	if len(logs) == 0 {
-		return ""
-	}
-
-	if len(logs) > 4096 {
-		logs = logs[len(logs)-4096:]
-	}
-	return base64.StdEncoding.EncodeToString(logs)
 }
 
 type statusResponse struct {
@@ -731,6 +711,7 @@ type mockLambdaContext struct {
 	ClientContext      string
 	CognitoIdentity    string
 	Start              time.Time
+	InvokeWait         time.Time
 	InitEnd            time.Time
 	TimeoutDuration    time.Duration
 	Reply              *invokeResponse
@@ -766,6 +747,55 @@ func (mc *mockLambdaContext) HasExpired() bool {
 func (mc *mockLambdaContext) TimeoutErr() error {
 	return fmt.Errorf("%s %s Task timed out after %s.00 seconds", time.Now().Format("2006-01-02T15:04:05.999Z"),
 		mc.RequestID, mc.Timeout)
+}
+
+func (mc *mockLambdaContext) SetLogTail(r *http.Request) {
+	defer logsBuf.Reset()
+
+	mc.LogTail = ""
+
+	if mc.LogType != "Tail" {
+		return
+	}
+	if noBootstrap {
+		mc.LogTail = r.Header.Get("Docker-Lambda-Log-Result")
+		return
+	}
+
+	// This is very annoying but seems to be necessary to ensure we get all the stdout/stderr from the subprocess
+	time.Sleep(1 * time.Millisecond)
+
+	logs := logsBuf.Bytes()
+
+	if len(logs) == 0 {
+		return
+	}
+
+	if len(logs) > 4096 {
+		logs = logs[len(logs)-4096:]
+	}
+	mc.LogTail = base64.StdEncoding.EncodeToString(logs)
+}
+
+func (mc *mockLambdaContext) SetInitEnd(r *http.Request) {
+	invokeWaitHeader := r.Header.Get("Docker-Lambda-Invoke-Wait")
+	if invokeWaitHeader != "" {
+		invokeWaitMs, err := strconv.ParseInt(invokeWaitHeader, 10, 64)
+		if err != nil {
+			log.Fatal(fmt.Errorf("Could not parse Docker-Lambda-Invoke-Wait header as int. Error: %s", err))
+			return
+		}
+		mc.InvokeWait = time.Unix(0, invokeWaitMs*int64(time.Millisecond))
+	}
+	initEndHeader := r.Header.Get("Docker-Lambda-Init-End")
+	if initEndHeader != "" {
+		initEndMs, err := strconv.ParseInt(initEndHeader, 10, 64)
+		if err != nil {
+			log.Fatal(fmt.Errorf("Could not parse Docker-Lambda-Init-End header as int. Error: %s", err))
+			return
+		}
+		mc.InitEnd = time.Unix(0, initEndMs*int64(time.Millisecond))
+	}
 }
 
 func (mc *mockLambdaContext) SetError(exitErr error) {
@@ -829,16 +859,23 @@ func (mc *mockLambdaContext) LogEndRequest() {
 		mc.MaxMem = maxMem
 	}
 
-	initDiffMs := math.Min(float64(mc.InitEnd.Sub(mc.Start).Nanoseconds()),
-		float64(mc.TimeoutDuration.Nanoseconds())) / 1e6
-
 	diffMs := math.Min(float64(time.Now().Sub(mc.InitEnd).Nanoseconds()),
-		float64(mc.TimeoutDuration.Nanoseconds())) / 1e6
+		float64(mc.TimeoutDuration.Nanoseconds())) / float64(time.Millisecond)
 
 	initStr := ""
 	if !initPrinted {
-		initPrinted = true
+		proc1stat, _ := os.Stat("/proc/1")
+		processStartTime := proc1stat.ModTime()
+		if mc.InvokeWait.IsZero() {
+			mc.InvokeWait = serverInitEnd
+		}
+		if mc.InvokeWait.Before(processStartTime) {
+			mc.InvokeWait = processStartTime
+		}
+		initDiffNs := mc.InvokeWait.Sub(proc1stat.ModTime()).Nanoseconds() + mc.InitEnd.Sub(mc.Start).Nanoseconds()
+		initDiffMs := math.Min(float64(initDiffNs), float64(mc.TimeoutDuration.Nanoseconds())) / float64(time.Millisecond)
 		initStr = fmt.Sprintf("Init Duration: %.2f ms\t", initDiffMs)
+		initPrinted = true
 	}
 
 	systemLog("END RequestId: " + mc.RequestID)

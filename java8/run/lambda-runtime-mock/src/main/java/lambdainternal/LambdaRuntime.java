@@ -41,6 +41,9 @@ public class LambdaRuntime {
     private static long deadlineMs;
     private static boolean invoked = false;
     private static boolean errored = false;
+    private static boolean initEndSent = false;
+    private static long initEnd;
+    private static long receivedInvokeAt;
 
     public static final int MEMORY_LIMIT;
     public static final String LOG_GROUP_NAME;
@@ -126,7 +129,12 @@ public class LambdaRuntime {
     }
 
     public static InvokeRequest waitForInvoke() {
-        invoked = true;
+        if (!invoked) {
+            receivedInvokeAt = System.currentTimeMillis();
+            invoked = true;
+        } else {
+            LOGS.reset();
+        }
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(API_BASE + "/runtime/invocation/next")
                     .openConnection();
@@ -151,7 +159,6 @@ public class LambdaRuntime {
             }
 
             needsDebugLogs = "Tail".equals(conn.getHeaderField("Docker-Lambda-Log-Type"));
-            LOGS.reset();
 
             String responseBody = "";
             try (Scanner scanner = new Scanner(conn.getInputStream())) {
@@ -191,6 +198,12 @@ public class LambdaRuntime {
                     logs = Arrays.copyOfRange(logs, logs.length - 4096, logs.length);
                 }
                 conn.setRequestProperty("Docker-Lambda-Log-Result", Base64.getEncoder().encodeToString(logs));
+            }
+            
+            if (!initEndSent) {
+                conn.setRequestProperty("Docker-Lambda-Invoke-Wait",  Long.toString(receivedInvokeAt));
+                conn.setRequestProperty("Docker-Lambda-Init-End",  Long.toString(initEnd));
+                initEndSent = true;
             }
 
             byte[] resultCopy = result == null ? new byte[0]
@@ -235,6 +248,7 @@ public class LambdaRuntime {
     }
 
     public static void reportUserInitEnd() {
+        initEnd = System.currentTimeMillis();
     }
 
     public static void reportUserInvokeStart() {

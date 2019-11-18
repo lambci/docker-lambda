@@ -82,6 +82,9 @@ OPTIONS.invokeid = OPTIONS.invokeId
 
 var invoked = false
 var errored = false
+var initEndSent = false
+var receivedInvokeAt
+var initEnd
 var pingPromise
 var reportDonePromise
 
@@ -93,6 +96,12 @@ module.exports = {
   },
   waitForInvoke: function (cb) {
     Promise.all([pingPromise, reportDonePromise]).then(() => {
+      if (!invoked) {
+        receivedInvokeAt = Date.now()
+        invoked = true
+      } else {
+        LOGS = ''
+      }
       http.get({
         hostname: '127.0.0.1',
         port: 9001,
@@ -102,10 +111,6 @@ module.exports = {
           console.error(`Mock server invocation/next returned a ${res.statusCode} response`)
           return process.exit(1)
         }
-        if (invoked) {
-          LOGS = ''
-        }
-        invoked = true
         OPTIONS.invokeId = OPTIONS.initInvokeId = OPTIONS.invokeid = res.headers['lambda-runtime-aws-request-id']
         OPTIONS.invokedFunctionArn = res.headers['lambda-runtime-invoked-function-arn']
         OPTIONS['x-amzn-trace-id'] = res.headers['lambda-runtime-trace-id']
@@ -140,12 +145,21 @@ module.exports = {
     if (!invoked) return
     if (errType) errored = true
     reportDonePromise = new Promise(resolve => {
+      var headers = {}
+      if (LOG_TAIL) {
+        headers['Docker-Lambda-Log-Result'] = newBuffer(LOGS).slice(-4096).toString('base64')
+      }
+      if (!initEndSent) {
+        headers['Docker-Lambda-Invoke-Wait'] = receivedInvokeAt
+        headers['Docker-Lambda-Init-End'] = initEnd
+        initEndSent = true
+      }
       http.request({
         method: 'POST',
         hostname: '127.0.0.1',
         port: 9001,
         path: '/2018-06-01/runtime/invocation/' + invokeId + (errType == null ? '/response' : '/error'),
-        headers: LOG_TAIL ? { 'Docker-Lambda-Log-Result': newBuffer(LOGS).slice(-4096).toString('base64') } : {},
+        headers,
       }, res => {
         if (res.statusCode !== 202) {
           console.error(err || 'Got status code: ' + res.statusCode)
@@ -164,7 +178,7 @@ module.exports = {
     if (errStack) systemErr(errStack)
   },
   reportUserInitStart: function () { },
-  reportUserInitEnd: function () { },
+  reportUserInitEnd: function () { initEnd = Date.now() },
   reportUserInvokeStart: function () { },
   reportUserInvokeEnd: function () { },
   reportException: function () { },

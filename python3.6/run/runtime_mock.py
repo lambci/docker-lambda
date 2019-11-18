@@ -66,6 +66,9 @@ XRAY_SAMPLED = None
 TRACE_ID = None
 INVOKED = False
 ERRORED = False
+INIT_END_SENT = False
+INIT_END = time.time()
+RECEIVED_INVOKE_AT = time.time()
 TODAY = datetime.date.today()
 # export needed stuff
 os.environ['AWS_LAMBDA_LOG_GROUP_NAME'] = '/aws/lambda/%s' % FUNCTION_NAME
@@ -104,7 +107,8 @@ def report_user_init_start():
 
 
 def report_user_init_end():
-    return
+    global INIT_END
+    INIT_END = time.time()
 
 
 def report_user_invoke_start():
@@ -157,6 +161,16 @@ def receive_invoke():
     global CONTEXT_OBJS
     global LOGS
     global LOG_TAIL
+    global RECEIVED_INVOKE_AT
+
+    ORIG_STDOUT.flush()
+    ORIG_STDERR.flush()
+
+    if not INVOKED:
+        RECEIVED_INVOKE_AT = time.time()
+        INVOKED = True
+    else:
+        LOGS = ""
 
     try:
         MOCKSERVER_CONN.request("GET", "/2018-06-01/runtime/invocation/next")
@@ -168,11 +182,6 @@ def receive_invoke():
             sys.exit(1 if ERRORED else 0)
             return ()
         raise
-
-    if INVOKED:
-        LOGS = ""
-
-    INVOKED = True
 
     INVOKEID = resp.getheader('Lambda-Runtime-Aws-Request-Id')
     DEADLINE_MS = resp.getheader('Lambda-Runtime-Deadline-Ms')
@@ -214,6 +223,7 @@ def report_fault(invokeid, msg, except_value, trace):
 
 def report_done(invokeid, errortype, result, is_fatal):
     global ERRORED
+    global INIT_END_SENT
 
     if not INVOKED:
         return
@@ -226,7 +236,13 @@ def report_done(invokeid, errortype, result, is_fatal):
             result_obj['stackTrace'] = traceback.format_list(stack_trace)
             result = json.dumps(result_obj)
 
-    headers = {"Docker-Lambda-Log-Result": base64.b64encode(LOGS.encode())} if LOG_TAIL else {}
+    headers = {}
+    if LOG_TAIL:
+        headers['Docker-Lambda-Log-Result'] = base64.b64encode(LOGS.encode())
+    if not INIT_END_SENT:
+        headers['Docker-Lambda-Invoke-Wait'] = int(RECEIVED_INVOKE_AT * 1000)
+        headers['Docker-Lambda-Init-End'] = int(INIT_END * 1000)
+        INIT_END_SENT = True
 
     MOCKSERVER_CONN.request("POST", "/2018-06-01/runtime/invocation/%s/%s" % \
             (invokeid, "response" if errortype is None else "error"), result, headers)

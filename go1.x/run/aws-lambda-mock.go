@@ -211,7 +211,18 @@ func main() {
 		time.Sleep(5 * time.Millisecond)
 	}
 
+	var initEndSent bool
+	var invoked bool
+	var receivedInvokeAt time.Time
+
 	for {
+		if !invoked {
+			receivedInvokeAt = time.Now()
+			invoked = true
+		} else {
+			logsBuf.Reset()
+		}
+
 		resp, err := http.Get(apiBase + "/runtime/invocation/next")
 		if err != nil {
 			if uerr, ok := err.(*url.Error); ok {
@@ -262,7 +273,10 @@ func main() {
 
 		logTail := resp.Header.Get("Docker-Lambda-Log-Type") == "Tail"
 
-		logsBuf.Reset()
+		var initEnd time.Time
+		if !initEndSent {
+			initEnd = time.Now()
+		}
 
 		var reply *messages.InvokeResponse
 		err = client.Call("Function.Invoke", invokeRequest, &reply)
@@ -301,6 +315,12 @@ func main() {
 				}
 				req.Header.Add("Docker-Lambda-Log-Result", base64.StdEncoding.EncodeToString(logs))
 			}
+		}
+
+		if !initEndSent {
+			req.Header.Add("Docker-Lambda-Invoke-Wait", strconv.FormatInt(receivedInvokeAt.UnixNano()/int64(time.Millisecond), 10))
+			req.Header.Add("Docker-Lambda-Init-End", strconv.FormatInt(initEnd.UnixNano()/int64(time.Millisecond), 10))
+			initEndSent = true
 		}
 
 		resp, err = http.DefaultClient.Do(req)
