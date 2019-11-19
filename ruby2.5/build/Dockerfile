@@ -13,4 +13,4 @@ RUN rm -rf /var/runtime /var/lang /var/rapid && \
 # Add these as a separate layer as they get updated frequently
 RUN gem update --system --no-document && \
   gem install --no-document bundler && \
-  pip install -U awscli boto3 aws-sam-cli==0.31.1 aws-lambda-builders==0.5.0 --no-cache-dir
+  pip install -U awscli boto3 aws-sam-cli==0.31.1 aws-lambda-builders==0.6.0 --no-cache-dir
