@@ -21,7 +21,7 @@ ENV PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin \
     _AWS_XRAY_DAEMON_PORT=2000 \
     AWS_XRAY_DAEMON_ADDRESS=169.254.79.2:2000 \
     AWS_XRAY_CONTEXT_MISSING=LOG_ERROR \
-    _X_AMZN_TRACE_ID='Parent=11560be54abce8ed'
+    _X_AMZN_TRACE_ID='Root=1-dc99d00f-c079a84d433534434534ef0d;Parent=91ed514f1e5c03b2;Sampled=1'
 
 RUN yum reinstall -y filesystem; \
   yum clean all && \
