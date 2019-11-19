@@ -1,0 +1,52 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "go1.x/run"
+		},
+		{
+			"path": "provided/run"
+		},
+		{
+			"path": "examples/go1.x"
+		},
+		{
+			"path": "base/dump-go1x"
+		},
+		{
+			"path": "base/dump-java11"
+		},
+		{
+			"path": "base/dump-java8"
+		},
+		{
+			"path": "examples/java"
+		},
+		{
+			"path": "java8/run/lambda-runtime-mock"
+		},
+		{
+			"path": "base/dump-dotnetcore20"
+		},
+		{
+			"path": "base/dump-dotnetcore21"
+		},
+		{
+			"path": "examples/dotnetcore2.0"
+		},
+		{
+			"path": "examples/dotnetcore2.1"
+		},
+		{
+			"path": "dotnetcore2.0/run/MockBootstraps"
+		},
+		{
+			"path": "dotnetcore2.1/run/MockBootstraps"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "automatic"
+	}
+}
