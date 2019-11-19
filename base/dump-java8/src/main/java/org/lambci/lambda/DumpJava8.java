@@ -19,8 +19,6 @@ public class DumpJava8 implements RequestHandler<Object, PutObjectResult> {
     public PutObjectResult handleRequest(Object input, Context context) {
         String filename = "java8.tgz";
         String cmd = "tar -cpzf /tmp/" + filename + " --numeric-owner --ignore-failed-read /var/runtime /var/lang";
-//        String filename = "java8.fs.txt";
-//        String cmd = "find / -ls | grep -v /proc | grep -v /var/runtime | grep -v /var/task | grep -v /var/lang | sort -k11 > /tmp/" + filename;
         AmazonS3 s3client = AmazonS3ClientBuilder.standard().withRegion("us-east-1").build();
 
         System.out.println(ManagementFactory.getRuntimeMXBean().getInputArguments().toString());

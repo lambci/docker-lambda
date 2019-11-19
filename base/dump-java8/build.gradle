@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
 repositories {
     mavenCentral()
@@ -25,4 +25,4 @@ task buildZip(type: Zip) {
 
 build.dependsOn buildZip
 
-// docker run --rm -v "$PWD":/app -w /app gradle:jdk11 gradle build
+// docker run --rm -v "$PWD":/app -w /app gradle:jdk8 gradle build
