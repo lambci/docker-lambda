@@ -68,7 +68,7 @@ nss-sysinit-3.44.0-4.amzn2.0.2.x86_64
 nss-tools-3.44.0-4.amzn2.0.2.x86_64
 nss-util-3.44.0-3.amzn2.0.2.x86_64
 openldap-2.4.44-15.amzn2.x86_64
-openssl-libs-1.0.2k-16.amzn2.1.1.x86_64
+openssl-libs-1.0.2k-19.amzn2.0.1.x86_64
 p11-kit-0.23.5-3.amzn2.0.2.x86_64
 p11-kit-trust-0.23.5-3.amzn2.0.2.x86_64
 pcre-8.32-17.amzn2.0.2.x86_64

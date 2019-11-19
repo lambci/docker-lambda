@@ -9,6 +9,7 @@ docker run --rm amazonlinux:2 bash -c 'yum upgrade -y > /dev/null && rpm -qa' | 
 
 if diff -w -d amazonlinux2.txt packages.txt | grep -q '>'; then
   echo 'Mismatching packages on images'
+  diff -w -d amazonlinux2.txt packages.txt
 else
   diff -w -d amazonlinux2.txt packages.txt | grep '<' | awk '{print $2}' > diff.txt
 fi
