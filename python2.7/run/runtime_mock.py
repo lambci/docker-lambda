@@ -184,7 +184,7 @@ def receive_invoke():
         raise
 
     INVOKEID = resp.getheader('Lambda-Runtime-Aws-Request-Id')
-    DEADLINE_MS = resp.getheader('Lambda-Runtime-Deadline-Ms')
+    DEADLINE_MS = int(resp.getheader('Lambda-Runtime-Deadline-Ms'))
     INVOKED_FUNCTION_ARN = resp.getheader(
         'Lambda-Runtime-Invoked-Function-Arn')
     XRAY_TRACE_ID = resp.getheader('Lambda-Runtime-Trace-Id')
