@@ -289,11 +289,7 @@ func main() {
 			if err != nil {
 				lambdaErr = toLambdaError(mockContext, err)
 			} else if reply.Error != nil {
-				lambdaErr = lambdaError{
-					Message:    reply.Error.Message,
-					Type:       reply.Error.Type,
-					StackTrace: reply.Error.StackTrace,
-				}
+				lambdaErr = convertInvokeResponseError(reply.Error)
 			}
 			payload, _ = json.Marshal(lambdaErr)
 		}
@@ -329,8 +325,15 @@ func main() {
 			return
 		}
 		if resp.StatusCode != 202 {
-			log.Fatal("Non 202 status code from local server")
-			return
+			log.Printf("Non 202 status code from local server: %d\n", resp.StatusCode)
+			body, _ = ioutil.ReadAll(resp.Body)
+			log.Println(string(body))
+			log.Println("When trying to send payload:")
+			log.Println(string(payload))
+			if resp.StatusCode >= 300 {
+				os.Exit(1)
+				return
+			}
 		}
 		resp.Body.Close()
 	}
@@ -362,6 +365,18 @@ func toLambdaError(mockContext *mockLambdaContext, exitErr error) lambdaError {
 		responseErr.Type = "Runtime.ExitError" // XXX: Hack to add 'Runtime.' to error type
 	}
 	return responseErr
+}
+
+func convertInvokeResponseError(err *messages.InvokeResponse_Error) lambdaError {
+	var stackTrace []string
+	for _, v := range err.StackTrace {
+		stackTrace = append(stackTrace, fmt.Sprintf("%s:%d %s", v.Path, v.Line, v.Label))
+	}
+	return lambdaError{
+		Message:    err.Message,
+		Type:       err.Type,
+		StackTrace: stackTrace,
+	}
 }
 
 func getEnv(key, fallback string) string {
@@ -417,9 +432,9 @@ func getErrorType(err interface{}) string {
 }
 
 type lambdaError struct {
-	Message    string                                      `json:"errorMessage"`
-	Type       string                                      `json:"errorType,omitempty"`
-	StackTrace []*messages.InvokeResponse_Error_StackFrame `json:"stackTrace,omitempty"`
+	Message    string   `json:"errorMessage"`
+	Type       string   `json:"errorType,omitempty"`
+	StackTrace []string `json:"stackTrace,omitempty"`
 }
 
 type exitError struct {
