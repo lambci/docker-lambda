@@ -30,7 +30,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-var logDebug = false
+var logDebug = os.Getenv("DOCKER_LAMBDA_DEBUG") != ""
 
 var curState = "STATE_INIT"
 
@@ -480,7 +480,10 @@ func handleErrorRequest(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil || json.Unmarshal(body, lambdaErr) != nil {
+		debug("Could not parse error body as JSON")
+		debug(body)
 		response = &statusResponse{Status: "InvalidErrorShape", HTTPStatusCode: 299}
+		lambdaErr = &lambdaError{Message: "InvalidErrorShape"}
 	}
 	r.Body.Close()
 
