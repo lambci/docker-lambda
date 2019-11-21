@@ -489,6 +489,8 @@ func handleErrorRequest(w http.ResponseWriter, r *http.Request) {
 		curContext.ErrorType = errorType
 	}
 
+	// TODO: Figure out whether we want to handle Lambda-Runtime-Function-XRay-Error-Cause
+
 	debug("Setting Reply in handleErrorRequest")
 	debug(lambdaErr)
 

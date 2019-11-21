@@ -53,10 +53,3 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:provided handler '{"some": "ev
 # To invoke and keep open:
 # docker run --rm -v $PWD:/var/task -e DOCKER_LAMBDA_STAY_OPEN=1 -p 9001:9001 \
   # lambci/lambda:ruby2.5 lambda_function.lambda_handler
-
-# Contents of post.lua:
-# wrk.method = "POST"
-# wrk.body   = "{}"
-# wrk.headers["Content-Type"] = "application/json"
-
-# wrk -s post.lua 'http://localhost:9001/2015-03-31/functions/myfunction/invocations'
