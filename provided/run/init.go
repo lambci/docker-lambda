@@ -698,9 +698,10 @@ func (e *exitError) Error() string {
 }
 
 type lambdaError struct {
-	Type       string    `json:"errorType,omitempty"`
-	Message    string    `json:"errorMessage"`
-	StackTrace []*string `json:"stackTrace,omitempty"`
+	Type       string       `json:"errorType,omitempty"`
+	Message    string       `json:"errorMessage"`
+	StackTrace []*string    `json:"stackTrace,omitempty"`
+	Cause      *lambdaError `json:"cause,omitempty"`
 }
 
 type mockLambdaContext struct {
