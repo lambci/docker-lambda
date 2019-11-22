@@ -34,7 +34,8 @@ the [AWS CLI](https://aws.amazon.com/cli/).
 ### Running Lambda functions
 
 You can run your Lambdas from local directories using the `-v` arg with
-`docker run`. You can run them in two modes: as a single execution, or as an API server that listens for invoke events.
+`docker run`. You can run them in two modes: as a single execution, or as
+[an API server that listens for invoke events](#running-in-stay-open-api-mode).
 The default is single execution mode, which outputs all logging to stderr and the result of the handler to stdout.
 
 You mount your (unzipped) lambda code at `/var/task` and any (unzipped) layer
