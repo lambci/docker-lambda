@@ -5,7 +5,7 @@ environment almost identically – including installed software and libraries,
 file structure and permissions, environment variables, context objects and
 behaviors – even the user and running process are the same.
 
-![Terminal Example](https://raw.githubusercontent.com/lambci/docker-lambda/master/examples/terminal.png "Example usage when index.js in current dir")
+<img src="https://raw.githubusercontent.com/lambci/docker-lambda/master/examples/terminal2.png" width="961" alt="Example usage with java11 runtime">
 
 You can use it for [running your functions](#run-examples) in the same strict Lambda environment,
 knowing that they'll exhibit the same behavior when deployed live. You can
@@ -34,22 +34,79 @@ the [AWS CLI](https://aws.amazon.com/cli/).
 ### Running Lambda functions
 
 You can run your Lambdas from local directories using the `-v` arg with
-`docker run` – logging goes to stderr and the callback result goes to stdout.
+`docker run`. You can run them in two modes: as a single execution, or as an API server that listens for invoke events.
+The default is single execution mode, which outputs all logging to stderr and the result of the handler to stdout.
 
 You mount your (unzipped) lambda code at `/var/task` and any (unzipped) layer
 code at `/opt`, and most runtimes take two arguments – the first for the
 handler and the second for the event, ie:
 
 ```sh
-docker run [--rm] -v <code_dir>:/var/task [-v <layer_dir>:/opt] lambci/lambda:<runtime> [<handler>] [<event>]
+docker run --rm \
+  -v <code_dir>:/var/task:ro,delegated \
+  [-v <layer_dir>:/opt:ro,delegated] \
+  lambci/lambda:<runtime> \
+  [<handler>] [<event>]
 ```
 
-(the `--rm` flag will remove the docker container once it has run, which is usually what you want)
+(the `--rm` flag will remove the docker container once it has run, which is usually what you want,
+and the `ro,delegated` options ensure the directories are mounted read-only and have the highest performance)
 
 You can pass environment variables (eg `-e AWS_ACCESS_KEY_ID=abcd`) to talk to live AWS services,
 or modify aspects of the runtime. See [below](#environment-variables) for a list.
 
+#### Running in "stay-open" API mode
+
+If you pass the environment variable `DOCKER_LAMBDA_STAY_OPEN=1` to the container, then instead of
+executing the event and shutting down, it will start an API server (on port 9001 by default), which
+you can then call with HTTP following the [Lambda Invoke API](https://docs.aws.amazon.com/lambda/latest/dg/API_Invoke.html).
+This allows you to make fast subsequent calls to your handler without paying the "cold start" penalty each time.
+
+```sh
+docker run --rm [-d] \
+  -e DOCKER_LAMBDA_STAY_OPEN=1 \
+  -p 9001:9001 \
+  -v <code_dir>:/var/task:ro,delegated \
+  [-v <layer_dir>:/opt:ro,delegated] \
+  lambci/lambda:<runtime> \
+  [<handler>]
+```
+
+(the `-d` flag will start the container in detached mode, in the background)
+
+You should then see:
+
+```sh
+Lambda API listening on port 9001...
+```
+
+Then, in another terminal shell/window you can invoke your function using the [AWS CLI](https://aws.amazon.com/cli/)
+(or any http client, like `curl`):
+
+```sh
+aws lambda invoke --endpoint http://localhost:9001 --no-sign-request \
+  --function-name myfunction --payload '{}' output.json
+```
+
+Or just:
+
+```sh
+curl -d '{}' http://localhost:9001/2015-03-31/functions/myfunction/invocations
+```
+
+It also supports the [documented Lambda API headers](https://docs.aws.amazon.com/lambda/latest/dg/API_Invoke.html)
+`X-Amz-Invocation-Type`, `X-Amz-Log-Type` and `X-Amz-Client-Context`.
+
+If you want to change the exposed port, eg run on port 3000 on the host, use `-p 3000:9001` (then query `http://localhost:3000`).
+
+You can change the internal API port from `9001` by passing `-e DOCKER_LAMBDA_API_PORT=<port>` (it's unlikely that you'll need to do this).
+
 ### Building Lambda functions
+
+The build images have a [number of extra system packages installed](#build-environment)
+intended for building and packaging your Lambda functions. You can run your build commands (eg, `gradle` on the java image), and then package up your function using `zip` or the
+[AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html),
+all from within the image.
 
 ```sh
 docker run [--rm] -v <code_dir>:/var/task [-v <layer_dir>:/opt] lambci/lambda:build-<runtime> <build-cmd>
@@ -60,58 +117,42 @@ You can also use [yumda](https://github.com/lambci/yumda) to install precompiled
 ## Run Examples
 
 ```sh
-# Test an index.handler function from the current directory on Node.js v12.x
-docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs12.x index.handler
+# Test a `handler` function from an `index.js` file in the current directory on Node.js v12.x
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:nodejs12.x index.handler
 
-# If using a function other than index.handler, with a custom event
-docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs12.x index.myHandler '{"some": "event"}'
+# Using a different file and handler, with a custom event
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:nodejs12.x app.myHandler '{"some": "event"}'
 
-# Use the Node.js v8.10 runtime in a similar fashion
-docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs8.10 index.myHandler '{}'
-
-# Use the Node.js v6.10 runtime with the default handler (index.handler)
-docker run --rm -v "$PWD":/var/task lambci/lambda:nodejs6.10
-
-# Test a default function (lambda_function.lambda_handler) from the current directory on Python 2.7
-docker run --rm -v "$PWD":/var/task lambci/lambda:python2.7
-
-# Test on Python 3.6 with a custom file named my_module.py containing a my_handler function
-docker run --rm -v "$PWD":/var/task lambci/lambda:python3.6 my_module.my_handler
-
-# Python 3.7/3.8 require the handler be given explicitly
-docker run --rm -v "$PWD":/var/task lambci/lambda:python3.7 lambda_function.lambda_handler
+# Test a `lambda_handler` function in `lambda_function.py` with an empty event on Python 3.8
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:python3.8 lambda_function.lambda_handler
 
 # Similarly with Ruby 2.5
-docker run --rm -v "$PWD":/var/task lambci/lambda:ruby2.5 lambda_function.lambda_handler
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:ruby2.5 lambda_function.lambda_handler
 
 # Test on Go 1.x with a compiled handler named my_handler and a custom event
-docker run --rm -v "$PWD":/var/task lambci/lambda:go1.x my_handler '{"some": "event"}'
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:go1.x my_handler '{"some": "event"}'
 
-# Test a function from the current directory on Java 8
+# Test a function from the current directory on Java 11
 # The directory must be laid out in the same way the Lambda zip file is,
 # with top-level package source directories and a `lib` directory for third-party jars
 # http://docs.aws.amazon.com/lambda/latest/dg/create-deployment-pkg-zip-java.html
-# The default handler is "index.Handler", but you'll likely have your own package and class
-docker run --rm -v "$PWD":/var/task lambci/lambda:java8 org.myorg.MyHandler
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:java11 org.myorg.MyHandler
 
-# Test on .NET Core 2.0 given a test.dll assembly in the current directory,
+# Test on .NET Core 2.1 given a test.dll assembly in the current directory,
 # a class named Function with a FunctionHandler method, and a custom event
-docker run --rm -v "$PWD":/var/task lambci/lambda:dotnetcore2.0 test::test.Function::FunctionHandler '{"some": "event"}'
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:dotnetcore2.1 test::test.Function::FunctionHandler '{"some": "event"}'
 
-# Test on .NET Core 2.1 in the same way
-docker run --rm -v "$PWD":/var/task lambci/lambda:dotnetcore2.1 test::test.Function::FunctionHandler '{"some": "event"}'
+# Test with a provided runtime (assumes you have a `bootstrap` executable in the current directory)
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:provided handler '{"some": "event"}'
 
-# Test with a provided runtime (assumes you have a bootstrap file in the current directory)
-docker run --rm -v "$PWD":/var/task lambci/lambda:provided handler '{"some": "event"}'
-
-# Test with layers (assumes all layers have been unzipped to ../opt)
-docker run --rm -v "$PWD":/var/task -v "$PWD"/../opt:/opt lambci/lambda:nodejs8.10
+# Test with layers (assumes your function code is in `./fn` and your layers in `./layer`)
+docker run --rm -v "$PWD"/fn:/var/task:ro,delegated -v "$PWD"/layer:/opt:ro,delegated lambci/lambda:nodejs12.x
 
 # Run custom commands
-docker run --rm --entrypoint node lambci/lambda:nodejs8.10 -v
+docker run --rm --entrypoint node lambci/lambda:nodejs12.x -v
 
-# For large events you can pipe them into stdin if you set DOCKER_LAMBDA_USE_STDIN (on any runtime)
-echo '{"some": "event"}' | docker run --rm -v "$PWD":/var/task -i -e DOCKER_LAMBDA_USE_STDIN=1 lambci/lambda:nodejs8.10
+# For large events you can pipe them into stdin if you set DOCKER_LAMBDA_USE_STDIN
+echo '{"some": "event"}' | docker run --rm -v "$PWD":/var/task:ro,delegated -i -e DOCKER_LAMBDA_USE_STDIN=1 lambci/lambda:nodejs12.x
 ```
 
 You can see more examples of how to build docker images and run different
@@ -130,13 +171,13 @@ docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x go mod downl
 
 # For .NET Core 2.0, this will publish the compiled code to `./pub`,
 # which you can then use to run with `-v "$PWD"/pub:/var/task`
-docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnetcore2.0 dotnet publish -c Release -o pub
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnetcore2.1 dotnet publish -c Release -o pub
 
 # Run custom commands on a build container
-docker run --rm lambci/lambda:build-python2.7 aws --version
+docker run --rm lambci/lambda:build-python3.8 aws --version
 
 # To run an interactive session on a build container
-docker run -it lambci/lambda:build-python3.6 bash
+docker run -it lambci/lambda:build-python3.8 bash
 ```
 
 ## Using a Dockerfile to build
@@ -144,7 +185,7 @@ docker run -it lambci/lambda:build-python3.6 bash
 Create your own Docker image to build and deploy:
 
 ```dockerfile
-FROM lambci/lambda:build-nodejs8.10
+FROM lambci/lambda:build-nodejs12.x
 
 ENV AWS_DEFAULT_REGION us-east-1
 
@@ -172,13 +213,10 @@ Using the Node.js module (`npm install docker-lambda`) – for example in tests:
 var dockerLambda = require('docker-lambda')
 
 // Spawns synchronously, uses current dir – will throw if it fails
-var lambdaCallbackResult = dockerLambda({event: {some: 'event'}})
+var lambdaCallbackResult = dockerLambda({event: {some: 'event'}, dockerImage: 'lambci/lambda:nodejs12.x'})
 
 // Manually specify directory and custom args
-lambdaCallbackResult = dockerLambda({taskDir: __dirname, dockerArgs: ['-m', '1.5G']})
-
-// Use a different image from the default Node.js v4.3
-lambdaCallbackResult = dockerLambda({dockerImage: 'lambci/lambda:nodejs6.10'})
+lambdaCallbackResult = dockerLambda({taskDir: __dirname, dockerArgs: ['-m', '1.5G'], dockerImage: 'lambci/lambda:nodejs12.x'})
 ```
 
 Options to pass to `dockerLambda()`:
@@ -273,6 +311,7 @@ Administrative keys for lambci/lambda:provided
   - `DOCKER_LAMBDA_USE_STDIN`
   - `DOCKER_LAMBDA_STAY_OPEN`
   - `DOCKER_LAMBDA_API_PORT`
+  - `DOCKER_LAMBDA_DEBUG`
 
 ## Build environment
 
