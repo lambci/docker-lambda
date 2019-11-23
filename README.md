@@ -344,6 +344,7 @@ Administrative keys for lambci/lambda:provided
   - `DOCKER_LAMBDA_STAY_OPEN`
   - `DOCKER_LAMBDA_API_PORT`
   - `DOCKER_LAMBDA_DEBUG`
+  - `DOCKER_LAMBDA_NO_MODIFY_LOGS`
 
 ## Build environment
 
