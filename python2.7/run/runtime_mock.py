@@ -21,6 +21,7 @@ except ImportError:
 
 
 signal.signal(signal.SIGINT, lambda x, y: sys.exit(0))
+signal.signal(signal.SIGTERM, lambda x, y: sys.exit(0))
 
 ORIG_STDOUT = sys.stdout
 ORIG_STDERR = sys.stderr

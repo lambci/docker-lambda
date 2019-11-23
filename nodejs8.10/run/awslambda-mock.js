@@ -33,6 +33,7 @@ var COGNITO_IDENTITY_POOL_ID = (tryParse(COGNITO_IDENTITY) || {}).identity_pool_
 var DEADLINE_MS = Date.now() + (TIMEOUT * 1000)
 
 process.on('SIGINT', () => process.exit(0))
+process.on('SIGTERM', () => process.exit(0))
 
 // Don't think this can be done in the Docker image
 process.umask(2)

@@ -102,6 +102,37 @@ If you want to change the exposed port, eg run on port 3000 on the host, use `-p
 
 You can change the internal API port from `9001` by passing `-e DOCKER_LAMBDA_API_PORT=<port>` (it's unlikely that you'll need to do this).
 
+#### Developing in "stay-open" mode
+
+While you're developing, you'll want the server to restart every time you make a change to your Lambda.
+You can automate this with a file-watching utility like [entr](https://github.com/eradman/entr) or [nodemon](https://nodemon.io/):
+
+```sh
+# you can `brew install entr` on macOS
+find . | entr -r docker run --rm \
+  -e DOCKER_LAMBDA_STAY_OPEN=1 -p 9001:9001 \
+  -v "$PWD":/var/task:ro,delegated \
+  lambci/lambda:go1.x handler
+```
+
+Or
+
+```sh
+# npm install -g nodemon
+nodemon -w ./ -e '' -s SIGINT -x docker -- run --rm \
+  -e DOCKER_LAMBDA_STAY_OPEN=1 -p 9001:9001 \
+  -v "$PWD":/var/task:ro,delegated \
+  lambci/lambda:go1.x handler
+```
+
+Both commands above assume your handler is in the current directory, and the container
+will restart whenever there are changes to any files in it or its subdirectories.
+
+Some other file-watching utilities include
+[fswatch](https://github.com/emcrisostomo/fswatch),
+[watchman](https://facebook.github.io/watchman/) and
+[watchdog](https://github.com/gorakhargosh/watchdog#shell-utilities) (Python)
+
 ### Building Lambda functions
 
 The build images have a [number of extra system packages installed](#build-environment)
