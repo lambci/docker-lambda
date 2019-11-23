@@ -31,6 +31,11 @@ import (
 )
 
 var logDebug = os.Getenv("DOCKER_LAMBDA_DEBUG") != ""
+var stayOpen = os.Getenv("DOCKER_LAMBDA_STAY_OPEN") != ""
+var noBootstrap = os.Getenv("DOCKER_LAMBDA_NO_BOOTSTRAP") != ""
+var apiPort = getEnv("DOCKER_LAMBDA_API_PORT", "9001")
+var useStdin = os.Getenv("DOCKER_LAMBDA_USE_STDIN") != ""
+var noModifyLogs = os.Getenv("DOCKER_LAMBDA_NO_MODIFY_LOGS") != ""
 
 var curState = "STATE_INIT"
 
@@ -47,10 +52,7 @@ var curContext *mockLambdaContext
 var bootstrapCmd *exec.Cmd
 var initPrinted bool
 var eventChan chan *mockLambdaContext
-var stayOpen bool
-var apiPort string
 var exited bool
-var noBootstrap bool
 var bootstrapIsRunning bool
 var bootstrapPath *string
 var bootstrapArgs []string
@@ -95,10 +97,6 @@ func main() {
 
 	eventChan = make(chan *mockLambdaContext)
 
-	stayOpen = os.Getenv("DOCKER_LAMBDA_STAY_OPEN") != ""
-	noBootstrap = os.Getenv("DOCKER_LAMBDA_NO_BOOTSTRAP") != ""
-	apiPort = getEnv("DOCKER_LAMBDA_API_PORT", "9001")
-
 	bootstrapPath = flag.String("bootstrap", "/var/runtime/bootstrap", "path to bootstrap")
 	bootstrapArgsString := flag.String("bootstrap-args", "[]", "additional arguments passed to bootstrap, as a stringified JSON Array")
 	flag.Bool("enable-msg-logs", false, "enable message logs")
@@ -125,7 +123,7 @@ func main() {
 	} else {
 		eventBody = []byte(os.Getenv("AWS_LAMBDA_EVENT_BODY"))
 		if len(eventBody) == 0 {
-			if os.Getenv("DOCKER_LAMBDA_USE_STDIN") != "" {
+			if useStdin {
 				eventBody, _ = ioutil.ReadAll(os.Stdin)
 			} else {
 				eventBody = []byte("{}")
@@ -253,6 +251,11 @@ func ensureBootstrapIsRunning(context *mockLambdaContext) error {
 		bootstrapCmd.Stdout = os.Stderr
 		bootstrapCmd.Stderr = os.Stderr
 	}
+	if !noModifyLogs {
+		bootstrapCmd.Stdout = &replaceWriter{writer: bootstrapCmd.Stdout, old: []byte("\r"), new: []byte("\n")}
+		bootstrapCmd.Stderr = &replaceWriter{writer: bootstrapCmd.Stderr, old: []byte("\r"), new: []byte("\n")}
+	}
+
 	bootstrapCmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	if err := bootstrapCmd.Start(); err != nil {
@@ -899,4 +902,14 @@ func (mc *mockLambdaContext) LogEndRequest() {
 type invokeResponse struct {
 	Payload []byte
 	Error   *lambdaError
+}
+
+type replaceWriter struct {
+	writer io.Writer
+	old    []byte
+	new    []byte
+}
+
+func (r *replaceWriter) Write(p []byte) (n int, err error) {
+	return r.writer.Write(bytes.ReplaceAll(p, r.old, r.new))
 }
