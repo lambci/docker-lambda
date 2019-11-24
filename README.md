@@ -5,7 +5,7 @@ environment almost identically – including installed software and libraries,
 file structure and permissions, environment variables, context objects and
 behaviors – even the user and running process are the same.
 
-<img src="https://raw.githubusercontent.com/lambci/docker-lambda/master/examples/terminal2.png" width="961" alt="Example usage with java11 runtime">
+<img src="https://raw.githubusercontent.com/lambci/docker-lambda/master/examples/terminal3.png" width="969" alt="Example usage with java11 runtime">
 
 You can use it for [running your functions](#run-examples) in the same strict Lambda environment,
 knowing that they'll exhibit the same behavior when deployed live. You can
