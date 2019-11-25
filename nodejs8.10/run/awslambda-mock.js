@@ -63,6 +63,7 @@ var OPTIONS = {
   invokeId: uuid(),
   handler: HANDLER,
   suppressInit: true,
+  throttled: false,
   credentials: {
     key: ACCESS_KEY_ID,
     secret: SECRET_ACCESS_KEY,
