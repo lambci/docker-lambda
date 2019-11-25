@@ -5,6 +5,8 @@ github.com/aws/aws-lambda-go v1.13.3 h1:SuCy7H3NLyp+1Mrfp+m80jcbi9KYWAs9/BXwppwR
 github.com/aws/aws-lambda-go v1.13.3/go.mod h1:4UKl9IzQMoD+QF79YdCuzCwp8VbmG4VAQwij/eHl5CU=
 github.com/aws/aws-sdk-go-v2 v0.16.0 h1:X5pkFnjRNdDEX18NwDGWMaWL5ocNQX0qIYEhEcsTy64=
 github.com/aws/aws-sdk-go-v2 v0.16.0/go.mod h1:pFLIN9LDjOEwHfruGweAXEq0XaD6uRkY8FsRkxhuBIg=
+github.com/aws/aws-sdk-go-v2 v0.17.0 h1:b/9gp0SD6doAWv72f3ZwzFJSsWmUw9dM8wMNmf6OBws=
+github.com/aws/aws-sdk-go-v2 v0.17.0/go.mod h1:JWVYvqSMppoMJC0x5wdwiImzgXTI9FuZwxzkQq9wy+g=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
