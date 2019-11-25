@@ -48,6 +48,7 @@ SESSION_TOKEN = os.environ.get('AWS_SESSION_TOKEN', None)
 INVOKEID = str(uuid.uuid4())
 INVOKE_MODE = 'event'  # Either 'http' or 'event'
 SUPPRESS_INIT = True  # Forces calling _get_handlers_delayed()
+THROTTLED = False
 DATA_SOCK = -1
 CONTEXT_OBJS = {
     'clientcontext': None,
@@ -144,6 +145,7 @@ def receive_start():
         INVOKE_MODE,
         HANDLER,
         SUPPRESS_INIT,
+        THROTTLED,
         CREDENTIALS
     )
 
