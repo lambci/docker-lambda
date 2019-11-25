@@ -2,6 +2,7 @@
 
 curl https://lambci.s3.amazonaws.com/fs/base-2.tgz | tar -xz --strip-components=2 -- var/lib/rpm
 
+docker pull amazonlinux:2
 docker run -v "$PWD/rpm":/rpm --rm amazonlinux:2 rpm -qa --dbpath /rpm | grep -v ^gpg-pubkey- | sort > packages.txt
 rm -rf rpm
 
