@@ -18,6 +18,7 @@ dotnetcore2.0/run/MockBootstraps/bin
 dotnetcore2.0/run/MockBootstraps/obj
 dotnetcore2.1/run/MockBootstraps/bin
 dotnetcore2.1/run/MockBootstraps/obj
+java8/run/lambda-runtime-mock/target
 examples/dotnetcore2.0/bin
 examples/dotnetcore2.0/obj
 examples/dotnetcore2.0/pub
@@ -26,4 +27,4 @@ examples/dotnetcore2.1/obj
 examples/dotnetcore2.1/pub
 examples/java/bin
 examples/java/build
-java8/run/lambda-runtime-mock/target
+examples/go1.x/handler
