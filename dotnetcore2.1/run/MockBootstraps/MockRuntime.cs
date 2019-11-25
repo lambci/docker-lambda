@@ -62,7 +62,8 @@ namespace AWSLambda.Internal.Bootstrap
                 Handler = handler,
                 InvokeId = context.RequestId,
                 SuppressUserCodeInit = true,
-                ErrorCode = null
+                ErrorCode = null,
+                Throttled = false
             };
             invoked = false;
             client.Timeout = Timeout.InfiniteTimeSpan;
