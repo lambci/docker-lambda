@@ -125,7 +125,7 @@ public class LambdaRuntime {
             System.setErr(ORIG_STDERR);
         }
         return new WaitForStartResult(INVOKE_ID, HANDLER, "event", AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
-                AWS_SESSION_TOKEN, true);
+                AWS_SESSION_TOKEN, true, false);
     }
 
     public static InvokeRequest waitForInvoke() {
@@ -199,7 +199,7 @@ public class LambdaRuntime {
                 }
                 conn.setRequestProperty("Docker-Lambda-Log-Result", Base64.getEncoder().encodeToString(logs));
             }
-            
+
             if (!initEndSent) {
                 conn.setRequestProperty("Docker-Lambda-Invoke-Wait",  Long.toString(receivedInvokeAt));
                 conn.setRequestProperty("Docker-Lambda-Init-End",  Long.toString(initEnd));
@@ -368,14 +368,16 @@ public class LambdaRuntime {
         public final String mode;
         public final AWSCredentials credentials;
         public final boolean suppressInit;
+        public final boolean throttled;
 
         public WaitForStartResult(final String invokeid, final String handler, final String mode, final String awskey,
-                final String awssecret, final String awssession, final boolean suppressInit) {
+                final String awssecret, final String awssession, final boolean suppressInit, boolean throttled) {
             this.invokeid = invokeid;
             this.handler = handler;
             this.mode = mode;
             this.credentials = new AWSCredentials(awskey, awssecret, awssession);
             this.suppressInit = suppressInit;
+            this.throttled = throttled;
         }
     }
 }
