@@ -21,7 +21,7 @@ RUN rm -rf /var/runtime /var/lang && \
   rm -rf /tmp/warmup /tmp/NuGetScratch /tmp/.dotnet
 
 # Add these as a separate layer as they get updated frequently
-RUN pip install -U virtualenv pipenv awscli boto3 aws-sam-cli==0.33.1 aws-lambda-builders==0.6.0 --no-cache-dir && \
+RUN pip install -U virtualenv pipenv awscli boto3 aws-sam-cli==0.34.0 aws-lambda-builders==0.6.0 --no-cache-dir && \
   dotnet tool install --global Amazon.Lambda.Tools --version 3.3.1
 
 CMD ["dotnet", "build"]
