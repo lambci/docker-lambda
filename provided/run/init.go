@@ -52,7 +52,7 @@ var curContext *mockLambdaContext
 var bootstrapCmd *exec.Cmd
 var initPrinted bool
 var eventChan chan *mockLambdaContext
-var exited bool
+var bootstrapExitedGracefully bool
 var bootstrapIsRunning bool
 var bootstrapPath *string
 var bootstrapArgs []string
@@ -171,6 +171,7 @@ func main() {
 	serverInitEnd = time.Now()
 
 	if stayOpen {
+		setupSighupHandler()
 		systemLog(fmt.Sprintf("Lambda API listening on port %s...", apiPort))
 		<-interrupt
 	} else {
@@ -200,6 +201,18 @@ func main() {
 	}
 
 	exit(exitCode)
+}
+
+func setupSighupHandler() {
+	restartBootstrap := make(chan os.Signal, 1)
+	signal.Notify(restartBootstrap, syscall.SIGHUP)
+	go func() {
+		for {
+			<-restartBootstrap
+			systemLog(fmt.Sprintf("SIGHUP received, restarting bootstrap..."))
+			killBootstrap()
+		}
+	}()
 }
 
 func formatOneLineJSON(body []byte) string {
@@ -263,6 +276,7 @@ func ensureBootstrapIsRunning(context *mockLambdaContext) error {
 	}
 
 	bootstrapIsRunning = true
+	bootstrapExitedGracefully = false
 
 	// Get an initial read of memory, and update when we finish
 	context.MaxMem, _ = allProcsMemoryInMb()
@@ -271,7 +285,7 @@ func ensureBootstrapIsRunning(context *mockLambdaContext) error {
 		bootstrapCmd.Wait()
 		bootstrapIsRunning = false
 		curState = "STATE_INIT"
-		if !exited {
+		if !bootstrapExitedGracefully {
 			// context may have changed, use curContext instead
 			curContext.SetError(fmt.Errorf("Runtime exited without providing a reason"))
 		}
@@ -281,7 +295,12 @@ func ensureBootstrapIsRunning(context *mockLambdaContext) error {
 }
 
 func exit(exitCode int) {
-	exited = true
+	killBootstrap()
+	os.Exit(exitCode)
+}
+
+func killBootstrap() {
+	bootstrapExitedGracefully = true
 	if bootstrapCmd != nil && bootstrapCmd.Process != nil {
 		syscall.Kill(-bootstrapCmd.Process.Pid, syscall.SIGKILL)
 	}
@@ -402,7 +421,7 @@ func createRuntimeRouter() *chi.Mux {
 			r.
 				With(updateState("STATE_INIT_ERROR")).
 				Post("/init/error", func(w http.ResponseWriter, r *http.Request) {
-					debug("In /init/error...")
+					debug("In /init/error")
 					curContext = <-eventChan
 					handleErrorRequest(w, r)
 					curContext.EndInvoke(nil)
@@ -411,14 +430,28 @@ func createRuntimeRouter() *chi.Mux {
 			r.
 				With(updateState("STATE_INVOKE_NEXT")).
 				Get("/invocation/next", func(w http.ResponseWriter, r *http.Request) {
-					debug("In /invocation/next...")
+					debug("In /invocation/next")
+
 					if curContext.Reply != nil {
-						debug("Reply is not nil...")
+						debug("Reply is not nil")
 						curContext.EndInvoke(nil)
 					}
+
+					closeNotify := w.(http.CloseNotifier).CloseNotify()
+					go func() {
+						<-closeNotify
+						debug("Connection closed, sending ignore event")
+						eventChan <- &mockLambdaContext{Ignore: true}
+					}()
+
 					debug("Waiting for next event...")
-					curContext = <-eventChan
-					context := curContext
+					context := <-eventChan
+					if context.Ignore {
+						debug("Ignore event received, returning")
+						w.Write([]byte{})
+						return
+					}
+					curContext = context
 					context.LogStartRequest()
 
 					w.Header().Set("Content-Type", "application/json")
@@ -732,6 +765,7 @@ type mockLambdaContext struct {
 	LogTail            string // base64 encoded tail, no greater than 4096 bytes
 	ErrorType          string // Unhandled vs Handled
 	Ended              bool
+	Ignore             bool
 }
 
 func (mc *mockLambdaContext) ParseTimeout() {
