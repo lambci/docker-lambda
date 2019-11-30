@@ -22,6 +22,8 @@ import java.util.UUID;
 import com.google.gson.Gson;
 
 import sun.misc.Unsafe;
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
 
 @SuppressWarnings("restriction")
 public class LambdaRuntime {
@@ -99,6 +101,13 @@ public class LambdaRuntime {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        
+        Signal.handle(new Signal("HUP"), (Signal signal) -> {
+          if (STAY_OPEN) {
+              systemErr("SIGHUP received, exiting runtime...");
+              System.exit(2);
+          }
+        });
     }
 
     public static void initRuntime() {
@@ -144,7 +153,7 @@ public class LambdaRuntime {
                     throw new RuntimeException("Unexpected status code from invocation/next: " + responseCode);
                 }
             } catch (ConnectException e) {
-                System.exit(errored ? 1 : 0);
+                System.exit(STAY_OPEN ? 2 : (errored ? 1 : 0));
             }
             String requestId = conn.getHeaderField("Lambda-Runtime-Aws-Request-Id");
             deadlineMs = Long.parseLong(conn.getHeaderField("Lambda-Runtime-Deadline-Ms"));
