@@ -209,13 +209,13 @@ func main() {
 }
 
 func setupSighupHandler() {
-	restartBootstrap := make(chan os.Signal, 1)
-	signal.Notify(restartBootstrap, syscall.SIGHUP)
+	sighupReceiver := make(chan os.Signal, 1)
+	signal.Notify(sighupReceiver, syscall.SIGHUP)
 	go func() {
 		for {
-			<-restartBootstrap
+			<-sighupReceiver
 			systemLog(fmt.Sprintf("SIGHUP received, restarting bootstrap..."))
-			killBootstrap()
+			reboot()
 		}
 	}()
 }
@@ -233,7 +233,7 @@ func setupFileWatchers() {
 			ei := <-fileWatcher
 			debug("Received notify event: ", ei)
 			systemLog(fmt.Sprintf("Handler/layer file changed, restarting bootstrap..."))
-			killBootstrap()
+			reboot()
 		}
 	}()
 }
@@ -320,6 +320,14 @@ func ensureBootstrapIsRunning(context *mockLambdaContext) error {
 func exit(exitCode int) {
 	killBootstrap()
 	os.Exit(exitCode)
+}
+
+func reboot() {
+	if noBootstrap {
+		os.Exit(2)
+	} else {
+		killBootstrap()
+	}
 }
 
 func killBootstrap() {
