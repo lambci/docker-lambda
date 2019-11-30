@@ -28,6 +28,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/rjeczalik/notify"
 )
 
 var logDebug = os.Getenv("DOCKER_LAMBDA_DEBUG") != ""
@@ -36,6 +37,7 @@ var noBootstrap = os.Getenv("DOCKER_LAMBDA_NO_BOOTSTRAP") != ""
 var apiPort = getEnv("DOCKER_LAMBDA_API_PORT", "9001")
 var useStdin = os.Getenv("DOCKER_LAMBDA_USE_STDIN") != ""
 var noModifyLogs = os.Getenv("DOCKER_LAMBDA_NO_MODIFY_LOGS") != ""
+var watchMode = os.Getenv("DOCKER_LAMBDA_WATCH") != ""
 
 var curState = "STATE_INIT"
 
@@ -171,6 +173,9 @@ func main() {
 	serverInitEnd = time.Now()
 
 	if stayOpen {
+		if watchMode {
+			setupFileWatchers()
+		}
 		setupSighupHandler()
 		systemLog(fmt.Sprintf("Lambda API listening on port %s...", apiPort))
 		<-interrupt
@@ -210,6 +215,24 @@ func setupSighupHandler() {
 		for {
 			<-restartBootstrap
 			systemLog(fmt.Sprintf("SIGHUP received, restarting bootstrap..."))
+			killBootstrap()
+		}
+	}()
+}
+
+func setupFileWatchers() {
+	fileWatcher := make(chan notify.EventInfo, 1)
+	if err := notify.Watch("/var/task/...", fileWatcher, notify.All); err != nil {
+		log.Fatal(err)
+	}
+	if err := notify.Watch("/opt/...", fileWatcher, notify.All); err != nil {
+		log.Fatal(err)
+	}
+	go func() {
+		for {
+			ei := <-fileWatcher
+			debug("Received notify event: ", ei)
+			systemLog(fmt.Sprintf("Handler/layer file changed, restarting bootstrap..."))
 			killBootstrap()
 		}
 	}()
@@ -304,7 +327,6 @@ func killBootstrap() {
 	if bootstrapCmd != nil && bootstrapCmd.Process != nil {
 		syscall.Kill(-bootstrapCmd.Process.Pid, syscall.SIGKILL)
 	}
-	os.Exit(exitCode)
 }
 
 func waitForContext(context *mockLambdaContext) {
