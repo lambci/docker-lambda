@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 
 import sun.misc.Unsafe;
 import sun.misc.Signal;
-import sun.misc.SignalHandler;
 
 @SuppressWarnings("restriction")
 public class LambdaRuntime {
@@ -101,7 +100,7 @@ public class LambdaRuntime {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        
+
         Signal.handle(new Signal("HUP"), (Signal signal) -> {
           if (STAY_OPEN) {
               systemErr("SIGHUP received, exiting runtime...");
