@@ -34,6 +34,10 @@ var DEADLINE_MS = Date.now() + (TIMEOUT * 1000)
 
 process.on('SIGINT', () => process.exit(0))
 process.on('SIGTERM', () => process.exit(0))
+process.on('SIGHUP', () => {
+  systemErr("SIGHUP received, exiting runtime...")
+  process.exit(2)
+})
 
 // Don't think this can be done in the Docker image
 process.umask(2)
@@ -135,7 +139,7 @@ module.exports = {
           })
       }).on('error', err => {
         if (err.code === 'ECONNRESET') {
-          return process.exit(errored ? 1 : 0)
+          return process.exit(STAY_OPEN ? 2 : (errored ? 1 : 0))
         }
         console.error(err)
         process.exit(1)
