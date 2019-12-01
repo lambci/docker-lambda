@@ -20,9 +20,6 @@ except ImportError:
     from httplib import HTTPConnection
 
 
-signal.signal(signal.SIGINT, lambda x, y: sys.exit(0))
-signal.signal(signal.SIGTERM, lambda x, y: sys.exit(0))
-
 ORIG_STDOUT = sys.stdout
 ORIG_STDERR = sys.stderr
 
@@ -98,6 +95,15 @@ MOCKSERVER_PROCESS.stdin.write(EVENT_BODY.encode())
 MOCKSERVER_PROCESS.stdin.close()
 
 MOCKSERVER_CONN = HTTPConnection("127.0.0.1", 9001)
+
+
+def sighup_handler(signum, frame):
+    eprint("SIGHUP received, exiting runtime...")
+    sys.exit(2)
+
+signal.signal(signal.SIGINT, lambda x, y: sys.exit(0))
+signal.signal(signal.SIGTERM, lambda x, y: sys.exit(0))
+signal.signal(signal.SIGHUP, sighup_handler)
 
 
 def eprint(*args, **kwargs):
@@ -181,10 +187,8 @@ def receive_invoke():
         if resp.status != 200:
             raise Exception("/invocation/next return status %d" % resp.status)
     except Exception:
-        if INVOKED and not STAY_OPEN:
-            sys.exit(1 if ERRORED else 0)
-            return ()
-        raise
+        sys.exit(2 if STAY_OPEN else (1 if ERRORED else 0))
+        return ()
 
     INVOKEID = resp.getheader('Lambda-Runtime-Aws-Request-Id')
     DEADLINE_MS = int(resp.getheader('Lambda-Runtime-Deadline-Ms'))
