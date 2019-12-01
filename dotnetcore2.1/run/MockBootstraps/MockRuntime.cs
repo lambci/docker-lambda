@@ -110,7 +110,26 @@ namespace AWSLambda.Internal.Bootstrap
             {
                 logs = "";
             }
-            var result = client.GetAsync("http://127.0.0.1:9001/2018-06-01/runtime/invocation/next").Result;
+            HttpResponseMessage result = null;
+            try
+            {
+                result = client.GetAsync("http://127.0.0.1:9001/2018-06-01/runtime/invocation/next").Result;
+            }
+            catch (AggregateException ae)
+            {
+                if (ae.InnerException is HttpRequestException && ae.InnerException.InnerException != null &&
+                    (ae.InnerException.InnerException is SocketException ||
+                        // happens on dotnetcore2.0
+                        ae.InnerException.InnerException.GetType().ToString().Equals("System.Net.Http.CurlException")))
+                {
+                    System.Environment.Exit(context.StayOpen ? 2 : (invokeError == null ? 0 : 1));
+                }
+                else
+                {
+                    throw ae;
+                }
+            }
+
             if (result.StatusCode != HttpStatusCode.OK)
             {
                 throw new Exception("Got a bad response from the bootstrap");
@@ -186,12 +205,12 @@ namespace AWSLambda.Internal.Bootstrap
                 }
                 catch (AggregateException ae)
                 {
-                    if (!context.StayOpen && ae.InnerException is HttpRequestException && ae.InnerException.InnerException != null &&
+                    if (ae.InnerException is HttpRequestException && ae.InnerException.InnerException != null &&
                         (ae.InnerException.InnerException is SocketException ||
                             // happens on dotnetcore2.0
                             ae.InnerException.InnerException.GetType().ToString().Equals("System.Net.Http.CurlException")))
                     {
-                        System.Environment.Exit(string.IsNullOrEmpty(errorType) && invokeError == null ? 0 : 1);
+                        System.Environment.Exit(context.StayOpen ? 2 : (string.IsNullOrEmpty(errorType) && invokeError == null ? 0 : 1));
                     }
                     else
                     {
