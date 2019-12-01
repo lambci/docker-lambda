@@ -17,6 +17,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"os/signal"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -90,6 +91,7 @@ func main() {
 	os.Setenv("_HANDLER", handler)
 
 	var err error
+	var errored bool
 
 	var mockServerCmd = exec.Command("/var/runtime/mockserver")
 	mockServerCmd.Env = append(os.Environ(),
@@ -211,6 +213,14 @@ func main() {
 		time.Sleep(5 * time.Millisecond)
 	}
 
+	sighupReceiver := make(chan os.Signal, 1)
+	signal.Notify(sighupReceiver, syscall.SIGHUP)
+	go func() {
+		<-sighupReceiver
+		fmt.Fprintln(os.Stderr, ("SIGHUP received, exiting runtime..."))
+		os.Exit(2)
+	}()
+
 	var initEndSent bool
 	var invoked bool
 	var receivedInvokeAt time.Time
@@ -227,6 +237,13 @@ func main() {
 		if err != nil {
 			if uerr, ok := err.(*url.Error); ok {
 				if uerr.Unwrap().Error() == "EOF" {
+					if stayOpen {
+						os.Exit(2)
+					} else if errored {
+						os.Exit(1)
+					} else {
+						os.Exit(0)
+					}
 					return
 				}
 			}
@@ -278,12 +295,15 @@ func main() {
 			initEnd = time.Now()
 		}
 
+		errored = false
+
 		var reply *messages.InvokeResponse
 		err = client.Call("Function.Invoke", invokeRequest, &reply)
 
 		suffix := "/response"
 		payload := reply.Payload
 		if err != nil || reply.Error != nil {
+			errored = true
 			suffix = "/error"
 			var lambdaErr lambdaError
 			if err != nil {
