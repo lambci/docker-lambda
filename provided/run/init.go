@@ -28,6 +28,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/rjeczalik/notify"
 )
 
 var logDebug = os.Getenv("DOCKER_LAMBDA_DEBUG") != ""
@@ -36,6 +37,7 @@ var noBootstrap = os.Getenv("DOCKER_LAMBDA_NO_BOOTSTRAP") != ""
 var apiPort = getEnv("DOCKER_LAMBDA_API_PORT", "9001")
 var useStdin = os.Getenv("DOCKER_LAMBDA_USE_STDIN") != ""
 var noModifyLogs = os.Getenv("DOCKER_LAMBDA_NO_MODIFY_LOGS") != ""
+var watchMode = os.Getenv("DOCKER_LAMBDA_WATCH") != ""
 
 var curState = "STATE_INIT"
 
@@ -52,7 +54,7 @@ var curContext *mockLambdaContext
 var bootstrapCmd *exec.Cmd
 var initPrinted bool
 var eventChan chan *mockLambdaContext
-var exited bool
+var bootstrapExitedGracefully bool
 var bootstrapIsRunning bool
 var bootstrapPath *string
 var bootstrapArgs []string
@@ -171,6 +173,10 @@ func main() {
 	serverInitEnd = time.Now()
 
 	if stayOpen {
+		if watchMode {
+			setupFileWatchers()
+		}
+		setupSighupHandler()
 		systemLog(fmt.Sprintf("Lambda API listening on port %s...", apiPort))
 		<-interrupt
 	} else {
@@ -200,6 +206,36 @@ func main() {
 	}
 
 	exit(exitCode)
+}
+
+func setupSighupHandler() {
+	sighupReceiver := make(chan os.Signal, 1)
+	signal.Notify(sighupReceiver, syscall.SIGHUP)
+	go func() {
+		for {
+			<-sighupReceiver
+			systemLog(fmt.Sprintf("SIGHUP received, restarting bootstrap..."))
+			reboot()
+		}
+	}()
+}
+
+func setupFileWatchers() {
+	fileWatcher := make(chan notify.EventInfo, 1)
+	if err := notify.Watch("/var/task/...", fileWatcher, notify.All); err != nil {
+		log.Fatal(err)
+	}
+	if err := notify.Watch("/opt/...", fileWatcher, notify.All); err != nil {
+		log.Fatal(err)
+	}
+	go func() {
+		for {
+			ei := <-fileWatcher
+			debug("Received notify event: ", ei)
+			systemLog(fmt.Sprintf("Handler/layer file changed, restarting bootstrap..."))
+			reboot()
+		}
+	}()
 }
 
 func formatOneLineJSON(body []byte) string {
@@ -263,6 +299,7 @@ func ensureBootstrapIsRunning(context *mockLambdaContext) error {
 	}
 
 	bootstrapIsRunning = true
+	bootstrapExitedGracefully = false
 
 	// Get an initial read of memory, and update when we finish
 	context.MaxMem, _ = allProcsMemoryInMb()
@@ -271,7 +308,7 @@ func ensureBootstrapIsRunning(context *mockLambdaContext) error {
 		bootstrapCmd.Wait()
 		bootstrapIsRunning = false
 		curState = "STATE_INIT"
-		if !exited {
+		if !bootstrapExitedGracefully {
 			// context may have changed, use curContext instead
 			curContext.SetError(fmt.Errorf("Runtime exited without providing a reason"))
 		}
@@ -281,11 +318,23 @@ func ensureBootstrapIsRunning(context *mockLambdaContext) error {
 }
 
 func exit(exitCode int) {
-	exited = true
+	killBootstrap()
+	os.Exit(exitCode)
+}
+
+func reboot() {
+	if noBootstrap {
+		os.Exit(2)
+	} else {
+		killBootstrap()
+	}
+}
+
+func killBootstrap() {
+	bootstrapExitedGracefully = true
 	if bootstrapCmd != nil && bootstrapCmd.Process != nil {
 		syscall.Kill(-bootstrapCmd.Process.Pid, syscall.SIGKILL)
 	}
-	os.Exit(exitCode)
 }
 
 func waitForContext(context *mockLambdaContext) {
@@ -402,7 +451,7 @@ func createRuntimeRouter() *chi.Mux {
 			r.
 				With(updateState("STATE_INIT_ERROR")).
 				Post("/init/error", func(w http.ResponseWriter, r *http.Request) {
-					debug("In /init/error...")
+					debug("In /init/error")
 					curContext = <-eventChan
 					handleErrorRequest(w, r)
 					curContext.EndInvoke(nil)
@@ -411,14 +460,28 @@ func createRuntimeRouter() *chi.Mux {
 			r.
 				With(updateState("STATE_INVOKE_NEXT")).
 				Get("/invocation/next", func(w http.ResponseWriter, r *http.Request) {
-					debug("In /invocation/next...")
+					debug("In /invocation/next")
+
 					if curContext.Reply != nil {
-						debug("Reply is not nil...")
+						debug("Reply is not nil")
 						curContext.EndInvoke(nil)
 					}
+
+					closeNotify := w.(http.CloseNotifier).CloseNotify()
+					go func() {
+						<-closeNotify
+						debug("Connection closed, sending ignore event")
+						eventChan <- &mockLambdaContext{Ignore: true}
+					}()
+
 					debug("Waiting for next event...")
-					curContext = <-eventChan
-					context := curContext
+					context := <-eventChan
+					if context.Ignore {
+						debug("Ignore event received, returning")
+						w.Write([]byte{})
+						return
+					}
+					curContext = context
 					context.LogStartRequest()
 
 					w.Header().Set("Content-Type", "application/json")
@@ -732,6 +795,7 @@ type mockLambdaContext struct {
 	LogTail            string // base64 encoded tail, no greater than 4096 bytes
 	ErrorType          string // Unhandled vs Handled
 	Ended              bool
+	Ignore             bool
 }
 
 func (mc *mockLambdaContext) ParseTimeout() {
