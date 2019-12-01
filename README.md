@@ -104,18 +104,51 @@ You can change the internal API port from `9001` by passing `-e DOCKER_LAMBDA_AP
 
 #### Developing in "stay-open" mode
 
-While you're developing, you'll want the server to restart every time you make a change to your Lambda.
-You can automate this with a file-watching utility like [entr](https://github.com/eradman/entr) or [nodemon](https://nodemon.io/):
+docker-lambda can watch for changes to your handler (and layer) code and restart the internal bootstrap process
+so you can always invoke the latest version of your code without needing to shutdown the container.
 
-```sh
-# you can `brew install entr` on macOS
-find . | entr -r docker run --rm \
-  -e DOCKER_LAMBDA_STAY_OPEN=1 -p 9001:9001 \
+To enable this, pass `-e DOCKER_LAMBDA_WATCH=1` to `docker run`:
+
+```
+docker run --rm \
+  -e DOCKER_LAMBDA_WATCH=1 -e DOCKER_LAMBDA_STAY_OPEN=1 -p 9001:9001 \
   -v "$PWD":/var/task:ro,delegated \
-  lambci/lambda:go1.x handler
+  lambci/lambda:java11 handler
 ```
 
-Or
+Then when you make changes to any file in the mounted directory, you'll see:
+
+```
+Handler/layer file changed, restarting bootstrap...
+```
+
+And the next invoke will reload your handler with the latest version of your code.
+
+NOTE: This doesn't work in exactly the same way with some of the older runtimes due to the way they're loaded. Specifically: `nodejs8.10` and earlier, `python3.6` and earlier, `dotnetcore2.1` and earlier, `java8` and `go1.x`. These runtimes will instead exit with error code 2
+when they are in watch mode and files in the handler or layer are changed.
+
+That way you can use the `--restart on-failure` capabilities of `docker run` to have the container automatically restart instead.
+
+So, for `nodejs8.10`, `nodejs6.10`, `nodejs4.3`, `python3.6`, `python2.7`, `dotnetcore2.1`, `dotnetcore2.0`, `java8` and `go1.x`, you'll
+need to run watch mode like this instead:
+
+```
+docker run --restart on-failure \
+  -e DOCKER_LAMBDA_WATCH=1 -e DOCKER_LAMBDA_STAY_OPEN=1 -p 9001:9001 \
+  -v "$PWD":/var/task:ro,delegated \
+  lambci/lambda:java8 handler
+```
+
+When you make changes to any file in the mounted directory, you'll see:
+
+```
+Handler/layer file changed, restarting bootstrap...
+```
+
+And then the docker container will restart. See the [Docker documentation](https://docs.docker.com/engine/reference/commandline/run/#restart-policies---restart) for more details. Your terminal may get detached, but the container should still be running and the
+API should have restarted. You can do `docker ps` to find the container ID and then `docker attach <container_id>` to reattach if you wish.
+
+If none of the above strategies work for you, you can use a file-watching utility like [nodemon](https://nodemon.io/):
 
 ```sh
 # npm install -g nodemon
@@ -124,14 +157,6 @@ nodemon -w ./ -e '' -s SIGINT -x docker -- run --rm \
   -v "$PWD":/var/task:ro,delegated \
   lambci/lambda:go1.x handler
 ```
-
-Both commands above assume your handler is in the current directory, and the container
-will restart whenever there are changes to any files in it or its subdirectories.
-
-Some other file-watching utilities include
-[fswatch](https://github.com/emcrisostomo/fswatch),
-[watchman](https://facebook.github.io/watchman/) and
-[watchdog](https://github.com/gorakhargosh/watchdog#shell-utilities) (Python)
 
 ### Building Lambda functions
 
