@@ -19,4 +19,4 @@ RUN rm -rf /var/runtime /var/lang && \
 # Add these as a separate layer as they get updated frequently
 RUN pip install -U pip setuptools --no-cache-dir && \
   pip install -U virtualenv pipenv --no-cache-dir && \
-  pip install -U awscli boto3 aws-sam-cli==0.35.0 aws-lambda-builders==0.6.0 --no-cache-dir
+  pip install -U awscli boto3 aws-sam-cli==0.36.0 aws-lambda-builders==0.6.0 --no-cache-dir
