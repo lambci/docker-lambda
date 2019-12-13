@@ -100,7 +100,9 @@ It also supports the [documented Lambda API headers](https://docs.aws.amazon.com
 
 If you want to change the exposed port, eg run on port 3000 on the host, use `-p 3000:9001` (then query `http://localhost:3000`).
 
-You can change the internal API port from `9001` by passing `-e DOCKER_LAMBDA_API_PORT=<port>` (it's unlikely that you'll need to do this).
+You can change the internal Lambda API port from `9001` by passing `-e DOCKER_LAMBDA_API_PORT=<port>`.
+You can also change the [custom runtime](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-build)
+port from `9001` by passing `-e DOCKER_LAMBDA_RUNTIME_PORT=<port>`.
 
 #### Developing in "stay-open" mode
 
@@ -368,6 +370,7 @@ Administrative keys for lambci/lambda:provided
   - `DOCKER_LAMBDA_USE_STDIN`
   - `DOCKER_LAMBDA_STAY_OPEN`
   - `DOCKER_LAMBDA_API_PORT`
+  - `DOCKER_LAMBDA_RUNTIME_PORT`
   - `DOCKER_LAMBDA_DEBUG`
   - `DOCKER_LAMBDA_NO_MODIFY_LOGS`
 

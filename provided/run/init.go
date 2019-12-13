@@ -35,6 +35,7 @@ var logDebug = os.Getenv("DOCKER_LAMBDA_DEBUG") != ""
 var stayOpen = os.Getenv("DOCKER_LAMBDA_STAY_OPEN") != ""
 var noBootstrap = os.Getenv("DOCKER_LAMBDA_NO_BOOTSTRAP") != ""
 var apiPort = getEnv("DOCKER_LAMBDA_API_PORT", "9001")
+var runtimePort = getEnv("DOCKER_LAMBDA_RUNTIME_PORT", "9001")
 var useStdin = os.Getenv("DOCKER_LAMBDA_USE_STDIN") != ""
 var noModifyLogs = os.Getenv("DOCKER_LAMBDA_NO_MODIFY_LOGS") != ""
 var watchMode = os.Getenv("DOCKER_LAMBDA_WATCH") != ""
@@ -144,7 +145,12 @@ func main() {
 	os.Setenv("AWS_DEFAULT_REGION", curContext.Region)
 	os.Setenv("_X_AMZN_TRACE_ID", curContext.XAmznTraceID)
 
-	runtimeListener, err := net.Listen("tcp", ":"+apiPort)
+	runtimeAddress := ":" + runtimePort
+	if apiPort != runtimePort {
+		// We can restrict runtime to 127.0.0.1 if we don't need the port for the Lambda API
+		runtimeAddress = "127.0.0.1" + runtimeAddress
+	}
+	runtimeListener, err := net.Listen("tcp", runtimeAddress)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -170,7 +176,7 @@ func main() {
 		<-interrupt
 	} else {
 		res, err := http.Post(
-			"http://127.0.0.1:"+apiPort+"/2015-03-31/functions/"+curContext.FnName+"/invocations",
+			"http://127.0.0.1:"+runtimePort+"/2015-03-31/functions/"+curContext.FnName+"/invocations",
 			"application/json",
 			bytes.NewBuffer(eventBody),
 		)
@@ -261,7 +267,7 @@ func ensureBootstrapIsRunning(context *mockLambdaContext) error {
 	awsSessionToken := getEnv("AWS_SESSION_TOKEN", os.Getenv("AWS_SECURITY_TOKEN"))
 
 	bootstrapCmd.Env = append(os.Environ(),
-		"AWS_LAMBDA_RUNTIME_API=127.0.0.1:"+apiPort,
+		"AWS_LAMBDA_RUNTIME_API=127.0.0.1:"+runtimePort,
 		"AWS_ACCESS_KEY_ID="+awsAccessKey,
 		"AWS_SECRET_ACCESS_KEY="+awsSecretKey,
 	)
