@@ -144,27 +144,16 @@ func main() {
 	os.Setenv("AWS_DEFAULT_REGION", curContext.Region)
 	os.Setenv("_X_AMZN_TRACE_ID", curContext.XAmznTraceID)
 
-	runtimeRouter := createRuntimeRouter()
-
-	runtimeListener, err := net.Listen("tcp", ":9001")
+	runtimeListener, err := net.Listen("tcp", ":"+apiPort)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
 	var runtimeServer *http.Server
-	if apiPort == "9001" {
-		runtimeServer = &http.Server{Handler: addAPIRoutes(runtimeRouter)}
-	} else {
-		runtimeServer = &http.Server{Handler: runtimeRouter}
-		apiListener, err := net.Listen("tcp", ":"+apiPort)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		apiServer := &http.Server{Handler: addAPIRoutes(chi.NewRouter())}
-		go apiServer.Serve(apiListener)
-	}
+
+	runtimeRouter := createRuntimeRouter()
+	runtimeServer = &http.Server{Handler: addAPIRoutes(runtimeRouter)}
 
 	go runtimeServer.Serve(runtimeListener)
 
@@ -181,7 +170,7 @@ func main() {
 		<-interrupt
 	} else {
 		res, err := http.Post(
-			"http://127.0.0.1:9001/2015-03-31/functions/"+curContext.FnName+"/invocations",
+			"http://127.0.0.1:"+apiPort+"/2015-03-31/functions/"+curContext.FnName+"/invocations",
 			"application/json",
 			bytes.NewBuffer(eventBody),
 		)
@@ -272,7 +261,7 @@ func ensureBootstrapIsRunning(context *mockLambdaContext) error {
 	awsSessionToken := getEnv("AWS_SESSION_TOKEN", os.Getenv("AWS_SECURITY_TOKEN"))
 
 	bootstrapCmd.Env = append(os.Environ(),
-		"AWS_LAMBDA_RUNTIME_API=127.0.0.1:9001",
+		"AWS_LAMBDA_RUNTIME_API=127.0.0.1:"+apiPort,
 		"AWS_ACCESS_KEY_ID="+awsAccessKey,
 		"AWS_SECRET_ACCESS_KEY="+awsSecretKey,
 	)
