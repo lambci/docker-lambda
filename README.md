@@ -225,10 +225,13 @@ To use the build images, for compilation, deployment, etc:
 # To compile native deps in node_modules
 docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs12.x npm rebuild
 
+# To install defined poetry dependencies
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-python3.8 poetry install
+
 # To resolve dependencies on go1.x (working directory is /go/src/handler)
 docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x go mod download
 
-# For .NET Core 2.0, this will publish the compiled code to `./pub`,
+# For .NET Core, this will publish the compiled code to `./pub`,
 # which you can then use to run with `-v "$PWD"/pub:/var/task`
 docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnetcore2.1 dotnet publish -c Release -o pub
 
