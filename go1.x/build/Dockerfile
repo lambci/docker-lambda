@@ -16,6 +16,6 @@ RUN rm -rf /var/runtime /var/lang && \
   go get golang.org/x/vgo
 
 # Add these as a separate layer as they get updated frequently
-RUN pip install -U awscli boto3 aws-sam-cli==0.39.0 aws-lambda-builders==0.6.0 --no-cache-dir
+RUN pip install -U awscli boto3 aws-sam-cli==0.40.0 aws-lambda-builders==0.6.0 --no-cache-dir
 
 CMD ["dep", "ensure"]
