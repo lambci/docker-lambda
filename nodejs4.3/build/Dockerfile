@@ -10,6 +10,6 @@ RUN rm -rf /var/runtime /var/lang && \
   curl https://lambci.s3.amazonaws.com/fs/nodejs4.3.tgz | tar -zx -C /
 
 # Add these as a separate layer as they get updated frequently
-RUN pip install -U awscli boto3 aws-sam-cli==0.40.0 aws-lambda-builders==0.6.0 --no-cache-dir
+RUN pip install -U awscli boto3 aws-sam-cli==0.40.0 aws-lambda-builders==0.7.0 --no-cache-dir
 
 CMD ["npm", "rebuild"]
