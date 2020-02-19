@@ -29,6 +29,7 @@ docker run --rm -it lambci/lambda:build-python3.8 pip install marisa-trie
 
 cd ${EXAMPLES_DIR}/ruby
 docker run --rm -v "$PWD":/var/task lambci/lambda:ruby2.5 lambda_function.lambda_handler
+docker run --rm -v "$PWD":/var/task lambci/lambda:ruby2.7 lambda_function.lambda_handler
 
 cd ${EXAMPLES_DIR}/java
 docker run --rm -v "$PWD":/app -w /app gradle gradle build

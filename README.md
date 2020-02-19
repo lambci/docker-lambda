@@ -185,8 +185,8 @@ docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:nodejs12.x app.my
 # Test a `lambda_handler` function in `lambda_function.py` with an empty event on Python 3.8
 docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:python3.8 lambda_function.lambda_handler
 
-# Similarly with Ruby 2.5
-docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:ruby2.5 lambda_function.lambda_handler
+# Similarly with Ruby 2.7
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:ruby2.7 lambda_function.lambda_handler
 
 # Test on Go 1.x with a compiled handler named my_handler and a custom event
 docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:go1.x my_handler '{"some": "event"}'
@@ -306,6 +306,7 @@ These follow the Lambda runtime names:
   - `python3.7`
   - `python3.8`
   - `ruby2.5`
+  - `ruby2.7`
   - `java8`
   - `java11`
   - `go1.x`
@@ -322,6 +323,7 @@ These follow the Lambda runtime names:
   - `build-python3.7`
   - `build-python3.8`
   - `build-ruby2.5`
+  - `build-ruby2.7`
   - `build-java8`
   - `build-java11`
   - `build-go1.x`
