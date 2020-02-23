@@ -10,6 +10,6 @@ RUN rm -rf /var/runtime /var/lang && \
 RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python && \
   pip install -U virtualenv pipenv --no-cache-dir && \
   curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/1.0.3/get-poetry.py | POETRY_VERSION=1.0.3 python && \
-  pip install -U awscli boto3 aws-sam-cli==0.22.0 aws-lambda-builders==0.7.0 --no-cache-dir
+  pip install -U awscli boto3 aws-sam-cli==0.22.0 aws-lambda-builders==0.4.0 --no-cache-dir
 
 ENV PATH=/root/.poetry/bin:$PATH
