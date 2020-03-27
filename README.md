@@ -197,9 +197,9 @@ docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:go1.x my_handler 
 # http://docs.aws.amazon.com/lambda/latest/dg/create-deployment-pkg-zip-java.html
 docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:java11 org.myorg.MyHandler
 
-# Test on .NET Core 2.1 given a test.dll assembly in the current directory,
+# Test on .NET Core 3.1 given a test.dll assembly in the current directory,
 # a class named Function with a FunctionHandler method, and a custom event
-docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:dotnetcore2.1 test::test.Function::FunctionHandler '{"some": "event"}'
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:dotnetcore3.1 test::test.Function::FunctionHandler '{"some": "event"}'
 
 # Test with a provided runtime (assumes you have a `bootstrap` executable in the current directory)
 docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:provided handler '{"some": "event"}'
@@ -233,7 +233,7 @@ docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x go mod downl
 
 # For .NET Core, this will publish the compiled code to `./pub`,
 # which you can then use to run with `-v "$PWD"/pub:/var/task`
-docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnetcore2.1 dotnet publish -c Release -o pub
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnetcore3.1 dotnet publish -c Release -o pub
 
 # Run custom commands on a build container
 docker run --rm lambci/lambda:build-python3.8 aws --version
@@ -312,6 +312,7 @@ These follow the Lambda runtime names:
   - `go1.x`
   - `dotnetcore2.0`
   - `dotnetcore2.1`
+  - `dotnetcore3.1`
   - `provided`
   - `build-nodejs4.3`
   - `build-nodejs6.10`
@@ -329,6 +330,7 @@ These follow the Lambda runtime names:
   - `build-go1.x`
   - `build-dotnetcore2.0`
   - `build-dotnetcore2.1`
+  - `build-dotnetcore3.1`
   - `build-provided`
 
 ## Verifying images

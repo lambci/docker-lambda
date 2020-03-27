@@ -1,0 +1,8 @@
+﻿{
+  "configuration": "Release",
+  "framework": "netcoreapp3.1",
+  "function-runtime": "dotnetcore3.1",
+  "function-memory-size": 3008,
+  "function-timeout": 60,
+  "function-handler": "dump_dotnetcore31::dump_dotnetcore31.Function::FunctionHandler"
+}

@@ -14,6 +14,8 @@ base/dump-dotnetcore20/bin
 base/dump-dotnetcore20/obj
 base/dump-dotnetcore21/bin
 base/dump-dotnetcore21/obj
+base/dump-dotnetcore31/bin
+base/dump-dotnetcore31/obj
 dotnetcore2.0/run/MockBootstraps/bin
 dotnetcore2.0/run/MockBootstraps/obj
 dotnetcore2.1/run/MockBootstraps/bin
@@ -25,6 +27,9 @@ examples/dotnetcore2.0/pub
 examples/dotnetcore2.1/bin
 examples/dotnetcore2.1/obj
 examples/dotnetcore2.1/pub
+examples/dotnetcore3.1/bin
+examples/dotnetcore3.1/obj
+examples/dotnetcore3.1/pub
 examples/java/bin
 examples/java/build
 examples/go1.x/handler
