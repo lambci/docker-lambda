@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "docker run --rm -v \"$PWD\":/var/task lambci/lambda:build-nodejs6.10 npm rebuild",
+    "build": "docker run --rm -v \"$PWD\":/var/task lambci/lambda:build-nodejs12.x npm rebuild --build-from-source",
     "test": "node test.js"
   },
   "dependencies": {
-    "bcrypt": "^0.8.6"
+    "bcrypt": "^4.0.1"
   }
 }

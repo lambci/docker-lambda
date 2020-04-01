@@ -223,7 +223,7 @@ To use the build images, for compilation, deployment, etc:
 
 ```sh
 # To compile native deps in node_modules
-docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs12.x npm rebuild
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs12.x npm rebuild --build-from-source
 
 # To install defined poetry dependencies
 docker run --rm -v "$PWD":/var/task lambci/lambda:build-python3.8 poetry install
