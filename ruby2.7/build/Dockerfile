@@ -4,7 +4,7 @@ ENV PATH=/var/lang/bin:$PATH \
     LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_ruby2.7 \
     GEM_HOME=/var/runtime \
-    GEM_PATH=/var/task/vendor/bundle/ruby/2.7.0:/opt/ruby/gems/2.7.0 \
+    GEM_PATH=/var/task/vendor/bundle/ruby/2.7.0:/var/lang/lib/ruby/gems/2.7.0 \
     RUBYLIB=/var/task:/var/runtime/lib:/opt/ruby/lib
 
 RUN rm -rf /var/runtime /var/lang /var/rapid && \
