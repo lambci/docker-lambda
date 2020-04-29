@@ -11,7 +11,7 @@ for RUNTIME in $RUNTIMES; do
 
   [ -x ./update_libs.sh ] && ./update_libs.sh
 
-  docker build -t lambci/lambda:${RUNTIME} .
+  docker build --no-cache -t lambci/lambda:${RUNTIME} .
 done
 
 for RUNTIME in $RUNTIMES; do
@@ -19,5 +19,5 @@ for RUNTIME in $RUNTIMES; do
 
   cd ${TOP_DIR}/${RUNTIME}/build
 
-  docker build -t lambci/lambda:build-${RUNTIME} .
+  docker build --no-cache -t lambci/lambda:build-${RUNTIME} .
 done

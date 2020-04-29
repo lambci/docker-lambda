@@ -11,7 +11,8 @@ ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
 COPY --from=0 /installroot/etc /etc/
 COPY --from=0 /installroot/usr /usr/
 
-RUN yum install -y glibc-langpack-en && \
+RUN yum reinstall -y filesystem setup glibc-common glibc; \
+  yum install -y glibc-langpack-en && \
   yum groupinstall -y development && \
   yum install -y which clang cmake python-devel python3-devel amazon-linux-extras && \
   amazon-linux-extras install -y docker && \
