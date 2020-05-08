@@ -16,6 +16,6 @@ RUN yum reinstall -y filesystem setup glibc-common glibc; \
   yum groupinstall -y development && \
   yum install -y which clang cmake python-devel python3-devel amazon-linux-extras && \
   amazon-linux-extras install -y docker && \
-  pip3 install -U pip setuptools --no-cache-dir && \
+  pip3 install -U pip setuptools wheel --no-cache-dir && \
   yum clean all && \
   rm -rf /var/cache/yum

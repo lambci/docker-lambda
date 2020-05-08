@@ -10,7 +10,7 @@ RUN rm -rf /var/runtime /var/lang /var/rapid && \
   curl https://lambci.s3.amazonaws.com/fs/python3.8.tgz | tar -zx -C /
 
 # Add these as a separate layer as they get updated frequently
-RUN pip install -U pip setuptools --no-cache-dir && \
+RUN pip install -U pip setuptools wheel --no-cache-dir && \
   pip install -U virtualenv pipenv --no-cache-dir && \
   curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/1.0.5/get-poetry.py | POETRY_VERSION=1.0.5 python3 && \
   pip install -U awscli boto3 aws-sam-cli==0.48.0 aws-lambda-builders==0.8.0 --no-cache-dir
