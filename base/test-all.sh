@@ -23,6 +23,7 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:python3.6
 docker run --rm -v "$PWD":/var/task lambci/lambda:python3.7 lambda_function.lambda_handler
 docker run --rm -v "$PWD":/var/task lambci/lambda:python3.8 lambda_function.lambda_handler
 
+cd ${EXAMPLES_DIR}/python
 docker run --rm -it lambci/lambda:build-python2.7 pip install marisa-trie
 docker run --rm -it lambci/lambda:build-python3.6 pip install marisa-trie
 docker run --rm -it lambci/lambda:build-python3.7 pip install marisa-trie
@@ -58,4 +59,4 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:provided handler '{"some": "ev
 
 # To invoke and keep open:
 # docker run --rm -v $PWD:/var/task -e DOCKER_LAMBDA_STAY_OPEN=1 -p 9001:9001 \
-  # lambci/lambda:ruby2.5 lambda_function.lambda_handler
+#   lambci/lambda:ruby2.5 lambda_function.lambda_handler
