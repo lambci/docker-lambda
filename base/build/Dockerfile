@@ -23,5 +23,6 @@ f.close();" && \
   alternatives --set g++ /usr/bin/g++48 && \
   alternatives --set cpp /usr/bin/cpp48 && \
   curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python3 && \
+  pip install -U setuptools wheel --no-cache-dir && \
   yum clean all && \
   rm -rf /var/cache/yum
