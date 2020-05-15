@@ -20,6 +20,6 @@ RUN rm -rf /var/runtime /var/lang && \
   rm -rf /tmp/warmup /tmp/NuGetScratch
 
 # Add these as a separate layer as they get updated frequently
-RUN pip install -U virtualenv pipenv awscli boto3 aws-sam-cli==0.49.0 aws-lambda-builders==0.9.0 --no-cache-dir
+RUN pip install -U aws-lambda-builders==0.9.0 aws-sam-cli==0.49.0 awscli boto3 virtualenv pipenv --no-cache-dir
 
 CMD ["dotnet", "build"]
