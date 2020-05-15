@@ -3,7 +3,6 @@ FROM lambci/lambda-base-2:build
 ENV PATH=/var/lang/bin:$PATH \
     LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_python3.8 \
-    PYTHONPATH=/var/runtime \
     PKG_CONFIG_PATH=/var/lang/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/share/pkgconfig
 
 RUN rm -rf /var/runtime /var/lang /var/rapid && \
