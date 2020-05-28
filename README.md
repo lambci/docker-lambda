@@ -89,6 +89,8 @@ aws lambda invoke --endpoint http://localhost:9001 --no-sign-request \
   --function-name myfunction --payload '{}' output.json
 ```
 
+(if you're using [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/cliv2-migration.html#cliv2-migration-binaryparam), you'll need to add `--cli-binary-format raw-in-base64-out` to the above command)
+
 Or just:
 
 ```sh
