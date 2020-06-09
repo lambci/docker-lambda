@@ -232,6 +232,11 @@ namespace AWSLambda.Internal.Bootstrap
 
         private byte[] LogsTail4k()
         {
+            if (logs == null)
+            {
+                return new byte[4096];
+            }
+
             var logBuf = Encoding.UTF8.GetBytes(logs);
             if (logBuf.Length <= 4096)
             {
