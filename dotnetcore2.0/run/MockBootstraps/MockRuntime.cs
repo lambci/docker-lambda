@@ -30,7 +30,7 @@ namespace AWSLambda.Internal.Bootstrap
 
         private DateTimeOffset receivedInvokeAt = DateTimeOffset.MinValue;
 
-        private string logs;
+        private string logs = "";
 
         private Exception invokeError;
 
@@ -145,6 +145,7 @@ namespace AWSLambda.Internal.Bootstrap
 
             var body = result.Content.ReadAsStringAsync().Result;
 
+            context.StartTime = DateTime.Now;
             context.RequestId = requestId;
             context.DeadlineMs = long.Parse(deadlineMs);
             context.Body = body;
@@ -231,11 +232,6 @@ namespace AWSLambda.Internal.Bootstrap
 
         private byte[] LogsTail4k()
         {
-            if (logs == null)
-            {
-                return new byte[4096];
-            }
-
             var logBuf = Encoding.UTF8.GetBytes(logs);
             if (logBuf.Length <= 4096)
             {
