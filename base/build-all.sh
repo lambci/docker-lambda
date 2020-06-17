@@ -19,5 +19,5 @@ for RUNTIME in $RUNTIMES; do
 
   cd ${TOP_DIR}/${RUNTIME}/build
 
-  docker build --no-cache -t lambci/lambda:build-${RUNTIME} .
+  docker build -t lambci/lambda:build-${RUNTIME} .
 done
