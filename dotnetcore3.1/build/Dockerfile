@@ -20,7 +20,7 @@ RUN rm -rf /var/runtime /var/lang && \
   rm -rf /tmp/warmup /tmp/NuGetScratch /tmp/.dotnet
 
 # Add these as a separate layer as they get updated frequently
-RUN pip install -U aws-lambda-builders==0.9.0 aws-sam-cli==0.52.0 awscli boto3 --no-cache-dir && \
+RUN pip install -U aws-lambda-builders==0.9.0 aws-sam-cli==0.53.0 awscli boto3 --no-cache-dir && \
   dotnet tool install --global Amazon.Lambda.Tools --version 4.0.0
 
 CMD ["dotnet", "build"]
