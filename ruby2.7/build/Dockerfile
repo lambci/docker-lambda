@@ -11,6 +11,4 @@ RUN rm -rf /var/runtime /var/lang /var/rapid && \
   curl https://lambci.s3.amazonaws.com/fs/ruby2.7.tgz | tar -zx -C /
 
 # Add these as a separate layer as they get updated frequently
-RUN gem update --system --no-document && \
-  gem install --no-document bundler -v '~> 2.1' && \
-  pip install -U aws-lambda-builders==0.9.0 aws-sam-cli==0.53.0 awscli boto3 --no-cache-dir
+RUN pip install -U aws-lambda-builders==0.9.0 aws-sam-cli==0.53.0 awscli boto3 --no-cache-dir
