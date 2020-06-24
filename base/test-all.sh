@@ -34,7 +34,7 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:ruby2.5 lambda_function.lambda
 docker run --rm -v "$PWD":/var/task lambci/lambda:ruby2.7 lambda_function.lambda_handler
 
 cd ${EXAMPLES_DIR}/java
-docker run --rm -v "$PWD":/app -w /app gradle gradle build
+docker run --rm -v "$PWD":/app -w /app lambci/lambda:build-java8 gradle build
 docker run --rm -v "$PWD/build/docker":/var/task lambci/lambda:java8 org.lambci.lambda.ExampleHandler '{"some": "event"}'
 docker run --rm -v "$PWD/build/docker":/var/task lambci/lambda:java11 org.lambci.lambda.ExampleHandler '{"some": "event"}'
 
