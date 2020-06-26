@@ -58,5 +58,6 @@ cd ${EXAMPLES_DIR}/provided
 docker run --rm -v "$PWD":/var/task lambci/lambda:provided handler '{"some": "event"}'
 
 # To invoke and keep open:
+# cd ${EXAMPLES_DIR}/ruby
 # docker run --rm -v $PWD:/var/task -e DOCKER_LAMBDA_STAY_OPEN=1 -p 9001:9001 \
 #   lambci/lambda:ruby2.5 lambda_function.lambda_handler
