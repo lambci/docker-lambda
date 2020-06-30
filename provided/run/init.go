@@ -343,18 +343,30 @@ func waitForContext(context *mockLambdaContext) {
 
 func addAPIRoutes(r *chi.Mux) *chi.Mux {
 	r.Options("/*", func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Origin") == "" {
+			w.WriteHeader(403)
+			return
+		}
 		w.Header().Set("x-amzn-requestid", fakeGUID())
 		w.Header().Set("access-control-allow-origin", "*")
 		w.Header().Set("access-control-expose-headers", "x-amzn-RequestId,x-amzn-ErrorType,x-amzn-ErrorMessage,Date,x-amz-log-result,x-amz-function-error")
 		w.Header().Set("access-control-max-age", "172800")
+		if r.Header.Get("Access-Control-Request-Headers") != "" {
+			w.Header().Set("access-control-allow-headers", r.Header.Get("Access-Control-Request-Headers"))
+		}
+		if r.Header.Get("Access-Control-Request-Method") != "" {
+			w.Header().Set("access-control-allow-methods", r.Header.Get("Access-Control-Request-Method"))
+		}
 		w.WriteHeader(200)
 	})
 
 	r.Post("/2015-03-31/functions/{function}/invocations", func(w http.ResponseWriter, r *http.Request) {
 		context := newContext()
 
-		w.Header().Set("access-control-allow-origin", "*")
-		w.Header().Set("access-control-expose-headers", "x-amzn-RequestId,x-amzn-ErrorType,x-amzn-ErrorMessage,Date,x-amz-log-result,x-amz-function-error")
+		if r.Header.Get("Origin") != "" {
+			w.Header().Set("access-control-allow-origin", "*")
+			w.Header().Set("access-control-expose-headers", "x-amzn-RequestId,x-amzn-ErrorType,x-amzn-ErrorMessage,Date,x-amz-log-result,x-amz-function-error")
+		}
 
 		if r.Header.Get("X-Amz-Invocation-Type") != "" {
 			context.InvocationType = r.Header.Get("X-Amz-Invocation-Type")
