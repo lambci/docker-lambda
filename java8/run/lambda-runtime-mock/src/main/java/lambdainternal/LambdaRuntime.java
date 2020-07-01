@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
@@ -20,6 +21,7 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import sun.misc.Unsafe;
 import sun.misc.Signal;
@@ -42,6 +44,7 @@ public class LambdaRuntime {
     private static long deadlineMs;
     private static boolean invoked = false;
     private static boolean errored = false;
+    private static String errorMsg = "";
     private static boolean initEndSent = false;
     private static long initEnd;
     private static long receivedInvokeAt;
@@ -216,6 +219,13 @@ public class LambdaRuntime {
 
             byte[] resultCopy = result == null ? new byte[0]
                     : new String(result, 0, resultLength).getBytes(StandardCharsets.UTF_8);
+
+            if (errored && resultCopy.length == 0) {
+                JsonObject errObject = new JsonObject();
+                errObject.addProperty("errorMessage", !isNullOrEmpty(errorMsg) ? errorMsg : "Unknown error");
+                resultCopy = errObject.toString().getBytes(StandardCharsets.UTF_8);
+            }
+
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(resultCopy);
             }
@@ -231,7 +241,20 @@ public class LambdaRuntime {
     public static void reportFault(final String invokeid, final String msg, final String exceptionClass,
             final String stack) {
         errored = true;
-        systemErr(stack);
+        ArrayList<String> errorPieces = new ArrayList<String>();
+        if (exceptionClass != null) {
+            systemErr(exceptionClass);
+            errorPieces.add(exceptionClass);
+        }
+        if (msg != null) {
+            systemErr(msg);
+            errorPieces.add(msg);
+        }
+        if (stack != null) {
+            systemErr(stack);
+            errorPieces.add(stack);
+        }
+        errorMsg = String.join("\n", errorPieces);
     }
 
     public static int getRemainingTime() {
