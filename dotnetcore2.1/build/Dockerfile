@@ -21,7 +21,13 @@ RUN rm -rf /var/runtime /var/lang && \
   rm -rf /tmp/warmup /tmp/NuGetScratch /tmp/.dotnet
 
 # Add these as a separate layer as they get updated frequently
-RUN pip install -U aws-lambda-builders==0.9.0 aws-sam-cli==0.53.0 awscli boto3 virtualenv pipenv --no-cache-dir && \
+# The pipx workaround is due to https://github.com/pipxproject/pipx/issues/218
+RUN source ~/.local/pipx/shared/bin/activate && \
+  pipx install virtualenv && \
+  pipx install pipenv && \
+  pipx install awscli==1.* && \
+  pipx install aws-lambda-builders==1.0.0 && \
+  pipx install aws-sam-cli==0.53.0 && \
   dotnet tool install --global Amazon.Lambda.Tools --version 3.3.1
 
 CMD ["dotnet", "build"]

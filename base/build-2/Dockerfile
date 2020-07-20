@@ -6,7 +6,7 @@ RUN yum list yum && \
 
 FROM lambci/lambda-base-2
 
-ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
+ENV PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
 
 COPY --from=0 /installroot/etc /etc/
 COPY --from=0 /installroot/usr /usr/
@@ -17,5 +17,6 @@ RUN yum reinstall -y filesystem setup glibc-common glibc; \
   yum install -y which clang cmake python-devel python3-devel amazon-linux-extras && \
   amazon-linux-extras install -y docker && \
   pip3 install -U pip setuptools wheel --no-cache-dir && \
+  pip3 install --user pipx --no-cache-dir && \
   yum clean all && \
   rm -rf /var/cache/yum

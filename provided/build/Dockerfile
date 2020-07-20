@@ -1,4 +1,8 @@
 FROM lambci/lambda-base:build
 
 # Add these as a separate layer as they get updated frequently
-RUN pip install -U aws-lambda-builders==0.9.0 aws-sam-cli==0.53.0 awscli boto3 --no-cache-dir
+# The pipx workaround is due to https://github.com/pipxproject/pipx/issues/218
+RUN source ~/.local/pipx/shared/bin/activate && \
+  pipx install awscli==1.* && \
+  pipx install aws-lambda-builders==1.0.0 && \
+  pipx install aws-sam-cli==0.53.0

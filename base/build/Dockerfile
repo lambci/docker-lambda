@@ -1,6 +1,6 @@
 FROM lambci/lambda-base
 
-ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
+ENV PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
 
 # A couple of packages are either missing critical-ish files, or didn't make it into the tar
 RUN chmod 1777 /tmp && \
@@ -22,7 +22,8 @@ f.close();" && \
   alternatives --set gcc /usr/bin/gcc48 && \
   alternatives --set g++ /usr/bin/g++48 && \
   alternatives --set cpp /usr/bin/cpp48 && \
-  curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python3 && \
-  pip install -U setuptools wheel --no-cache-dir && \
+  python3 -m pip install -U pip setuptools wheel --no-cache-dir && \
+  pip install --user pipx --no-cache-dir && \
+  pipx run awscli==1.* 2>/dev/null || true && \
   yum clean all && \
   rm -rf /var/cache/yum

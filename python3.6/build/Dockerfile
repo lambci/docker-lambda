@@ -18,8 +18,13 @@ RUN rm -rf /var/runtime /var/lang && \
 
 # Add these as a separate layer as they get updated frequently
 RUN pip install -U pip setuptools wheel --no-cache-dir && \
-  pip install -U virtualenv pipenv --no-cache-dir && \
-  curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/1.0.9/get-poetry.py | POETRY_VERSION=1.0.9 python3 && \
-  pip install -U aws-lambda-builders==0.9.0 aws-sam-cli==0.53.0 awscli boto3 --no-cache-dir
+  rm -rf /root/.local && \
+  pip install --user pipx --no-cache-dir && \
+  pipx install virtualenv && \
+  pipx install pipenv && \
+  pipx install poetry==1.0.9 && \
+  pipx install awscli==1.* && \
+  pipx install aws-lambda-builders==1.0.0 && \
+  pipx install aws-sam-cli==0.53.0
 
 ENV PATH=/root/.poetry/bin:$PATH
