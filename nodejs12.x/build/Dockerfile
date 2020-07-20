@@ -9,4 +9,6 @@ RUN rm -rf /var/runtime /var/lang /var/rapid && \
   curl https://lambci.s3.amazonaws.com/fs/nodejs12.x.tgz | tar -zx -C /
 
 # Add these as a separate layer as they get updated frequently
-RUN pip install -U aws-lambda-builders==0.9.0 aws-sam-cli==0.53.0 awscli boto3 --no-cache-dir
+RUN pipx install awscli==1.* && \
+  pipx install aws-lambda-builders==1.0.0 && \
+  pipx install aws-sam-cli==0.53.0

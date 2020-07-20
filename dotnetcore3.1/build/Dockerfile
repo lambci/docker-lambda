@@ -6,7 +6,7 @@ ENV DOTNET_ROOT=/var/lang/bin
 ENV PATH=/root/.dotnet/tools:$DOTNET_ROOT:$PATH \
     LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_dotnetcore3.1 \
-    DOTNET_SDK_VERSION=3.1.301 \
+    DOTNET_SDK_VERSION=3.1.302 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     NUGET_XMLDOC_MODE=skip
 
@@ -20,7 +20,9 @@ RUN rm -rf /var/runtime /var/lang && \
   rm -rf /tmp/warmup /tmp/NuGetScratch /tmp/.dotnet
 
 # Add these as a separate layer as they get updated frequently
-RUN pip install -U aws-lambda-builders==0.9.0 aws-sam-cli==0.53.0 awscli boto3 --no-cache-dir && \
+RUN pipx install awscli==1.* && \
+  pipx install aws-lambda-builders==1.0.0 && \
+  pipx install aws-sam-cli==0.53.0 && \
   dotnet tool install --global Amazon.Lambda.Tools --version 4.0.0
 
 CMD ["dotnet", "build"]
