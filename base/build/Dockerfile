@@ -1,6 +1,8 @@
 FROM lambci/lambda-base
 
-ENV PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin \
+  PIPX_BIN_DIR=/usr/local/bin \
+  PIPX_HOME=/usr/local/pipx
 
 # A couple of packages are either missing critical-ish files, or didn't make it into the tar
 RUN chmod 1777 /tmp && \
@@ -23,7 +25,7 @@ f.close();" && \
   alternatives --set g++ /usr/bin/g++48 && \
   alternatives --set cpp /usr/bin/cpp48 && \
   python3 -m pip install -U pip setuptools wheel --no-cache-dir && \
-  pip install --user pipx --no-cache-dir && \
+  pip install pipx --no-cache-dir && \
   pipx run awscli==1.* 2>/dev/null || true && \
   yum clean all && \
   rm -rf /var/cache/yum

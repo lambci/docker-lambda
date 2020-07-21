@@ -22,7 +22,7 @@ RUN rm -rf /var/runtime /var/lang && \
 
 # Add these as a separate layer as they get updated frequently
 # The pipx workaround is due to https://github.com/pipxproject/pipx/issues/218
-RUN source ~/.local/pipx/shared/bin/activate && \
+RUN source /usr/local/pipx/shared/bin/activate && \
   pipx install virtualenv && \
   pipx install pipenv && \
   pipx install awscli==1.* && \
