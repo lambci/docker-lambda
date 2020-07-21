@@ -15,7 +15,6 @@ f = open('/etc/yum.conf', 'w'); \
 yum_conf.write(f); \
 f.close();" && \
   rpm --rebuilddb && \
-  yum install -y yum-plugin-ovl && \
   yum reinstall -y setup pam shadow-utils audit-libs openssl glibc-common glibc && \
   yum groupinstall -y development && \
   yum install -y clang cmake docker python27-devel python36-devel \
