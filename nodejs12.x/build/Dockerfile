@@ -11,4 +11,4 @@ RUN rm -rf /var/runtime /var/lang /var/rapid && \
 # Add these as a separate layer as they get updated frequently
 RUN pipx install awscli==1.* && \
   pipx install aws-lambda-builders==1.0.0 && \
-  pipx install aws-sam-cli==0.53.0
+  pipx install aws-sam-cli==1.0.0

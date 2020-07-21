@@ -26,4 +26,4 @@ RUN pip install -U pip setuptools wheel --no-cache-dir && \
   pipx install poetry==1.0.9 && \
   pipx install awscli==1.* && \
   pipx install aws-lambda-builders==1.0.0 && \
-  pipx install aws-sam-cli==0.53.0
+  pipx install aws-sam-cli==1.0.0
