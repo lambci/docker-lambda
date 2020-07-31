@@ -1,9 +1,16 @@
-FROM scratch
+FROM amazonlinux:1
 
 # Docker doesn't support unpacking from remote URLs with ADD,
 # and we don't want to 'docker import' because we can't squash into a small layer
 # So this is expected to be downloaded from https://lambci.s3.amazonaws.com/fs/base.tgz
-ADD ./base.tgz /
+ADD ./base.tgz /opt/
+
+RUN yum --installroot=/opt reinstall -y filesystem-2.4.30-3.8.amzn1 && \
+  yum --installroot=/opt clean all
+
+FROM scratch
+
+COPY --from=0 /opt /
 
 ENV PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin \
     LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib \
@@ -23,10 +30,11 @@ ENV PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin \
     AWS_XRAY_CONTEXT_MISSING=LOG_ERROR \
     _X_AMZN_TRACE_ID='Root=1-dc99d00f-c079a84d433534434534ef0d;Parent=91ed514f1e5c03b2;Sampled=1'
 
-RUN yum reinstall -y filesystem; \
+# pam has problems reinstalling from a non-standard installroot,
+# so reinstall everything except filesystem here
+RUN yum reinstall -y setup-2.8.14-20.12.amzn1 audit-libs-2.6.5-3.28.amzn1 shadow-utils-4.1.4.2-13.10.amzn1 \
+    openssl-1.0.2k-16.151.amzn1 glibc-2.17-292.180.amzn1 glibc-common-2.17-292.180.amzn1 pam-1.1.8-12.33.amzn1 && \
   yum clean all && \
-  rm -rf /var/cache/yum && \
-  mkdir /tmp && \
   chown sbx_user1051:495 /tmp && \
   chmod 700 /tmp
 

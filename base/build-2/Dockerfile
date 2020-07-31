@@ -1,8 +1,10 @@
+FROM lambci/lambda-base-2
+
 FROM amazonlinux:2
 
-RUN yum list yum && \
-  yum install -y --releasever=2 --installroot=/installroot yum yum-plugin-ovl yum-plugin-priorities
+COPY --from=0 / /opt/
 
+RUN yum --installroot=/opt install -y yum yum-plugin-ovl yum-plugin-priorities
 
 FROM lambci/lambda-base-2
 
@@ -10,15 +12,14 @@ ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin \
   PIPX_BIN_DIR=/usr/local/bin \
   PIPX_HOME=/usr/local/pipx
 
-COPY --from=0 /installroot/etc /etc/
-COPY --from=0 /installroot/usr /usr/
+COPY --from=1 /opt /
 
-RUN yum reinstall -y filesystem setup glibc-common glibc; \
+RUN chown root:root /tmp && \
+  chmod 1777 /tmp && \
   yum install -y glibc-langpack-en && \
   yum groupinstall -y development && \
   yum install -y which clang cmake python-devel python3-devel amazon-linux-extras && \
   amazon-linux-extras install -y docker && \
-  pip3 install -U pip setuptools wheel --no-cache-dir && \
-  pip3 install pipx --no-cache-dir && \
   yum clean all && \
-  rm -rf /var/cache/yum
+  pip3 install -U pip setuptools wheel --no-cache-dir && \
+  pip3 install pipx --no-cache-dir
