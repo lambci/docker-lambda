@@ -196,7 +196,7 @@ docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:go1.x my_handler 
 # Test a function from the current directory on Java 11
 # The directory must be laid out in the same way the Lambda zip file is,
 # with top-level package source directories and a `lib` directory for third-party jars
-# http://docs.aws.amazon.com/lambda/latest/dg/create-deployment-pkg-zip-java.html
+# https://docs.aws.amazon.com/lambda/latest/dg/java-package.html
 docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:java11 org.myorg.MyHandler
 
 # Test on .NET Core 3.1 given a test.dll assembly in the current directory,
