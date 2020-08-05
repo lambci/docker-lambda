@@ -72,8 +72,8 @@ public class LambdaRuntime {
         FUNCTION_VERSION = getEnvOrDefault("AWS_LAMBDA_FUNCTION_VERSION", "$LATEST");
         LOG_GROUP_NAME = getEnvOrDefault("AWS_LAMBDA_LOG_GROUP_NAME", "/aws/lambda/" + FUNCTION_NAME);
         LOG_STREAM_NAME = getEnvOrDefault("AWS_LAMBDA_LOG_STREAM_NAME", randomLogStreamName(FUNCTION_VERSION));
-        AWS_ACCESS_KEY_ID = getEnvOrDefault("AWS_ACCESS_KEY_ID", "SOME_ACCESS_KEY_ID");
-        AWS_SECRET_ACCESS_KEY = getEnvOrDefault("AWS_SECRET_ACCESS_KEY", "SOME_SECRET_ACCESS_KEY");
+        AWS_ACCESS_KEY_ID = getEnvOrDefault("AWS_ACCESS_KEY_ID","");
+        AWS_SECRET_ACCESS_KEY = getEnvOrDefault("AWS_SECRET_ACCESS_KEY","");
         AWS_SESSION_TOKEN = getEnv("AWS_SESSION_TOKEN");
         AWS_REGION = getEnvOrDefault("AWS_REGION", getEnvOrDefault("AWS_DEFAULT_REGION", "us-east-1"));
 
