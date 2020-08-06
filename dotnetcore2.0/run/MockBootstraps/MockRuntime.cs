@@ -156,8 +156,8 @@ namespace AWSLambda.Internal.Bootstrap
                 RequestId = context.RequestId,
                 AwsCredentials = new AwsCredentials
                 {
-                    AccessKeyId = EnvHelper.GetOrDefault("AWS_ACCESS_KEY_ID", "SOME_ACCESS_KEY_ID"),
-                    SecretAccessKey = EnvHelper.GetOrDefault("AWS_SECRET_ACCESS_KEY", "SOME_SECRET_ACCESS_KEY"),
+                    AccessKeyId = System.Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
+                    SecretAccessKey = System.Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"),
                     SessionToken = System.Environment.GetEnvironmentVariable("AWS_SESSION_TOKEN")
                 },
                 XAmznTraceId = xAmznTraceId,

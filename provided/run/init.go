@@ -262,8 +262,8 @@ func ensureBootstrapIsRunning(context *mockLambdaContext) error {
 		return fmt.Errorf("Couldn't find valid bootstrap(s): [/var/task/bootstrap /opt/bootstrap]")
 	}
 
-	awsAccessKey := getEnv("AWS_ACCESS_KEY", getEnv("AWS_ACCESS_KEY_ID", "SOME_ACCESS_KEY_ID"))
-	awsSecretKey := getEnv("AWS_SECRET_KEY", getEnv("AWS_SECRET_ACCESS_KEY", "SOME_SECRET_ACCESS_KEY"))
+	awsAccessKey := getEnv("AWS_ACCESS_KEY", os.Getenv("AWS_ACCESS_KEY_ID"))
+	awsSecretKey := getEnv("AWS_SECRET_KEY", os.Getenv("AWS_SECRET_ACCESS_KEY"))
 	awsSessionToken := getEnv("AWS_SESSION_TOKEN", os.Getenv("AWS_SECURITY_TOKEN"))
 
 	bootstrapCmd.Env = append(os.Environ(),
