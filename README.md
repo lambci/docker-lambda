@@ -317,6 +317,7 @@ These follow the Lambda runtime names:
   - `dotnetcore2.1`
   - `dotnetcore3.1`
   - `provided`
+  - `provided.al2`
   - `build-nodejs4.3`
   - `build-nodejs6.10`
   - `build-nodejs8.10`
@@ -336,6 +337,7 @@ These follow the Lambda runtime names:
   - `build-dotnetcore2.1`
   - `build-dotnetcore3.1`
   - `build-provided`
+  - `build-provided.al2`
 
 ## Verifying images
 

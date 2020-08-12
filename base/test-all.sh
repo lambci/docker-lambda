@@ -58,6 +58,10 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:go1.x handler '{"Records": []}
 cd ${EXAMPLES_DIR}/provided
 docker run --rm -v "$PWD":/var/task lambci/lambda:provided handler '{"some": "event"}'
 
+cd ${EXAMPLES_DIR}/provided.al2
+docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x sh -c 'go mod download && go build -tags lambda.norpc bootstrap.go'
+docker run --rm -v "$PWD":/var/task lambci/lambda:provided.al2 handler '{"Records": []}'
+
 # To invoke and keep open:
 # cd ${EXAMPLES_DIR}/ruby
 # docker run --rm -v $PWD:/var/task -e DOCKER_LAMBDA_STAY_OPEN=1 -p 9001:9001 \

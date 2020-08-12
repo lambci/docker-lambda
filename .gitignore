@@ -18,6 +18,8 @@ base/dump-dotnetcore21/bin
 base/dump-dotnetcore21/obj
 base/dump-dotnetcore31/bin
 base/dump-dotnetcore31/obj
+base/dump-providedal2/bootstrap
+base/dump-providedal2/bootstrap.zip
 dotnetcore2.0/run/MockBootstraps/bin
 dotnetcore2.0/run/MockBootstraps/obj
 dotnetcore2.1/run/MockBootstraps/bin
@@ -35,3 +37,5 @@ examples/dotnetcore3.1/pub
 examples/java/bin
 examples/java/build
 examples/go1.x/handler
+examples/go1.x/handler
+examples/provided.al2/bootstrap
