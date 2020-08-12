@@ -8,6 +8,8 @@ base/diff-2
 base/tar-find-layer/layer.zip
 base/dump-java8/bin
 base/dump-java8/build
+base/dump-java8al2/bin
+base/dump-java8al2/build
 base/dump-java11/bin
 base/dump-java11/build
 base/dump-dotnetcore20/bin

@@ -310,6 +310,7 @@ These follow the Lambda runtime names:
   - `ruby2.5`
   - `ruby2.7`
   - `java8`
+  - `java8.al2`
   - `java11`
   - `go1.x`
   - `dotnetcore2.0`
@@ -328,6 +329,7 @@ These follow the Lambda runtime names:
   - `build-ruby2.5`
   - `build-ruby2.7`
   - `build-java8`
+  - `build-java8.al2`
   - `build-java11`
   - `build-go1.x`
   - `build-dotnetcore2.0`

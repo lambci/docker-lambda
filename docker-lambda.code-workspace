@@ -22,6 +22,9 @@
       "path": "base/dump-java8"
     },
     {
+      "path": "base/dump-java8al2"
+    },
+    {
       "path": "examples/java"
     },
     {
