@@ -10,7 +10,7 @@ RUN rm -rf /var/runtime && \
   curl -sSL https://corretto.aws/downloads/resources/8.252.09.1/amazon-corretto-8.252.09.1-linux-x64.tar.gz | tar -xz --strip-components=1 -C /var/lang && \
   rm -rf /var/lang/*.zip && \
   mkdir /usr/local/gradle && curl -L -o gradle.zip https://services.gradle.org/distributions/gradle-6.6-bin.zip && \
-  unzip -d /usr/local/gradle gradle.zip && rm gradle.zip && mkdir /usr/local/maven && \
+  unzip -qd /usr/local/gradle gradle.zip && rm gradle.zip && mkdir /usr/local/maven && \
   curl -L http://mirror.cc.columbia.edu/pub/software/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz | \
   tar -zx -C /usr/local/maven
 
