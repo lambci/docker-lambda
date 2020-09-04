@@ -21,8 +21,8 @@ RUN rm -rf /var/runtime /var/lang && \
 
 # Add these as a separate layer as they get updated frequently
 RUN pipx install awscli==1.* && \
-  pipx install aws-lambda-builders==1.0.0 && \
-  pipx install aws-sam-cli==1.1.0 && \
+  pipx install aws-lambda-builders==1.1.0 && \
+  pipx install aws-sam-cli==1.2.0 && \
   dotnet tool install --global Amazon.Lambda.Tools --version 4.0.0
 
 CMD ["dotnet", "build"]
