@@ -6,7 +6,7 @@ FROM amazonlinux:2
 ADD ./base-2.tgz /opt/
 
 RUN yum --installroot=/opt reinstall -y filesystem-3.2-25.amzn2.0.4 \
-    setup-2.8.71-10.amzn2.0.1 glibc-2.26-34.amzn2 glibc-common-2.26-34.amzn2 && \
+    setup-2.8.71-10.amzn2.0.1 glibc-2.26-35.amzn2 glibc-common-2.26-35.amzn2 && \
   yum --installroot=/opt clean all
 
 FROM scratch
