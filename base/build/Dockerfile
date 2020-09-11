@@ -9,7 +9,7 @@ RUN chown root:root /tmp && \
   yum groups mark convert && \
   yum groupinstall -y development && \
   yum install -y clang cmake docker python27-devel python36-devel \
-    ImageMagick-devel-6.7.8.9 cairo-devel libssh2-devel libxslt-devel libmpc-devel readline-devel db4-devel \
+    ImageMagick-devel-6.9.10.68 cairo-devel libssh2-devel libxslt-devel libmpc-devel readline-devel db4-devel \
     libffi-devel expat-devel libicu-devel lua-devel gdbm-devel sqlite-devel pcre-devel libcurl-devel && \
   yum clean all && \
   alternatives --set gcc /usr/bin/gcc48 && \
