@@ -19,6 +19,7 @@ for RUNTIME in $RUNTIMES; do
   docker tag lambci/lambda:${RUNTIME} lambci/lambda:${PUBLISH_DATE}-${RUNTIME}
   docker push lambci/lambda:${RUNTIME}
   docker push lambci/lambda:${PUBLISH_DATE}-${RUNTIME}
+  docker rmi lambci/lambda:${PUBLISH_DATE}-${RUNTIME}
 done
 
 docker push lambci/lambda-base:build
