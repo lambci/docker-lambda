@@ -1,3 +1,5 @@
+FROM lambci/lambda:nodejs6.10
+
 FROM lambci/lambda-base:build
 
 ENV PATH=/var/lang/bin:$PATH \
@@ -6,8 +8,9 @@ ENV PATH=/var/lang/bin:$PATH \
     NODE_PATH=/opt/nodejs/node6/node_modules:/opt/nodejs/node_modules:/var/runtime/node_modules:/var/runtime:/var/task:/var/runtime/node_modules \
     npm_config_unsafe-perm=true
 
-RUN rm -rf /var/runtime /var/lang && \
-  curl https://lambci.s3.amazonaws.com/fs/nodejs6.10.tgz | tar -zx -C /
+COPY --from=0 /var/runtime /var/runtime
+COPY --from=0 /var/lang /var/lang
+COPY --from=0 /var/rapid /var/rapid
 
 # Add these as a separate layer as they get updated frequently
 # The pipx workaround is due to https://github.com/pipxproject/pipx/issues/218

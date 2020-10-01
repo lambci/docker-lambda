@@ -1,4 +1,6 @@
-﻿FROM lambci/lambda-base:build
+﻿FROM lambci/lambda:dotnetcore2.1
+
+FROM lambci/lambda-base:build
 
 # Run: docker run --rm --entrypoint dotnet lambci/lambda:dotnetcore2.1 --info
 # Check https://dotnet.microsoft.com/download/dotnet-core/2.1 for versions
@@ -10,9 +12,11 @@ ENV PATH=/root/.dotnet/tools:$DOTNET_ROOT:$PATH \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     NUGET_XMLDOC_MODE=skip
 
-RUN rm -rf /var/runtime /var/lang && \
-  curl https://lambci.s3.amazonaws.com/fs/dotnetcore2.1.tgz | tar -zx -C / && \
-  yum install -y libunwind && \
+COPY --from=0 /var/runtime /var/runtime
+COPY --from=0 /var/lang /var/lang
+COPY --from=0 /var/rapid /var/rapid
+
+RUN yum install -y libunwind && \
   curl -L https://dot.net/v1/dotnet-install.sh | bash -s -- -v $DOTNET_SDK_VERSION -i $DOTNET_ROOT && \
   mkdir /tmp/warmup && \
   cd /tmp/warmup && \

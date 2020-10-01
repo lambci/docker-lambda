@@ -1,4 +1,6 @@
-﻿FROM lambci/lambda-base-2:build
+﻿FROM lambci/lambda:dotnetcore3.1
+
+FROM lambci/lambda-base-2:build
 
 # Run: docker run --rm --entrypoint dotnet lambci/lambda:dotnetcore3.1 --info
 # Check https://dotnet.microsoft.com/download/dotnet-core/3.1 for versions
@@ -10,9 +12,11 @@ ENV PATH=/root/.dotnet/tools:$DOTNET_ROOT:$PATH \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     NUGET_XMLDOC_MODE=skip
 
-RUN rm -rf /var/runtime /var/lang && \
-  curl https://lambci.s3.amazonaws.com/fs/dotnetcore3.1.tgz | tar -zx -C / && \
-  curl -L https://dot.net/v1/dotnet-install.sh | bash -s -- -v $DOTNET_SDK_VERSION -i $DOTNET_ROOT && \
+COPY --from=0 /var/runtime /var/runtime
+COPY --from=0 /var/lang /var/lang
+COPY --from=0 /var/rapid /var/rapid
+
+RUN curl -L https://dot.net/v1/dotnet-install.sh | bash -s -- -v $DOTNET_SDK_VERSION -i $DOTNET_ROOT && \
   mkdir /tmp/warmup && \
   cd /tmp/warmup && \
   dotnet new && \

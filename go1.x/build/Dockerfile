@@ -1,3 +1,5 @@
+FROM lambci/lambda:go1.x
+
 FROM lambci/lambda-base:build
 
 # https://golang.org/doc/devel/release.html
@@ -8,9 +10,11 @@ ENV GOLANG_VERSION=1.15 \
 
 WORKDIR /go/src/handler
 
-RUN rm -rf /var/runtime /var/lang && \
-  curl https://lambci.s3.amazonaws.com/fs/go1.x.tgz | tar -zx -C / && \
-  curl https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-amd64.tar.gz | tar -zx -C /usr/local && \
+COPY --from=0 /var/runtime /var/runtime
+COPY --from=0 /var/lang /var/lang
+COPY --from=0 /var/rapid /var/rapid
+
+RUN curl https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-amd64.tar.gz | tar -zx -C /usr/local && \
   go get github.com/golang/dep/cmd/dep && \
   go install github.com/golang/dep/cmd/dep && \
   go get golang.org/x/vgo

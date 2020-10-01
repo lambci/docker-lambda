@@ -1,9 +1,12 @@
+FROM lambci/lambda:python2.7
+
 FROM lambci/lambda-base:build
 
 ENV AWS_EXECUTION_ENV=AWS_Lambda_python2.7
 
-RUN rm -rf /var/runtime /var/lang && \
-  curl https://lambci.s3.amazonaws.com/fs/python2.7.tgz | tar -zx -C /
+COPY --from=0 /var/runtime /var/runtime
+COPY --from=0 /var/lang /var/lang
+COPY --from=0 /var/rapid /var/rapid
 
 # Add these as a separate layer as they get updated frequently
 RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python && \

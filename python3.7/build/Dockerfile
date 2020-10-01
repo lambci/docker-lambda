@@ -1,3 +1,5 @@
+FROM lambci/lambda:python3.7
+
 FROM lambci/lambda-base:build
 
 ENV PATH=/var/lang/bin:$PATH \
@@ -7,8 +9,9 @@ ENV PATH=/var/lang/bin:$PATH \
     PIPX_BIN_DIR=/var/lang/bin \
     PIPX_HOME=/var/lang/pipx
 
-RUN rm -rf /var/runtime /var/lang /var/rapid && \
-  curl https://lambci.s3.amazonaws.com/fs/python3.7.tgz | tar -zx -C /
+COPY --from=0 /var/runtime /var/runtime
+COPY --from=0 /var/lang /var/lang
+COPY --from=0 /var/rapid /var/rapid
 
 # Add these as a separate layer as they get updated frequently
 RUN pip install -U pip setuptools wheel --no-cache-dir && \

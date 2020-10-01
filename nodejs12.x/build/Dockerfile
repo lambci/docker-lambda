@@ -1,3 +1,5 @@
+FROM lambci/lambda:nodejs12.x
+
 FROM lambci/lambda-base-2:build
 
 ENV PATH=/var/lang/bin:$PATH \
@@ -5,8 +7,9 @@ ENV PATH=/var/lang/bin:$PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_nodejs12.x \
     NODE_PATH=/opt/nodejs/node12/node_modules:/opt/nodejs/node_modules:/var/runtime/node_modules
 
-RUN rm -rf /var/runtime /var/lang /var/rapid && \
-  curl https://lambci.s3.amazonaws.com/fs/nodejs12.x.tgz | tar -zx -C /
+COPY --from=0 /var/runtime /var/runtime
+COPY --from=0 /var/lang /var/lang
+COPY --from=0 /var/rapid /var/rapid
 
 # Add these as a separate layer as they get updated frequently
 RUN pipx install awscli==1.* && \

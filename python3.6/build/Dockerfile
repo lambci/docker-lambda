@@ -1,3 +1,5 @@
+FROM lambci/lambda:python3.6
+
 FROM lambci/lambda-base:build
 
 ENV PATH=/var/lang/bin:$PATH \
@@ -7,9 +9,11 @@ ENV PATH=/var/lang/bin:$PATH \
     PIPX_BIN_DIR=/var/lang/bin \
     PIPX_HOME=/var/lang/pipx
 
-RUN rm -rf /var/runtime /var/lang && \
-  export PYTHON_VERSION=3.6.10 && \
-  curl https://lambci.s3.amazonaws.com/fs/python3.6.tgz | tar -xz -C / && \
+COPY --from=0 /var/runtime /var/runtime
+COPY --from=0 /var/lang /var/lang
+COPY --from=0 /var/rapid /var/rapid
+
+RUN export PYTHON_VERSION=3.6.12 && \
   sed -i '/^prefix=/c\prefix=/var/lang' /var/lang/lib/pkgconfig/python-3.6.pc && \
   curl https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz | tar -xJ && \
   cd Python-${PYTHON_VERSION} && \
