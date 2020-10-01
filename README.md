@@ -1,5 +1,7 @@
 # docker-lambda
 
+[![ci-run](https://github.com/lambci/docker-lambda/workflows/ci-run/badge.svg)](https://github.com/lambci/docker-lambda/actions?query=workflow%3Aci-run) [![ci-build](https://github.com/lambci/docker-lambda/workflows/ci-build/badge.svg)](https://github.com/lambci/docker-lambda/actions?query=workflow%3Aci-build)
+
 A sandboxed local environment that replicates the live [AWS Lambda](https://aws.amazon.com/lambda/)
 environment almost identically – including installed software and libraries,
 file structure and permissions, environment variables, context objects and
