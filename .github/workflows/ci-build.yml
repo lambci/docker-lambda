@@ -1,0 +1,20 @@
+name: ci-build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build build Docker images
+      working-directory: base
+      run: ./build-all-build.sh
+    - name: List Docker images
+      run: |
+        docker images
