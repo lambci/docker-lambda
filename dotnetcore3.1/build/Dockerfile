@@ -26,7 +26,7 @@ RUN curl -L https://dot.net/v1/dotnet-install.sh | bash -s -- -v $DOTNET_SDK_VER
 # Add these as a separate layer as they get updated frequently
 RUN pipx install awscli==1.* && \
   pipx install aws-lambda-builders==1.1.0 && \
-  pipx install aws-sam-cli==1.4.0 && \
+  pipx install aws-sam-cli==1.6.2 && \
   dotnet tool install --global Amazon.Lambda.Tools --version 4.0.0
 
 CMD ["dotnet", "build"]

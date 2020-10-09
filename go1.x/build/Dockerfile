@@ -24,6 +24,6 @@ RUN curl https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-amd64.t
 RUN source /usr/local/pipx/shared/bin/activate && \
   pipx install awscli==1.* && \
   pipx install aws-lambda-builders==1.1.0 && \
-  pipx install aws-sam-cli==1.4.0
+  pipx install aws-sam-cli==1.6.2
 
 CMD ["dep", "ensure"]
