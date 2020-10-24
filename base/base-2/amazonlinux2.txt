@@ -43,7 +43,7 @@ libgcc-7.3.1-9.amzn2.x86_64
 libgcrypt-1.5.3-14.amzn2.0.2.x86_64
 libgpg-error-1.12-3.amzn2.0.3.x86_64
 libidn2-2.3.0-1.amzn2.x86_64
-libmetalink-0.1.2-7.amzn2.0.2.x86_64
+libmetalink-0.1.3-13.amzn2.x86_64
 libmount-2.30.2-2.amzn2.0.4.x86_64
 libnghttp2-1.41.0-1.amzn2.x86_64
 libselinux-2.5-12.amzn2.0.2.x86_64
@@ -69,8 +69,8 @@ nss-tools-3.44.0-7.amzn2.x86_64
 nss-util-3.44.0-4.amzn2.x86_64
 openldap-2.4.44-15.amzn2.x86_64
 openssl-libs-1.0.2k-19.amzn2.0.3.x86_64
-p11-kit-0.23.19-1.amzn2.x86_64
-p11-kit-trust-0.23.19-1.amzn2.x86_64
+p11-kit-0.23.21-2.amzn2.0.1.x86_64
+p11-kit-trust-0.23.21-2.amzn2.0.1.x86_64
 pcre-8.32-17.amzn2.0.2.x86_64
 pinentry-0.8.1-17.amzn2.0.2.x86_64
 popt-1.13-16.amzn2.0.2.x86_64
@@ -82,12 +82,12 @@ python-iniparse-0.4-9.amzn2.noarch
 python-libs-2.7.18-1.amzn2.0.2.x86_64
 python-pycurl-7.19.0-19.amzn2.0.2.x86_64
 python-urlgrabber-3.10-9.amzn2.0.1.noarch
-python2-rpm-4.11.3-40.amzn2.0.4.x86_64
+python2-rpm-4.11.3-40.amzn2.0.5.x86_64
 pyxattr-0.5.1-5.amzn2.0.2.x86_64
 readline-6.2-10.amzn2.0.2.x86_64
-rpm-4.11.3-40.amzn2.0.4.x86_64
-rpm-build-libs-4.11.3-40.amzn2.0.4.x86_64
-rpm-libs-4.11.3-40.amzn2.0.4.x86_64
+rpm-4.11.3-40.amzn2.0.5.x86_64
+rpm-build-libs-4.11.3-40.amzn2.0.5.x86_64
+rpm-libs-4.11.3-40.amzn2.0.5.x86_64
 sed-4.2.2-5.amzn2.0.2.x86_64
 setup-2.8.71-10.amzn2.0.1.noarch
 shared-mime-info-1.8-4.amzn2.x86_64

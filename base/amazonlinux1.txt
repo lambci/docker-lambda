@@ -92,7 +92,7 @@ sqlite-3.7.17-8.14.amzn1.x86_64
 sysctl-defaults-1.0-1.1.amzn1.noarch
 system-release-2018.03-0.0.noarch
 tar-1.26-31.22.amzn1.x86_64
-tzdata-2019c-1.73.amzn1.noarch
+tzdata-2020a-1.75.amzn1.noarch
 xz-libs-5.2.2-1.13.amzn1.x86_64
 yum-3.4.3-150.71.amzn1.noarch
 yum-metadata-parser-1.1.4-10.20.amzn1.x86_64
