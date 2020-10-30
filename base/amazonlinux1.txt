@@ -46,8 +46,8 @@ libstdc++72-7.2.1-2.59.amzn1.x86_64
 libtasn1-2.3-6.6.amzn1.x86_64
 libunistring-0.9.3-6.1.amzn1.x86_64
 libverto-0.2.5-4.9.amzn1.x86_64
-libxml2-2.9.1-6.4.40.amzn1.x86_64
-libxml2-python27-2.9.1-6.4.40.amzn1.x86_64
+libxml2-2.9.1-6.4.41.amzn1.x86_64
+libxml2-python27-2.9.1-6.4.41.amzn1.x86_64
 lua-5.1.4-4.1.9.amzn1.x86_64
 make-3.82-21.10.amzn1.x86_64
 ncurses-5.7-4.20090207.14.amzn1.x86_64
@@ -81,10 +81,10 @@ python27-pyliblzma-0.5.3-11.6.amzn1.x86_64
 python27-pyxattr-0.5.0-1.6.amzn1.x86_64
 python27-urlgrabber-3.10-8.16.amzn1.noarch
 readline-6.2-9.14.amzn1.x86_64
-rpm-4.11.3-40.77.amzn1.x86_64
-rpm-build-libs-4.11.3-40.77.amzn1.x86_64
-rpm-libs-4.11.3-40.77.amzn1.x86_64
-rpm-python27-4.11.3-40.77.amzn1.x86_64
+rpm-4.11.3-40.78.amzn1.x86_64
+rpm-build-libs-4.11.3-40.78.amzn1.x86_64
+rpm-libs-4.11.3-40.78.amzn1.x86_64
+rpm-python27-4.11.3-40.78.amzn1.x86_64
 sed-4.2.1-10.10.amzn1.x86_64
 setup-2.8.14-20.12.amzn1.noarch
 shared-mime-info-1.1-9.8.amzn1.x86_64
