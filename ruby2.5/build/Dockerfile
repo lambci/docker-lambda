@@ -19,6 +19,6 @@ COPY --from=0 /var/rapid /var/rapid
 RUN source /usr/local/pipx/shared/bin/activate && \
   pipx install awscli==1.* && \
   pipx install aws-lambda-builders==1.1.0 && \
-  pipx install aws-sam-cli==1.7.0 && \
+  pipx install aws-sam-cli==1.8.0 && \
   gem update --system --no-document && \
   gem install --no-document bundler -v '~> 2.1'
