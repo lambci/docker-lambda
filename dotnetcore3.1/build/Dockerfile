@@ -8,7 +8,7 @@ ENV DOTNET_ROOT=/var/lang/bin
 ENV PATH=/root/.dotnet/tools:$DOTNET_ROOT:$PATH \
     LD_LIBRARY_PATH=/var/lang/lib:$LD_LIBRARY_PATH \
     AWS_EXECUTION_ENV=AWS_Lambda_dotnetcore3.1 \
-    DOTNET_SDK_VERSION=3.1.403 \
+    DOTNET_SDK_VERSION=3.1.404 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     NUGET_XMLDOC_MODE=skip
 
