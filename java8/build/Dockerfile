@@ -23,4 +23,4 @@ ENV PATH="/usr/local/gradle/gradle-6.7/bin:/usr/local/maven/apache-maven-3.6.3/b
 RUN source /usr/local/pipx/shared/bin/activate && \
   pipx install awscli==1.* && \
   pipx install aws-lambda-builders==1.1.0 && \
-  pipx install aws-sam-cli==1.8.0
+  pipx install aws-sam-cli==1.9.0
