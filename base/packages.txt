@@ -119,7 +119,7 @@ libuuid-2.23.2-59.29.amzn1.x86_64
 libverto-0.2.5-4.9.amzn1.x86_64
 libwmf-lite-0.2.8.4-41.13.amzn1.x86_64
 libxcb-1.11-2.21.amzn1.x86_64
-libxml2-2.9.1-6.4.40.amzn1.x86_64
+libxml2-2.9.1-6.4.41.amzn1.x86_64
 libxshmfence-1.2-1.4.amzn1.x86_64
 libxslt-1.1.28-5.13.amzn1.x86_64
 lksctp-tools-1.0.10-7.7.amzn1.x86_64
@@ -194,10 +194,10 @@ python36-libs-3.6.12-1.19.amzn1.x86_64
 python36-pip-9.0.3-1.27.amzn1.noarch
 python36-setuptools-36.2.7-1.33.amzn1.noarch
 readline-6.2-9.14.amzn1.x86_64
-rpm-4.11.3-40.77.amzn1.x86_64
-rpm-build-libs-4.11.3-40.77.amzn1.x86_64
-rpm-libs-4.11.3-40.77.amzn1.x86_64
-rpm-python27-4.11.3-40.77.amzn1.x86_64
+rpm-4.11.3-40.78.amzn1.x86_64
+rpm-build-libs-4.11.3-40.78.amzn1.x86_64
+rpm-libs-4.11.3-40.78.amzn1.x86_64
+rpm-python27-4.11.3-40.78.amzn1.x86_64
 sed-4.2.1-10.10.amzn1.x86_64
 setup-2.8.14-20.12.amzn1.noarch
 shadow-utils-4.1.4.2-13.10.amzn1.x86_64
