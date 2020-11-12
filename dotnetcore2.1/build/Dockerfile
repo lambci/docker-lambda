@@ -31,7 +31,7 @@ RUN source /usr/local/pipx/shared/bin/activate && \
   pipx install pipenv && \
   pipx install awscli==1.* && \
   pipx install aws-lambda-builders==1.1.0 && \
-  pipx install aws-sam-cli==1.9.0 && \
+  pipx install aws-sam-cli==1.10.0 && \
   dotnet tool install --global Amazon.Lambda.Tools --version 3.3.1
 
 CMD ["dotnet", "build"]
