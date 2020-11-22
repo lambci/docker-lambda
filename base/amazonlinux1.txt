@@ -4,7 +4,7 @@ bzip2-libs-1.0.6-8.12.amzn1.x86_64
 ca-certificates-2018.2.22-65.1.22.amzn1.noarch
 chkconfig-1.3.49.3-2.14.amzn1.x86_64
 coreutils-8.22-15.52.amzn1.x86_64
-curl-7.61.1-12.94.amzn1.x86_64
+curl-7.61.1-12.95.amzn1.x86_64
 cyrus-sasl-lib-2.1.23-13.16.amzn1.x86_64
 db4-4.7.25-18.11.amzn1.x86_64
 db4-utils-4.7.25-18.11.amzn1.x86_64
@@ -30,7 +30,7 @@ libassuan-2.0.3-3.3.amzn1.x86_64
 libattr-2.4.46-12.10.amzn1.x86_64
 libcap-2.16-5.5.8.amzn1.x86_64
 libcom_err-1.43.5-2.43.amzn1.x86_64
-libcurl-7.61.1-12.94.amzn1.x86_64
+libcurl-7.61.1-12.95.amzn1.x86_64
 libffi-3.0.13-16.5.amzn1.x86_64
 libgcc72-7.2.1-2.59.amzn1.x86_64
 libgcrypt-1.5.3-12.19.amzn1.x86_64
@@ -70,11 +70,11 @@ pinentry-0.7.6-6.11.amzn1.x86_64
 pkgconfig-0.27.1-2.7.amzn1.x86_64
 popt-1.13-7.7.amzn1.x86_64
 pth-2.0.7-9.3.7.amzn1.x86_64
-python27-2.7.18-2.139.amzn1.x86_64
+python27-2.7.18-2.140.amzn1.x86_64
 python27-chardet-2.0.1-7.7.amzn1.noarch
 python27-iniparse-0.3.1-2.1.9.amzn1.noarch
 python27-kitchen-1.1.1-5.6.amzn1.noarch
-python27-libs-2.7.18-2.139.amzn1.x86_64
+python27-libs-2.7.18-2.140.amzn1.x86_64
 python27-pycurl-7.19.0-17.12.amzn1.x86_64
 python27-pygpgme-0.3-9.12.amzn1.x86_64
 python27-pyliblzma-0.5.3-11.6.amzn1.x86_64

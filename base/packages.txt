@@ -17,7 +17,7 @@ cpio-2.10-12.12.amzn1.x86_64
 cracklib-2.8.16-4.14.amzn1.x86_64
 cracklib-dicts-2.8.16-4.14.amzn1.x86_64
 cups-libs-1.4.2-67.21.amzn1.x86_64
-curl-7.61.1-12.94.amzn1.x86_64
+curl-7.61.1-12.95.amzn1.x86_64
 cyrus-sasl-lib-2.1.23-13.16.amzn1.x86_64
 db4-4.7.25-18.11.amzn1.x86_64
 db4-utils-4.7.25-18.11.amzn1.x86_64
@@ -84,7 +84,7 @@ libblkid-2.23.2-59.29.amzn1.x86_64
 libcap-2.16-5.5.8.amzn1.x86_64
 libcap-ng-0.7.5-4.15.amzn1.x86_64
 libcom_err-1.43.5-2.43.amzn1.x86_64
-libcurl-7.61.1-12.94.amzn1.x86_64
+libcurl-7.61.1-12.95.amzn1.x86_64
 libdrm-2.4.82-1.14.amzn1.x86_64
 libffi-3.0.13-16.5.amzn1.x86_64
 libfontenc-1.0.5-2.6.amzn1.x86_64
@@ -109,7 +109,7 @@ libsmartcols-2.23.2-59.29.amzn1.x86_64
 libssh2-1.4.2-3.12.amzn1.x86_64
 libstdc++72-7.2.1-2.59.amzn1.x86_64
 libtasn1-2.3-6.6.amzn1.x86_64
-libtiff-4.0.3-32.34.amzn1.x86_64
+libtiff-4.0.3-35.36.amzn1.x86_64
 libtool-ltdl-2.4.2-20.4.8.5.32.amzn1.x86_64
 libudev-173-4.13.amzn1.x86_64
 libunistring-0.9.3-6.1.amzn1.x86_64
@@ -181,9 +181,9 @@ popt-1.13-7.7.amzn1.x86_64
 procps-3.2.8-45.16.amzn1.x86_64
 psmisc-22.20-8.12.amzn1.x86_64
 pth-2.0.7-9.3.7.amzn1.x86_64
-python27-2.7.18-2.139.amzn1.x86_64
+python27-2.7.18-2.140.amzn1.x86_64
 python27-iniparse-0.3.1-2.1.9.amzn1.noarch
-python27-libs-2.7.18-2.139.amzn1.x86_64
+python27-libs-2.7.18-2.140.amzn1.x86_64
 python27-pycurl-7.19.0-17.12.amzn1.x86_64
 python27-pygpgme-0.3-9.12.amzn1.x86_64
 python27-pyliblzma-0.5.3-11.6.amzn1.x86_64
