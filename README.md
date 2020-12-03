@@ -397,6 +397,9 @@ Yum packages installed on build images:
   - `docker` (Docker in Docker!)
   - `clang`
   - `cmake`
+  
+The build image for older Amazon Linux 1 based runtimes also include:
+
   - `python27-devel`
   - `python36-devel`
   - `ImageMagick-devel`
