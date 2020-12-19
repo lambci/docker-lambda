@@ -978,7 +978,7 @@ func (mc *mockLambdaContext) LogEndRequest() {
 			"Billed Duration: %.f ms\t"+
 			"Memory Size: %s MB\t"+
 			"Max Memory Used: %d MB\t",
-		mc.RequestID, diffMs, math.Ceil(diffMs/100)*100, mc.MemSize, mc.MaxMem))
+		mc.RequestID, diffMs, math.Ceil(diffMs), mc.MemSize, mc.MaxMem))
 }
 
 type invokeResponse struct {
