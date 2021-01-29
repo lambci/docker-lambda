@@ -42,9 +42,6 @@ namespace MockLambdaRuntime
             return StartTime + TimeSpan.FromSeconds(Timeout) - DateTime.Now;
         }
 
-        public long Duration => (long)(DateTime.Now - StartTime).TotalMilliseconds;
-        public long BilledDuration => (long)(Math.Ceiling((DateTime.Now - StartTime).TotalMilliseconds / 100)) * 100;
-
         public long DeadlineMs
         {
             set
@@ -63,8 +60,6 @@ namespace MockLambdaRuntime
                 InputStream.Position = 0;
             }
         }
-
-        public long MemoryUsed => Process.GetCurrentProcess().WorkingSet64;
 
         public Stream InputStream { get; set; }
 
