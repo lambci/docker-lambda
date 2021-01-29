@@ -43,10 +43,10 @@ var watchMode = os.Getenv("DOCKER_LAMBDA_WATCH") != ""
 var curState = "STATE_INIT"
 
 var transitions = map[string]map[string]bool{
-	"STATE_INIT_ERROR":      map[string]bool{"STATE_INIT": true},
-	"STATE_INVOKE_NEXT":     map[string]bool{"STATE_INIT": true, "STATE_INVOKE_NEXT": true, "STATE_INVOKE_RESPONSE": true, "STATE_INVOKE_ERROR": true},
-	"STATE_INVOKE_RESPONSE": map[string]bool{"STATE_INVOKE_NEXT": true},
-	"STATE_INVOKE_ERROR":    map[string]bool{"STATE_INVOKE_NEXT": true},
+	"STATE_INIT_ERROR":      {"STATE_INIT": true},
+	"STATE_INVOKE_NEXT":     {"STATE_INIT": true, "STATE_INVOKE_NEXT": true, "STATE_INVOKE_RESPONSE": true, "STATE_INVOKE_ERROR": true},
+	"STATE_INVOKE_RESPONSE": {"STATE_INVOKE_NEXT": true},
+	"STATE_INVOKE_ERROR":    {"STATE_INVOKE_NEXT": true},
 }
 
 var acceptedResponse = &statusResponse{Status: "OK", HTTPStatusCode: 202}
