@@ -6,7 +6,7 @@ export HOME=/tmp
 export PATH=/tmp/.local/bin:$PATH
 
 cd /tmp
-curl -sSL https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+curl -sSL https://bootstrap.pypa.io/2.7/get-pip.py -o get-pip.py
 python get-pip.py --user
 pip install --user awscli
 
