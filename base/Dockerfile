@@ -33,7 +33,7 @@ ENV PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin \
 # pam has problems reinstalling from a non-standard installroot,
 # so reinstall everything except filesystem here
 RUN yum reinstall -y setup-2.8.14-20.12.amzn1 audit-libs-2.6.5-3.28.amzn1 shadow-utils-4.1.4.2-13.10.amzn1 \
-    openssl-1.0.2k-16.151.amzn1 glibc-2.17-292.180.amzn1 glibc-common-2.17-292.180.amzn1 pam-1.1.8-12.33.amzn1 && \
+    openssl-1.0.2k-16.152.amzn1 glibc-2.17-292.180.amzn1 glibc-common-2.17-292.180.amzn1 pam-1.1.8-12.33.amzn1 && \
   yum clean all && \
   chown sbx_user1051:495 /tmp && \
   chmod 700 /tmp
