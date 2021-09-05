@@ -187,6 +187,9 @@ docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:nodejs12.x app.my
 # Test a `lambda_handler` function in `lambda_function.py` with an empty event on Python 3.8
 docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:python3.8 lambda_function.lambda_handler
 
+# Test a `lambda_handler` function in `lambda_function.py` with an empty event on Python 3.9
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:python3.9 lambda_function.lambda_handler
+
 # Similarly with Ruby 2.7
 docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:ruby2.7 lambda_function.lambda_handler
 
@@ -230,6 +233,9 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs12.x npm rebuild -
 # To install defined poetry dependencies
 docker run --rm -v "$PWD":/var/task lambci/lambda:build-python3.8 poetry install
 
+# To install defined poetry dependencies
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-python3.9 poetry install
+
 # To resolve dependencies on go1.x (working directory is /go/src/handler)
 docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x go mod download
 
@@ -242,6 +248,12 @@ docker run --rm lambci/lambda:build-python3.8 aws --version
 
 # To run an interactive session on a build container
 docker run -it lambci/lambda:build-python3.8 bash
+
+# Run custom commands on a build container
+docker run --rm lambci/lambda:build-python3.9 aws --version
+
+# To run an interactive session on a build container
+docker run -it lambci/lambda:build-python3.9 bash
 ```
 
 ## Using a Dockerfile to build
@@ -307,6 +319,7 @@ These follow the Lambda runtime names:
   - `python3.6`
   - `python3.7`
   - `python3.8`
+  - `python3.9`
   - `ruby2.5`
   - `ruby2.7`
   - `java8`
@@ -327,6 +340,7 @@ These follow the Lambda runtime names:
   - `build-python3.6`
   - `build-python3.7`
   - `build-python3.8`
+  - `build-python3.9`
   - `build-ruby2.5`
   - `build-ruby2.7`
   - `build-java8`

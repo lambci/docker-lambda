@@ -22,12 +22,14 @@ docker run --rm -v "$PWD":/var/task lambci/lambda:python2.7
 docker run --rm -v "$PWD":/var/task lambci/lambda:python3.6
 docker run --rm -v "$PWD":/var/task lambci/lambda:python3.7 lambda_function.lambda_handler
 docker run --rm -v "$PWD":/var/task lambci/lambda:python3.8 lambda_function.lambda_handler
+docker run --rm -v "$PWD":/var/task lambci/lambda:python3.9 lambda_function.lambda_handler
 
 cd ${EXAMPLES_DIR}/python
 docker run --rm -it lambci/lambda:build-python2.7 pip install marisa-trie
 docker run --rm -it lambci/lambda:build-python3.6 pip install marisa-trie
 docker run --rm -it lambci/lambda:build-python3.7 pip install marisa-trie
 docker run --rm -it lambci/lambda:build-python3.8 pip install marisa-trie
+docker run --rm -it lambci/lambda:build-python3.9 pip install marisa-trie
 
 cd ${EXAMPLES_DIR}/ruby
 docker run --rm -v "$PWD":/var/task lambci/lambda:ruby2.5 lambda_function.lambda_handler
