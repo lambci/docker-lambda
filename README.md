@@ -17,15 +17,22 @@ the [AWS CLI](https://aws.amazon.com/cli/).
 
 ## Contents
 
-* [Usage](#usage)
-* [Run Examples](#run-examples)
-* [Build Examples](#build-examples)
-* [Using a Dockerfile to build](#using-a-dockerfile-to-build)
-* [Docker tags](#docker-tags)
-* [Verifying images](#verifying-images)
-* [Environment variables](#environment-variables)
-* [Build environment](#build-environment)
-* [Questions](#questions)
+- [docker-lambda](#docker-lambda)
+  - [Contents](#contents)
+  - [Usage](#usage)
+    - [Running Lambda functions](#running-lambda-functions)
+      - [Running in "stay-open" API mode](#running-in-stay-open-api-mode)
+      - [Developing in "stay-open" mode](#developing-in-stay-open-mode)
+    - [Building Lambda functions](#building-lambda-functions)
+  - [Run Examples](#run-examples)
+  - [Build Examples](#build-examples)
+  - [Using a Dockerfile to build](#using-a-dockerfile-to-build)
+  - [Node.js module](#nodejs-module)
+  - [Docker tags](#docker-tags)
+  - [Verifying images](#verifying-images)
+  - [Environment variables](#environment-variables)
+  - [Build environment](#build-environment)
+  - [Questions](#questions)
 
 ---
 
@@ -313,6 +320,7 @@ These follow the Lambda runtime names:
   - `java8.al2`
   - `java11`
   - `go1.x`
+  - `dotnet6`
   - `dotnetcore2.0`
   - `dotnetcore2.1`
   - `dotnetcore3.1`
@@ -333,6 +341,7 @@ These follow the Lambda runtime names:
   - `build-java8.al2`
   - `build-java11`
   - `build-go1.x`
+  - `build-dotnet6`
   - `build-dotnetcore2.0`
   - `build-dotnetcore2.1`
   - `build-dotnetcore3.1`
