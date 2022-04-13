@@ -1,7 +1,7 @@
 ﻿{
   "configuration": "Release",
   "framework": "net6.0",
-  "function-runtime": "dotnet6.0",
+  "function-runtime": "dotnet6",
   "function-memory-size": 3008,
   "function-timeout": 60,
   "function-handler": "dump_dotnet6::dump_dotnet6.Function::FunctionHandler"
