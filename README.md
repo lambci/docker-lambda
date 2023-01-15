@@ -1,8 +1,12 @@
 # Deprecated
 
-NB: these images are deprecated in favor of AWS' official Lambda Runtime Interface Emulator, which you can find at:
+NB: these images are deprecated in favor of AWS' official images, which you can find at:
 
-https://github.com/aws/aws-lambda-runtime-interface-emulator
+https://github.com/aws/aws-lambda-base-images
+
+And browse on the ECR public gallery, eg:
+
+https://gallery.ecr.aws/lambda/python
 
 This project is now archived and will not receive any further updates.
 
