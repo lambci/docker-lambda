@@ -1,3 +1,11 @@
+# Deprecated
+
+NB: these images are deprecated in favor of AWS' official Lambda Runtime Interface Emulator, which you can find at:
+
+https://github.com/aws/aws-lambda-runtime-interface-emulator
+
+This project is now archived and will not receive any further updates.
+
 # docker-lambda
 
 A sandboxed local environment that replicates the live [AWS Lambda](https://aws.amazon.com/lambda/)
