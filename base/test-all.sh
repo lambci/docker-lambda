@@ -51,6 +51,10 @@ cd ${EXAMPLES_DIR}/dotnetcore3.1
 docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnetcore3.1 dotnet publish -c Release -o pub
 docker run --rm -v "$PWD"/pub:/var/task lambci/lambda:dotnetcore3.1 test::test.Function::FunctionHandler '{"some": "event"}'
 
+cd ${EXAMPLES_DIR}/dotnet6.0
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-dotnet6.0 dotnet publish -c Release -o pub
+docker run --rm -v "$PWD"/pub:/var/task lambci/lambda:dotnet6.0 test::test.Function::FunctionHandler '{"some": "event"}'
+
 cd ${EXAMPLES_DIR}/go1.x
 docker run --rm -v "$PWD":/go/src/handler lambci/lambda:build-go1.x sh -c 'go mod download && go build handler.go'
 docker run --rm -v "$PWD":/var/task lambci/lambda:go1.x handler '{"Records": []}'
