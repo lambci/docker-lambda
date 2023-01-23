@@ -190,11 +190,11 @@ You can also use [yumda](https://github.com/lambci/yumda) to install precompiled
 ## Run Examples
 
 ```sh
-# Test a `handler` function from an `index.js` file in the current directory on Node.js v12.x
-docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:nodejs12.x index.handler
+# Test a `handler` function from an `index.js` file in the current directory on Node.js v14.x
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:nodejs14.x index.handler
 
 # Using a different file and handler, with a custom event
-docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:nodejs12.x app.myHandler '{"some": "event"}'
+docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:nodejs14.x app.myHandler '{"some": "event"}'
 
 # Test a `lambda_handler` function in `lambda_function.py` with an empty event on Python 3.8
 docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:python3.8 lambda_function.lambda_handler
@@ -219,13 +219,13 @@ docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:dotnetcore3.1 tes
 docker run --rm -v "$PWD":/var/task:ro,delegated lambci/lambda:provided handler '{"some": "event"}'
 
 # Test with layers (assumes your function code is in `./fn` and your layers in `./layer`)
-docker run --rm -v "$PWD"/fn:/var/task:ro,delegated -v "$PWD"/layer:/opt:ro,delegated lambci/lambda:nodejs12.x
+docker run --rm -v "$PWD"/fn:/var/task:ro,delegated -v "$PWD"/layer:/opt:ro,delegated lambci/lambda:nodejs14.x
 
 # Run custom commands
-docker run --rm --entrypoint node lambci/lambda:nodejs12.x -v
+docker run --rm --entrypoint node lambci/lambda:nodejs14.x -v
 
 # For large events you can pipe them into stdin if you set DOCKER_LAMBDA_USE_STDIN
-echo '{"some": "event"}' | docker run --rm -v "$PWD":/var/task:ro,delegated -i -e DOCKER_LAMBDA_USE_STDIN=1 lambci/lambda:nodejs12.x
+echo '{"some": "event"}' | docker run --rm -v "$PWD":/var/task:ro,delegated -i -e DOCKER_LAMBDA_USE_STDIN=1 lambci/lambda:nodejs14.x
 ```
 
 You can see more examples of how to build docker images and run different
@@ -237,7 +237,7 @@ To use the build images, for compilation, deployment, etc:
 
 ```sh
 # To compile native deps in node_modules
-docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs12.x npm rebuild --build-from-source
+docker run --rm -v "$PWD":/var/task lambci/lambda:build-nodejs14.x npm rebuild --build-from-source
 
 # To install defined poetry dependencies
 docker run --rm -v "$PWD":/var/task lambci/lambda:build-python3.8 poetry install
@@ -261,7 +261,7 @@ docker run -it lambci/lambda:build-python3.8 bash
 Create your own Docker image to build and deploy:
 
 ```dockerfile
-FROM lambci/lambda:build-nodejs12.x
+FROM lambci/lambda:build-nodejs14.x
 
 ENV AWS_DEFAULT_REGION us-east-1
 
@@ -289,10 +289,10 @@ Using the Node.js module (`npm install docker-lambda`) – for example in tests:
 var dockerLambda = require('docker-lambda')
 
 // Spawns synchronously, uses current dir – will throw if it fails
-var lambdaCallbackResult = dockerLambda({event: {some: 'event'}, dockerImage: 'lambci/lambda:nodejs12.x'})
+var lambdaCallbackResult = dockerLambda({event: {some: 'event'}, dockerImage: 'lambci/lambda:nodejs14.x'})
 
 // Manually specify directory and custom args
-lambdaCallbackResult = dockerLambda({taskDir: __dirname, dockerArgs: ['-m', '1.5G'], dockerImage: 'lambci/lambda:nodejs12.x'})
+lambdaCallbackResult = dockerLambda({taskDir: __dirname, dockerArgs: ['-m', '1.5G'], dockerImage: 'lambci/lambda:nodejs14.x'})
 ```
 
 Options to pass to `dockerLambda()`:
@@ -315,6 +315,7 @@ These follow the Lambda runtime names:
   - `nodejs8.10`
   - `nodejs10.x`
   - `nodejs12.x`
+  - `nodejs14.x`
   - `python2.7`
   - `python3.6`
   - `python3.7`
@@ -335,6 +336,7 @@ These follow the Lambda runtime names:
   - `build-nodejs8.10`
   - `build-nodejs10.x`
   - `build-nodejs12.x`
+  - `build-nodejs14.x`
   - `build-python2.7`
   - `build-python3.6`
   - `build-python3.7`
