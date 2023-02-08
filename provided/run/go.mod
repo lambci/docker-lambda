@@ -6,4 +6,4 @@ require (
 	github.com/rjeczalik/notify v0.9.2
 )
 
-go 1.15
+go 1.17
